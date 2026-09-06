@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from controladores.programa_1_controller import procesar_sistema
+from controladores.programa_2_controller import (
+    procesar_programa_2
+)
 
 from utilidades.formato_interfaz import (
     nombre_variable,
@@ -9,17 +11,13 @@ from utilidades.formato_interfaz import (
 )
 
 
-class Programa1Interfaz(ttk.Frame):
+class Programa2Interfaz(ttk.Frame):
 
     def __init__(self, contenedor):
         super().__init__(contenedor)
 
         self.numero_ecuaciones = tk.StringVar()
         self.numero_variables = tk.StringVar()
-
-        self.metodo = tk.StringVar(
-            value="gauss"
-        )
 
         self.ecuaciones = 0
         self.variables = 0
@@ -30,12 +28,12 @@ class Programa1Interfaz(ttk.Frame):
 
         self.crear_interfaz()
 
-    # Construcción principal de la interfaz
+    # Construimos la interfaz del Programa 2
     def crear_interfaz(self):
 
         titulo = ttk.Label(
             self,
-            text="Programa 1 - Sistemas de Ecuaciones Lineales",
+            text="Programa 2 - Forma Escalonada Reducida",
             font=("Arial", 18, "bold")
         )
 
@@ -45,7 +43,10 @@ class Programa1Interfaz(ttk.Frame):
 
         subtitulo = ttk.Label(
             self,
-            text="Eliminación por filas",
+            text=(
+                "Gauss-Jordan e identificación "
+                "de columnas pivote"
+            ),
             font=("Arial", 12)
         )
 
@@ -53,7 +54,10 @@ class Programa1Interfaz(ttk.Frame):
             pady=(0, 20)
         )
 
-        # Contenedor para las dimensiones del sistema
+        # ==================================================
+        # DIMENSIONES DEL SISTEMA
+        # ==================================================
+
         marco_dimensiones = ttk.LabelFrame(
             self,
             text="Dimensiones del sistema",
@@ -65,66 +69,53 @@ class Programa1Interfaz(ttk.Frame):
             pady=10
         )
 
-        # Número de ecuaciones
-        lbl_ecuaciones = ttk.Label(
+        ttk.Label(
             marco_dimensiones,
             text="Número de ecuaciones:"
-        )
-
-        lbl_ecuaciones.grid(
+        ).grid(
             row=0,
             column=0,
             padx=10,
             pady=10
         )
 
-        txt_ecuaciones = ttk.Entry(
+        ttk.Entry(
             marco_dimensiones,
             textvariable=self.numero_ecuaciones,
             width=10
-        )
-
-        txt_ecuaciones.grid(
+        ).grid(
             row=0,
             column=1,
             padx=10,
             pady=10
         )
 
-        # Número de variables
-        lbl_variables = ttk.Label(
+        ttk.Label(
             marco_dimensiones,
             text="Número de variables:"
-        )
-
-        lbl_variables.grid(
+        ).grid(
             row=0,
             column=2,
             padx=10,
             pady=10
         )
 
-        txt_variables = ttk.Entry(
+        ttk.Entry(
             marco_dimensiones,
             textvariable=self.numero_variables,
             width=10
-        )
-
-        txt_variables.grid(
+        ).grid(
             row=0,
             column=3,
             padx=10,
             pady=10
         )
 
-        # Botón para crear la matriz
-        btn_crear = ttk.Button(
+        ttk.Button(
             marco_dimensiones,
             text="Crear matriz",
             command=self.validar_dimensiones
-        )
-
-        btn_crear.grid(
+        ).grid(
             row=0,
             column=4,
             padx=15,
@@ -141,72 +132,141 @@ class Programa1Interfaz(ttk.Frame):
             pady=10
         )
 
-        # Contenedor de la matriz aumentada
-        self.marco_matriz = ttk.LabelFrame(
+        # ==================================================
+        # MATRIZ AUMENTADA CON SCROLL
+        # ==================================================
+
+        self.marco_matriz_contenedor = ttk.LabelFrame(
             self,
             text="Matriz aumentada",
-            padding=15
+            padding=5
         )
 
-        # Contenedor de métodos y acciones
-        self.marco_acciones = ttk.LabelFrame(
-            self,
-            text="Método de resolución",
-            padding=10
+        self.marco_matriz_contenedor.rowconfigure(
+            0,
+            weight=1
         )
 
-        # Método Gauss
-        rb_gauss = ttk.Radiobutton(
-            self.marco_acciones,
-            text="Gauss",
-            variable=self.metodo,
-            value="gauss"
+        self.marco_matriz_contenedor.columnconfigure(
+            0,
+            weight=1
         )
 
-        rb_gauss.grid(
+        # Canvas que permite desplazamiento
+        self.canvas_matriz = tk.Canvas(
+            self.marco_matriz_contenedor,
+            height=220,
+            highlightthickness=0
+        )
+
+        self.canvas_matriz.grid(
             row=0,
             column=0,
-            padx=10,
-            pady=5
+            sticky="nsew"
         )
 
-        # Método Gauss-Jordan
-        rb_gauss_jordan = ttk.Radiobutton(
-            self.marco_acciones,
-            text="Gauss-Jordan",
-            variable=self.metodo,
-            value="gauss_jordan"
+        # Scroll vertical
+        self.scroll_matriz_vertical = ttk.Scrollbar(
+            self.marco_matriz_contenedor,
+            orient="vertical",
+            command=self.canvas_matriz.yview
         )
 
-        rb_gauss_jordan.grid(
+        self.scroll_matriz_vertical.grid(
             row=0,
             column=1,
-            padx=10,
-            pady=5
+            sticky="ns"
         )
 
-        # Botón resolver
-        btn_resolver = ttk.Button(
-            self.marco_acciones,
-            text="Resolver sistema",
-            command=self.resolver_desde_interfaz
+        # Scroll horizontal
+        self.scroll_matriz_horizontal = ttk.Scrollbar(
+            self.marco_matriz_contenedor,
+            orient="horizontal",
+            command=self.canvas_matriz.xview
         )
 
-        btn_resolver.grid(
-            row=0,
-            column=2,
-            padx=20,
-            pady=5
+        self.scroll_matriz_horizontal.grid(
+            row=1,
+            column=0,
+            sticky="ew"
         )
 
-        # Contenedor general de resultados
-        self.marco_resultado = ttk.LabelFrame(
+        self.canvas_matriz.config(
+            yscrollcommand=
+                self.scroll_matriz_vertical.set,
+
+            xscrollcommand=
+                self.scroll_matriz_horizontal.set
+        )
+
+        # Frame donde realmente se crean las casillas
+        self.marco_matriz = ttk.Frame(
+            self.canvas_matriz
+        )
+
+        self.canvas_matriz.create_window(
+            (0, 0),
+            window=self.marco_matriz,
+            anchor="nw"
+        )
+
+        self.marco_matriz.bind(
+            "<Configure>",
+            self.actualizar_scroll_matriz
+        )
+
+        # ==================================================
+        # ACCIONES
+        # ==================================================
+
+        self.marco_acciones = ttk.LabelFrame(
             self,
-            text="Resolución del sistema",
+            text="Procesamiento",
             padding=10
         )
 
-        # Pestañas
+        ttk.Label(
+            self.marco_acciones,
+            text="Método: Gauss-Jordan"
+        ).grid(
+            row=0,
+            column=0,
+            padx=15,
+            pady=5
+        )
+
+        ttk.Button(
+            self.marco_acciones,
+            text="Reducir matriz",
+            command=self.resolver_desde_interfaz
+        ).grid(
+            row=0,
+            column=1,
+            padx=15,
+            pady=5
+        )
+
+        ttk.Button(
+            self.marco_acciones,
+            text="Limpiar",
+            command=self.limpiar
+        ).grid(
+            row=0,
+            column=2,
+            padx=15,
+            pady=5
+        )
+
+        # ==================================================
+        # RESULTADOS
+        # ==================================================
+
+        self.marco_resultado = ttk.LabelFrame(
+            self,
+            text="Análisis de la matriz",
+            padding=10
+        )
+
         self.cuaderno_resultados = ttk.Notebook(
             self.marco_resultado
         )
@@ -216,12 +276,12 @@ class Programa1Interfaz(ttk.Frame):
             expand=True
         )
 
-        # Pestaña del resultado
+        # Pestaña Resultado
         self.pestana_resultado = ttk.Frame(
             self.cuaderno_resultados
         )
 
-        # Pestaña del procedimiento
+        # Pestaña Procedimiento
         self.pestana_procedimiento = ttk.Frame(
             self.cuaderno_resultados
         )
@@ -236,7 +296,10 @@ class Programa1Interfaz(ttk.Frame):
             text="Procedimiento"
         )
 
-        # Configuración de la pestaña Resultado
+        # ==================================================
+        # PESTAÑA RESULTADO
+        # ==================================================
+
         self.pestana_resultado.rowconfigure(
             0,
             weight=1
@@ -261,7 +324,7 @@ class Programa1Interfaz(ttk.Frame):
             sticky="nsew"
         )
 
-        # Scroll vertical de Resultado
+        # Scroll vertical del resultado
         scroll_resultado_vertical = ttk.Scrollbar(
             self.pestana_resultado,
             orient="vertical",
@@ -274,7 +337,7 @@ class Programa1Interfaz(ttk.Frame):
             sticky="ns"
         )
 
-        # Scroll horizontal de Resultado
+        # Scroll horizontal del resultado
         scroll_resultado_horizontal = ttk.Scrollbar(
             self.pestana_resultado,
             orient="horizontal",
@@ -288,11 +351,23 @@ class Programa1Interfaz(ttk.Frame):
         )
 
         self.txt_resultado.config(
-            yscrollcommand=scroll_resultado_vertical.set,
-            xscrollcommand=scroll_resultado_horizontal.set
+            yscrollcommand=
+                scroll_resultado_vertical.set,
+
+            xscrollcommand=
+                scroll_resultado_horizontal.set
         )
 
-        # Configuración de la pestaña Procedimiento
+        # Estilo visual para los pivotes
+        self.txt_resultado.tag_configure(
+            "pivote",
+            foreground="red"
+        )
+
+        # ==================================================
+        # PESTAÑA PROCEDIMIENTO
+        # ==================================================
+
         self.pestana_procedimiento.rowconfigure(
             0,
             weight=1
@@ -344,11 +419,25 @@ class Programa1Interfaz(ttk.Frame):
         )
 
         self.txt_historial.config(
-            yscrollcommand=scroll_historial_vertical.set,
-            xscrollcommand=scroll_historial_horizontal.set
+            yscrollcommand=
+                scroll_historial_vertical.set,
+
+            xscrollcommand=
+                scroll_historial_horizontal.set
         )
 
-    # Validamos el número de ecuaciones y variables
+    # Actualizamos el área desplazable de la matriz
+    def actualizar_scroll_matriz(
+        self,
+        evento=None
+    ):
+
+        self.canvas_matriz.configure(
+            scrollregion=
+                self.canvas_matriz.bbox("all")
+        )
+
+    # Validamos las dimensiones
     def validar_dimensiones(self):
 
         try:
@@ -390,62 +479,57 @@ class Programa1Interfaz(ttk.Frame):
                 "Debe ingresar números enteros."
             )
 
-    # Generamos las casillas de la matriz aumentada
+    # Creamos dinámicamente la matriz aumentada
     def crear_matriz(self):
 
         # Limpiamos una matriz anterior
         for elemento in self.marco_matriz.winfo_children():
+
             elemento.destroy()
 
         self.entradas_matriz = []
+        self.ultimo_resultado = None
 
         # Ocultamos resultados anteriores
         self.marco_resultado.pack_forget()
 
-        self.ultimo_resultado = None
-
-        # Mostramos el contenedor
-        self.marco_matriz.pack(
+        # Mostramos el contenedor de la matriz
+        self.marco_matriz_contenedor.pack(
             padx=20,
-            pady=15
+            pady=15,
+            fill="x"
         )
 
         # Encabezados x₁, x₂, x₃...
         for columna in range(self.variables):
 
-            encabezado = ttk.Label(
+            ttk.Label(
                 self.marco_matriz,
                 text=nombre_variable(
                     columna + 1
                 )
-            )
-
-            encabezado.grid(
+            ).grid(
                 row=0,
                 column=columna + 1,
                 padx=5,
                 pady=5
             )
 
-        # Separador de matriz aumentada
-        separador = ttk.Label(
+        # Separador de la matriz aumentada
+        ttk.Label(
             self.marco_matriz,
             text="|"
-        )
-
-        separador.grid(
+        ).grid(
             row=0,
             column=self.variables + 1,
             padx=5
         )
 
         # Término independiente
-        termino = ttk.Label(
+        ttk.Label(
             self.marco_matriz,
             text="b"
-        )
-
-        termino.grid(
+        ).grid(
             row=0,
             column=self.variables + 2,
             padx=5,
@@ -457,12 +541,11 @@ class Programa1Interfaz(ttk.Frame):
 
             fila_entradas = []
 
-            lbl_fila = ttk.Label(
+            # Nombre de la ecuación
+            ttk.Label(
                 self.marco_matriz,
                 text=f"E{fila + 1}"
-            )
-
-            lbl_fila.grid(
+            ).grid(
                 row=fila + 1,
                 column=0,
                 padx=5,
@@ -490,12 +573,10 @@ class Programa1Interfaz(ttk.Frame):
                 )
 
             # Separador visual
-            barra = ttk.Label(
+            ttk.Label(
                 self.marco_matriz,
                 text="|"
-            )
-
-            barra.grid(
+            ).grid(
                 row=fila + 1,
                 column=self.variables + 1,
                 padx=5
@@ -523,34 +604,48 @@ class Programa1Interfaz(ttk.Frame):
                 fila_entradas
             )
 
-        # Mostramos las opciones de resolución
+        # Actualizamos el área desplazable
+        self.update_idletasks()
+
+        self.actualizar_scroll_matriz()
+
+        # Regresamos al inicio del scroll
+        self.canvas_matriz.xview_moveto(
+            0
+        )
+
+        self.canvas_matriz.yview_moveto(
+            0
+        )
+
+        # Mostramos las acciones
         self.marco_acciones.pack(
             padx=20,
             pady=10
         )
 
-    # Leemos todos los valores ingresados
+    # Leemos los datos de la matriz
     def leer_datos_matriz(self):
 
         datos = []
 
         for fila in self.entradas_matriz:
 
-            valores_fila = []
+            valores = []
 
             for entrada in fila:
 
-                valores_fila.append(
+                valores.append(
                     entrada.get()
                 )
 
             datos.append(
-                valores_fila
+                valores
             )
 
         return datos
 
-    # Enviamos los datos al controlador
+    # Ejecutamos el Programa 2
     def resolver_desde_interfaz(self):
 
         try:
@@ -563,11 +658,10 @@ class Programa1Interfaz(ttk.Frame):
 
             datos = self.leer_datos_matriz()
 
-            resultado = procesar_sistema(
+            resultado = procesar_programa_2(
                 datos,
                 self.ecuaciones,
-                self.variables,
-                self.metodo.get()
+                self.variables
             )
 
             self.ultimo_resultado = resultado
@@ -595,6 +689,7 @@ class Programa1Interfaz(ttk.Frame):
         for fila in matriz:
 
             coeficientes = fila[:-1]
+
             termino_independiente = fila[-1]
 
             izquierda = "   ".join(
@@ -602,21 +697,142 @@ class Programa1Interfaz(ttk.Frame):
                 for valor in coeficientes
             )
 
-            linea = (
+            lineas.append(
                 f"[ {izquierda}  |  "
                 f"{termino_independiente} ]"
-            )
-
-            lineas.append(
-                linea
             )
 
         return "\n".join(
             lineas
         )
 
-    # Formateamos la verificación automática
-    def formatear_verificacion(self, verificacion):
+    # Insertamos una matriz y resaltamos sus pivotes
+    def insertar_matriz_con_pivotes(
+        self,
+        widget,
+        matriz,
+        posiciones_pivote=None
+    ):
+
+        if posiciones_pivote is None:
+
+            posiciones_pivote = []
+
+        posiciones = set(
+            posiciones_pivote
+        )
+
+        for i, fila in enumerate(
+            matriz
+        ):
+
+            widget.insert(
+                tk.END,
+                "[ "
+            )
+
+            # Coeficientes de las variables
+            for j in range(
+                len(fila) - 1
+            ):
+
+                valor = str(
+                    fila[j]
+                )
+
+                # Si la posición es pivote,
+                # mostramos el valor en rojo
+                if (i, j) in posiciones:
+
+                    widget.insert(
+                        tk.END,
+                        valor,
+                        "pivote"
+                    )
+
+                else:
+
+                    widget.insert(
+                        tk.END,
+                        valor
+                    )
+
+                if j < len(fila) - 2:
+
+                    widget.insert(
+                        tk.END,
+                        "   "
+                    )
+
+            # Separador de la matriz aumentada
+            widget.insert(
+                tk.END,
+                "  |  "
+            )
+
+            columna_aumentada = (
+                len(fila) - 1
+            )
+
+            termino_independiente = str(
+                fila[-1]
+            )
+
+            # También resaltamos un pivote
+            # en la columna aumentada
+            if (
+                i,
+                columna_aumentada
+            ) in posiciones:
+
+                widget.insert(
+                    tk.END,
+                    termino_independiente,
+                    "pivote"
+                )
+
+            else:
+
+                widget.insert(
+                    tk.END,
+                    termino_independiente
+                )
+
+            widget.insert(
+                tk.END,
+                " ]\n"
+            )
+
+    # Nombre visible del tipo de sistema
+    def nombre_tipo_sistema(
+        self,
+        tipo
+    ):
+
+        if tipo == "determinado":
+
+            return (
+                "Sistema Consistente Determinado\n"
+                "Presenta Solución Única"
+            )
+
+        if tipo == "indeterminado":
+
+            return (
+                "Sistema Consistente Indeterminado\n"
+                "Presenta Infinitas Soluciones"
+            )
+
+        return (
+            "Sistema Inconsistente\n"
+            "Sin Solución"
+        )
+
+    # Formateamos la verificación
+    def formatear_verificacion(
+        self,
+        verificacion
+    ):
 
         if not verificacion["aplica"]:
 
@@ -627,7 +843,9 @@ class Programa1Interfaz(ttk.Frame):
 
         lineas = []
 
-        for ecuacion in verificacion["ecuaciones"]:
+        for ecuacion in verificacion[
+            "ecuaciones"
+        ]:
 
             numero = ecuacion[
                 "ecuacion"
@@ -646,8 +864,11 @@ class Programa1Interfaz(ttk.Frame):
             ]
 
             if correcta:
+
                 estado = "Correcta"
+
             else:
+
                 estado = "Incorrecta"
 
             lineas.append(
@@ -676,7 +897,10 @@ class Programa1Interfaz(ttk.Frame):
         )
 
     # Mostramos el resultado final
-    def mostrar_resultado(self, resultado):
+    def mostrar_resultado(
+        self,
+        resultado
+    ):
 
         self.marco_resultado.pack(
             padx=20,
@@ -694,66 +918,66 @@ class Programa1Interfaz(ttk.Frame):
             tk.END
         )
 
-        metodo = resultado[
-            "metodo"
+        # Datos recibidos desde la lógica
+        matriz_original = resultado[
+            "matriz_original"
         ]
 
-        clasificacion = resultado[
-            "clasificacion"
+        matriz_reducida = resultado[
+            "matriz_reducida"
+        ]
+
+        columnas_pivote = resultado[
+            "columnas_pivote"
+        ]
+
+        posiciones_pivote = resultado[
+            "posiciones_pivote"
+        ]
+
+        pivote_columna_aumentada = resultado[
+            "pivote_columna_aumentada"
+        ]
+
+        variables_basicas = resultado[
+            "variables_basicas"
+        ]
+
+        variables_libres = resultado[
+            "variables_libres"
+        ]
+
+        tipo = resultado[
+            "tipo"
         ]
 
         solucion = resultado[
             "solucion_formateada"
         ]
 
-        matriz_original = resultado[
-            "matriz_original"
-        ]
-
-        matriz_resultado = resultado[
-            "matriz_resultado"
-        ]
-
         verificacion = resultado[
             "verificacion"
         ]
 
-        # Nombre visible del método
-        if metodo == "gauss":
+        # Columnas pivote
+        columnas_texto = []
 
-            nombre_metodo = "Gauss"
+        for columna in columnas_pivote:
 
-            nombre_matriz_final = (
-                "Matriz escalonada"
+            columnas_texto.append(
+                str(columna + 1)
             )
 
-        else:
+        # Posiciones pivote
+        posiciones_texto = []
 
-            nombre_metodo = "Gauss-Jordan"
+        for fila, columna in posiciones_pivote:
 
-            nombre_matriz_final = (
-                "Matriz escalonada reducida"
+            posiciones_texto.append(
+                f"({fila + 1}, {columna + 1})"
             )
 
-        nombre_clasificacion = clasificacion[
-            "nombre"
-        ]
-
-        descripcion = clasificacion[
-            "descripcion"
-        ]
-
-        variables_basicas = clasificacion.get(
-            "variables_basicas",
-            []
-        )
-
-        variables_libres = clasificacion.get(
-            "variables_libres",
-            []
-        )
-
-        # Variables básicas usando x₁, x₂...
+        # Variables básicas
         basicas_texto = []
 
         for variable in variables_basicas:
@@ -764,7 +988,7 @@ class Programa1Interfaz(ttk.Frame):
                 )
             )
 
-        # Variables libres usando x₁, x₂...
+        # Variables libres
         libres_texto = []
 
         for variable in variables_libres:
@@ -775,46 +999,125 @@ class Programa1Interfaz(ttk.Frame):
                 )
             )
 
-        # Construimos el resumen
-        texto = (
-            f"Método utilizado: {nombre_metodo}\n\n"
-            f"Clasificación del sistema:\n"
-            f"{nombre_clasificacion}\n"
-            f"{descripcion}\n\n"
+        # Método utilizado
+        self.txt_resultado.insert(
+            tk.END,
+            "Método utilizado: Gauss-Jordan\n\n"
         )
 
-        # Variables básicas
-        if basicas_texto:
+        # Clasificación
+        self.txt_resultado.insert(
+            tk.END,
+            "Clasificación del sistema:\n"
+        )
 
-            texto += (
-                "Variables básicas: "
-                + ", ".join(basicas_texto)
-                + "\n"
+        self.txt_resultado.insert(
+            tk.END,
+            (
+                self.nombre_tipo_sistema(
+                    tipo
+                )
+                + "\n\n"
+            )
+        )
+
+        # Columnas pivote de variables
+        if columnas_texto:
+
+            self.txt_resultado.insert(
+                tk.END,
+                (
+                    "Columnas pivote de las variables: "
+                    + ", ".join(columnas_texto)
+                    + "\n"
+                )
             )
 
         else:
 
-            texto += (
+            self.txt_resultado.insert(
+                tk.END,
+                (
+                    "Columnas pivote de las variables: "
+                    "Ninguna\n"
+                )
+            )
+
+        # Pivote en columna aumentada
+        if pivote_columna_aumentada:
+
+            self.txt_resultado.insert(
+                tk.END,
+                "Pivote en la columna aumentada: Sí\n"
+            )
+
+        else:
+
+            self.txt_resultado.insert(
+                tk.END,
+                "Pivote en la columna aumentada: No\n"
+            )
+
+        # Posiciones pivote
+        if posiciones_texto:
+
+            self.txt_resultado.insert(
+                tk.END,
+                (
+                    "Posiciones pivote: "
+                    + ", ".join(posiciones_texto)
+                    + "\n"
+                )
+            )
+
+        else:
+
+            self.txt_resultado.insert(
+                tk.END,
+                "Posiciones pivote: Ninguna\n"
+            )
+
+        # Variables básicas
+        if basicas_texto:
+
+            self.txt_resultado.insert(
+                tk.END,
+                (
+                    "Variables básicas: "
+                    + ", ".join(basicas_texto)
+                    + "\n"
+                )
+            )
+
+        else:
+
+            self.txt_resultado.insert(
+                tk.END,
                 "Variables básicas: Ninguna\n"
             )
 
         # Variables libres
         if libres_texto:
 
-            texto += (
-                "Variables libres: "
-                + ", ".join(libres_texto)
-                + "\n"
+            self.txt_resultado.insert(
+                tk.END,
+                (
+                    "Variables libres: "
+                    + ", ".join(libres_texto)
+                    + "\n"
+                )
             )
 
         else:
 
-            texto += (
+            self.txt_resultado.insert(
+                tk.END,
                 "Variables libres: Ninguna\n"
             )
 
         # Solución
-        texto += (
+        self.txt_resultado.insert(
+            tk.END,
             "\nSolución:\n"
         )
 
@@ -825,70 +1128,97 @@ class Programa1Interfaz(ttk.Frame):
 
             for linea in solucion:
 
-                texto += (
-                    formatear_texto_matematico(
-                        linea
+                self.txt_resultado.insert(
+                    tk.END,
+                    (
+                        formatear_texto_matematico(
+                            linea
+                        )
+                        + "\n"
                     )
-                    + "\n"
                 )
 
         else:
 
-            texto += (
-                formatear_texto_matematico(
-                    solucion
+            self.txt_resultado.insert(
+                tk.END,
+                (
+                    formatear_texto_matematico(
+                        solucion
+                    )
+                    + "\n"
                 )
-                + "\n"
             )
 
-        # Matriz inicial
-        texto += (
+        # Matriz aumentada inicial
+        self.txt_resultado.insert(
+            tk.END,
             "\nMatriz aumentada inicial:\n"
         )
 
-        texto += self.formatear_matriz(
+        self.insertar_matriz_con_pivotes(
+            self.txt_resultado,
             matriz_original
         )
 
-        # Matriz final
-        texto += (
-            f"\n\n{nombre_matriz_final}:\n"
+        # RREF
+        self.txt_resultado.insert(
+            tk.END,
+            (
+                "\nForma Escalonada Reducida "
+                "por Filas (RREF):\n"
+            )
         )
 
-        texto += self.formatear_matriz(
-            matriz_resultado
+        # Aquí resaltamos los pivotes en rojo
+        self.insertar_matriz_con_pivotes(
+            self.txt_resultado,
+            matriz_reducida,
+            posiciones_pivote
         )
 
-        # Verificación
-        texto += (
-            "\n\nVerificación de la solución:\n"
+        # Leyenda
+        self.txt_resultado.insert(
+            tk.END,
+            (
+                "\nLos valores mostrados en rojo "
+                "corresponden a posiciones pivote.\n"
+            )
         )
 
-        texto += self.formatear_verificacion(
-            verificacion
+        # Verificación final
+        self.txt_resultado.insert(
+            tk.END,
+            "\nVerificación de la solución:\n"
         )
 
         self.txt_resultado.insert(
             tk.END,
-            texto
+            self.formatear_verificacion(
+                verificacion
+            )
         )
 
+        # Bloqueamos nuevamente el Text
         self.txt_resultado.config(
             state="disabled"
         )
 
-        # Regresamos al inicio del resultado
+        # Regresamos al inicio
         self.txt_resultado.see(
             "1.0"
         )
 
-        # Seleccionamos automáticamente la pestaña Resultado
+        # Seleccionamos Resultado
         self.cuaderno_resultados.select(
             self.pestana_resultado
         )
 
-    # Mostramos las operaciones por filas paso a paso
-    def mostrar_historial(self, resultado):
+    # Mostramos el procedimiento completo
+    def mostrar_historial(
+        self,
+        resultado
+    ):
 
         historial = resultado[
             "historial"
@@ -903,7 +1233,7 @@ class Programa1Interfaz(ttk.Frame):
             tk.END
         )
 
-        # Si no hay pasos registrados
+        # Si no existen operaciones
         if not historial:
 
             self.txt_historial.insert(
@@ -917,28 +1247,16 @@ class Programa1Interfaz(ttk.Frame):
 
             return
 
-        lineas = []
-
-        lineas.append(
-            "PROCEDIMIENTO DE ELIMINACIÓN POR FILAS"
-        )
-
-        lineas.append(
-            "=" * 45
-        )
-
-        lineas.append(
+        lineas = [
+            "PROCEDIMIENTO DE GAUSS-JORDAN",
+            "=" * 45,
             ""
-        )
+        ]
 
-        # Recorremos cada paso
-        for indice in range(
-            len(historial)
+        # Recorremos todos los pasos
+        for indice, paso in enumerate(
+            historial
         ):
-
-            paso = historial[
-                indice
-            ]
 
             operacion = paso.get(
                 "operacion",
@@ -990,7 +1308,7 @@ class Programa1Interfaz(ttk.Frame):
                     "No hay matriz registrada."
                 )
 
-            # Verificación interna del paso
+            # Verificación del paso
             if verificada is True:
 
                 lineas.append(
@@ -1019,20 +1337,88 @@ class Programa1Interfaz(ttk.Frame):
             "Fin del procedimiento."
         )
 
-        texto_historial = "\n".join(
-            lineas
-        )
-
         self.txt_historial.insert(
             tk.END,
-            texto_historial
+            "\n".join(lineas)
         )
 
         self.txt_historial.config(
             state="disabled"
         )
 
-        # Mostramos el procedimiento desde el inicio
+        # Regresamos al inicio
         self.txt_historial.see(
             "1.0"
+        )
+
+    # Limpiamos completamente Programa 2
+    def limpiar(self):
+
+        self.numero_ecuaciones.set("")
+        self.numero_variables.set("")
+
+        self.ecuaciones = 0
+        self.variables = 0
+
+        self.entradas_matriz = []
+
+        self.ultimo_resultado = None
+
+        # Eliminamos las casillas
+        for elemento in self.marco_matriz.winfo_children():
+
+            elemento.destroy()
+
+        # Reiniciamos los scroll
+        self.canvas_matriz.xview_moveto(
+            0
+        )
+
+        self.canvas_matriz.yview_moveto(
+            0
+        )
+
+        # Ocultamos secciones
+        self.marco_matriz_contenedor.pack_forget()
+
+        self.marco_acciones.pack_forget()
+
+        self.marco_resultado.pack_forget()
+
+        # Limpiamos el estado
+        self.lbl_estado.config(
+            text=""
+        )
+
+        # Limpiamos Resultado
+        self.txt_resultado.config(
+            state="normal"
+        )
+
+        self.txt_resultado.delete(
+            "1.0",
+            tk.END
+        )
+
+        self.txt_resultado.config(
+            state="disabled"
+        )
+
+        # Limpiamos Procedimiento
+        self.txt_historial.config(
+            state="normal"
+        )
+
+        self.txt_historial.delete(
+            "1.0",
+            tk.END
+        )
+
+        self.txt_historial.config(
+            state="disabled"
+        )
+
+        # Regresamos a la pestaña Resultado
+        self.cuaderno_resultados.select(
+            self.pestana_resultado
         )
