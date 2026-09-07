@@ -23,22 +23,22 @@ class Programa2Interfaz(ttk.Frame):
         self.variables = 0
 
         self.entradas_matriz = []
-
         self.ultimo_resultado = None
 
         self.crear_interfaz()
 
-    # Construimos la interfaz del Programa 2
+    # Construimos la interfaz
     def crear_interfaz(self):
 
+        # Título compacto
         titulo = ttk.Label(
             self,
             text="Programa 2 - Forma Escalonada Reducida",
-            font=("Arial", 18, "bold")
+            font=("Arial", 16, "bold")
         )
 
         titulo.pack(
-            pady=(20, 5)
+            pady=(8, 2)
         )
 
         subtitulo = ttk.Label(
@@ -47,26 +47,26 @@ class Programa2Interfaz(ttk.Frame):
                 "Gauss-Jordan e identificación "
                 "de columnas pivote"
             ),
-            font=("Arial", 12)
+            font=("Arial", 10)
         )
 
         subtitulo.pack(
-            pady=(0, 20)
+            pady=(0, 6)
         )
 
         # ==================================================
-        # DIMENSIONES DEL SISTEMA
+        # DIMENSIONES
         # ==================================================
 
         marco_dimensiones = ttk.LabelFrame(
             self,
             text="Dimensiones del sistema",
-            padding=15
+            padding=8
         )
 
         marco_dimensiones.pack(
-            padx=20,
-            pady=10
+            padx=15,
+            pady=5
         )
 
         ttk.Label(
@@ -75,19 +75,19 @@ class Programa2Interfaz(ttk.Frame):
         ).grid(
             row=0,
             column=0,
-            padx=10,
-            pady=10
+            padx=8,
+            pady=5
         )
 
         ttk.Entry(
             marco_dimensiones,
             textvariable=self.numero_ecuaciones,
-            width=10
+            width=8
         ).grid(
             row=0,
             column=1,
-            padx=10,
-            pady=10
+            padx=8,
+            pady=5
         )
 
         ttk.Label(
@@ -96,19 +96,19 @@ class Programa2Interfaz(ttk.Frame):
         ).grid(
             row=0,
             column=2,
-            padx=10,
-            pady=10
+            padx=8,
+            pady=5
         )
 
         ttk.Entry(
             marco_dimensiones,
             textvariable=self.numero_variables,
-            width=10
+            width=8
         ).grid(
             row=0,
             column=3,
-            padx=10,
-            pady=10
+            padx=8,
+            pady=5
         )
 
         ttk.Button(
@@ -118,28 +118,28 @@ class Programa2Interfaz(ttk.Frame):
         ).grid(
             row=0,
             column=4,
-            padx=15,
-            pady=10
+            padx=10,
+            pady=5
         )
 
-        # Mensaje de estado
+        # Estado
         self.lbl_estado = ttk.Label(
             self,
             text=""
         )
 
         self.lbl_estado.pack(
-            pady=10
+            pady=3
         )
 
         # ==================================================
-        # MATRIZ AUMENTADA CON SCROLL
+        # MATRIZ AUMENTADA
         # ==================================================
 
         self.marco_matriz_contenedor = ttk.LabelFrame(
             self,
             text="Matriz aumentada",
-            padding=5
+            padding=4
         )
 
         self.marco_matriz_contenedor.rowconfigure(
@@ -152,10 +152,9 @@ class Programa2Interfaz(ttk.Frame):
             weight=1
         )
 
-        # Canvas que permite desplazamiento
         self.canvas_matriz = tk.Canvas(
             self.marco_matriz_contenedor,
-            height=220,
+            height=100,
             highlightthickness=0
         )
 
@@ -165,7 +164,6 @@ class Programa2Interfaz(ttk.Frame):
             sticky="nsew"
         )
 
-        # Scroll vertical
         self.scroll_matriz_vertical = ttk.Scrollbar(
             self.marco_matriz_contenedor,
             orient="vertical",
@@ -178,7 +176,6 @@ class Programa2Interfaz(ttk.Frame):
             sticky="ns"
         )
 
-        # Scroll horizontal
         self.scroll_matriz_horizontal = ttk.Scrollbar(
             self.marco_matriz_contenedor,
             orient="horizontal",
@@ -199,15 +196,16 @@ class Programa2Interfaz(ttk.Frame):
                 self.scroll_matriz_horizontal.set
         )
 
-        # Frame donde realmente se crean las casillas
         self.marco_matriz = ttk.Frame(
             self.canvas_matriz
         )
 
-        self.canvas_matriz.create_window(
-            (0, 0),
-            window=self.marco_matriz,
-            anchor="nw"
+        self.id_matriz_canvas = (
+            self.canvas_matriz.create_window(
+                (0, 0),
+                window=self.marco_matriz,
+                anchor="nw"
+            )
         )
 
         self.marco_matriz.bind(
@@ -222,7 +220,7 @@ class Programa2Interfaz(ttk.Frame):
         self.marco_acciones = ttk.LabelFrame(
             self,
             text="Procesamiento",
-            padding=10
+            padding=6
         )
 
         ttk.Label(
@@ -231,8 +229,8 @@ class Programa2Interfaz(ttk.Frame):
         ).grid(
             row=0,
             column=0,
-            padx=15,
-            pady=5
+            padx=10,
+            pady=3
         )
 
         ttk.Button(
@@ -242,8 +240,8 @@ class Programa2Interfaz(ttk.Frame):
         ).grid(
             row=0,
             column=1,
-            padx=15,
-            pady=5
+            padx=10,
+            pady=3
         )
 
         ttk.Button(
@@ -253,8 +251,8 @@ class Programa2Interfaz(ttk.Frame):
         ).grid(
             row=0,
             column=2,
-            padx=15,
-            pady=5
+            padx=10,
+            pady=3
         )
 
         # ==================================================
@@ -264,7 +262,7 @@ class Programa2Interfaz(ttk.Frame):
         self.marco_resultado = ttk.LabelFrame(
             self,
             text="Análisis de la matriz",
-            padding=10
+            padding=5
         )
 
         self.cuaderno_resultados = ttk.Notebook(
@@ -276,12 +274,10 @@ class Programa2Interfaz(ttk.Frame):
             expand=True
         )
 
-        # Pestaña Resultado
         self.pestana_resultado = ttk.Frame(
             self.cuaderno_resultados
         )
 
-        # Pestaña Procedimiento
         self.pestana_procedimiento = ttk.Frame(
             self.cuaderno_resultados
         )
@@ -296,10 +292,7 @@ class Programa2Interfaz(ttk.Frame):
             text="Procedimiento"
         )
 
-        # ==================================================
-        # PESTAÑA RESULTADO
-        # ==================================================
-
+        # Resultado
         self.pestana_resultado.rowconfigure(
             0,
             weight=1
@@ -313,7 +306,7 @@ class Programa2Interfaz(ttk.Frame):
         self.txt_resultado = tk.Text(
             self.pestana_resultado,
             width=80,
-            height=16,
+            height=10,
             wrap="none",
             state="disabled"
         )
@@ -324,7 +317,6 @@ class Programa2Interfaz(ttk.Frame):
             sticky="nsew"
         )
 
-        # Scroll vertical del resultado
         scroll_resultado_vertical = ttk.Scrollbar(
             self.pestana_resultado,
             orient="vertical",
@@ -337,7 +329,6 @@ class Programa2Interfaz(ttk.Frame):
             sticky="ns"
         )
 
-        # Scroll horizontal del resultado
         scroll_resultado_horizontal = ttk.Scrollbar(
             self.pestana_resultado,
             orient="horizontal",
@@ -358,16 +349,13 @@ class Programa2Interfaz(ttk.Frame):
                 scroll_resultado_horizontal.set
         )
 
-        # Estilo visual para los pivotes
+        # Pivotes en rojo
         self.txt_resultado.tag_configure(
             "pivote",
             foreground="red"
         )
 
-        # ==================================================
-        # PESTAÑA PROCEDIMIENTO
-        # ==================================================
-
+        # Procedimiento
         self.pestana_procedimiento.rowconfigure(
             0,
             weight=1
@@ -381,7 +369,7 @@ class Programa2Interfaz(ttk.Frame):
         self.txt_historial = tk.Text(
             self.pestana_procedimiento,
             width=80,
-            height=16,
+            height=10,
             wrap="none",
             state="disabled"
         )
@@ -392,7 +380,6 @@ class Programa2Interfaz(ttk.Frame):
             sticky="nsew"
         )
 
-        # Scroll vertical del historial
         scroll_historial_vertical = ttk.Scrollbar(
             self.pestana_procedimiento,
             orient="vertical",
@@ -405,7 +392,6 @@ class Programa2Interfaz(ttk.Frame):
             sticky="ns"
         )
 
-        # Scroll horizontal del historial
         scroll_historial_horizontal = ttk.Scrollbar(
             self.pestana_procedimiento,
             orient="horizontal",
@@ -426,7 +412,7 @@ class Programa2Interfaz(ttk.Frame):
                 scroll_historial_horizontal.set
         )
 
-    # Actualizamos el área desplazable de la matriz
+    # Ajustamos el área desplazable
     def actualizar_scroll_matriz(
         self,
         evento=None
@@ -437,7 +423,23 @@ class Programa2Interfaz(ttk.Frame):
                 self.canvas_matriz.bbox("all")
         )
 
-    # Validamos las dimensiones
+    # Altura dinámica según cantidad de ecuaciones
+    def calcular_altura_matriz(self):
+
+        altura = (
+            45
+            + self.ecuaciones * 28
+        )
+
+        if altura < 90:
+            altura = 90
+
+        if altura > 180:
+            altura = 180
+
+        return altura
+
+    # Validamos dimensiones
     def validar_dimensiones(self):
 
         try:
@@ -479,10 +481,9 @@ class Programa2Interfaz(ttk.Frame):
                 "Debe ingresar números enteros."
             )
 
-    # Creamos dinámicamente la matriz aumentada
+    # Creamos la matriz
     def crear_matriz(self):
 
-        # Limpiamos una matriz anterior
         for elemento in self.marco_matriz.winfo_children():
 
             elemento.destroy()
@@ -490,17 +491,21 @@ class Programa2Interfaz(ttk.Frame):
         self.entradas_matriz = []
         self.ultimo_resultado = None
 
-        # Ocultamos resultados anteriores
         self.marco_resultado.pack_forget()
 
-        # Mostramos el contenedor de la matriz
+        # Ajustamos altura según filas
+        self.canvas_matriz.config(
+            height=
+                self.calcular_altura_matriz()
+        )
+
         self.marco_matriz_contenedor.pack(
-            padx=20,
-            pady=15,
+            padx=15,
+            pady=5,
             fill="x"
         )
 
-        # Encabezados x₁, x₂, x₃...
+        # Encabezados
         for columna in range(self.variables):
 
             ttk.Label(
@@ -511,105 +516,97 @@ class Programa2Interfaz(ttk.Frame):
             ).grid(
                 row=0,
                 column=columna + 1,
-                padx=5,
-                pady=5
+                padx=4,
+                pady=3
             )
 
-        # Separador de la matriz aumentada
         ttk.Label(
             self.marco_matriz,
             text="|"
         ).grid(
             row=0,
             column=self.variables + 1,
-            padx=5
+            padx=4
         )
 
-        # Término independiente
         ttk.Label(
             self.marco_matriz,
             text="b"
         ).grid(
             row=0,
             column=self.variables + 2,
-            padx=5,
-            pady=5
+            padx=4,
+            pady=3
         )
 
-        # Creamos las filas
+        # Filas
         for fila in range(self.ecuaciones):
 
             fila_entradas = []
 
-            # Nombre de la ecuación
             ttk.Label(
                 self.marco_matriz,
                 text=f"E{fila + 1}"
             ).grid(
                 row=fila + 1,
                 column=0,
-                padx=5,
-                pady=5
+                padx=4,
+                pady=3
             )
 
-            # Coeficientes
             for columna in range(self.variables):
 
                 entrada = ttk.Entry(
                     self.marco_matriz,
-                    width=8,
+                    width=7,
                     justify="center"
                 )
 
                 entrada.grid(
                     row=fila + 1,
                     column=columna + 1,
-                    padx=5,
-                    pady=5
+                    padx=4,
+                    pady=3
                 )
 
                 fila_entradas.append(
                     entrada
                 )
 
-            # Separador visual
             ttk.Label(
                 self.marco_matriz,
                 text="|"
             ).grid(
                 row=fila + 1,
                 column=self.variables + 1,
-                padx=5
+                padx=4
             )
 
-            # Término independiente
-            entrada_independiente = ttk.Entry(
+            entrada_b = ttk.Entry(
                 self.marco_matriz,
-                width=8,
+                width=7,
                 justify="center"
             )
 
-            entrada_independiente.grid(
+            entrada_b.grid(
                 row=fila + 1,
                 column=self.variables + 2,
-                padx=5,
-                pady=5
+                padx=4,
+                pady=3
             )
 
             fila_entradas.append(
-                entrada_independiente
+                entrada_b
             )
 
             self.entradas_matriz.append(
                 fila_entradas
             )
 
-        # Actualizamos el área desplazable
         self.update_idletasks()
 
         self.actualizar_scroll_matriz()
 
-        # Regresamos al inicio del scroll
         self.canvas_matriz.xview_moveto(
             0
         )
@@ -618,13 +615,12 @@ class Programa2Interfaz(ttk.Frame):
             0
         )
 
-        # Mostramos las acciones
         self.marco_acciones.pack(
-            padx=20,
-            pady=10
+            padx=15,
+            pady=5
         )
 
-    # Leemos los datos de la matriz
+    # Leemos la matriz
     def leer_datos_matriz(self):
 
         datos = []
@@ -645,7 +641,7 @@ class Programa2Interfaz(ttk.Frame):
 
         return datos
 
-    # Ejecutamos el Programa 2
+    # Ejecutamos Programa 2
     def resolver_desde_interfaz(self):
 
         try:
@@ -681,32 +677,30 @@ class Programa2Interfaz(ttk.Frame):
                 str(error)
             )
 
-    # Convertimos una matriz a texto
-    def formatear_matriz(self, matriz):
+    # Formateamos una matriz
+    def formatear_matriz(
+        self,
+        matriz
+    ):
 
         lineas = []
 
         for fila in matriz:
 
-            coeficientes = fila[:-1]
-
-            termino_independiente = fila[-1]
-
             izquierda = "   ".join(
                 str(valor)
-                for valor in coeficientes
+                for valor in fila[:-1]
             )
 
             lineas.append(
-                f"[ {izquierda}  |  "
-                f"{termino_independiente} ]"
+                f"[ {izquierda}  |  {fila[-1]} ]"
             )
 
         return "\n".join(
             lineas
         )
 
-    # Insertamos una matriz y resaltamos sus pivotes
+    # Insertamos matriz con pivotes en rojo
     def insertar_matriz_con_pivotes(
         self,
         widget,
@@ -722,16 +716,13 @@ class Programa2Interfaz(ttk.Frame):
             posiciones_pivote
         )
 
-        for i, fila in enumerate(
-            matriz
-        ):
+        for i, fila in enumerate(matriz):
 
             widget.insert(
                 tk.END,
                 "[ "
             )
 
-            # Coeficientes de las variables
             for j in range(
                 len(fila) - 1
             ):
@@ -740,8 +731,6 @@ class Programa2Interfaz(ttk.Frame):
                     fila[j]
                 )
 
-                # Si la posición es pivote,
-                # mostramos el valor en rojo
                 if (i, j) in posiciones:
 
                     widget.insert(
@@ -764,7 +753,6 @@ class Programa2Interfaz(ttk.Frame):
                         "   "
                     )
 
-            # Separador de la matriz aumentada
             widget.insert(
                 tk.END,
                 "  |  "
@@ -774,12 +762,10 @@ class Programa2Interfaz(ttk.Frame):
                 len(fila) - 1
             )
 
-            termino_independiente = str(
+            termino = str(
                 fila[-1]
             )
 
-            # También resaltamos un pivote
-            # en la columna aumentada
             if (
                 i,
                 columna_aumentada
@@ -787,7 +773,7 @@ class Programa2Interfaz(ttk.Frame):
 
                 widget.insert(
                     tk.END,
-                    termino_independiente,
+                    termino,
                     "pivote"
                 )
 
@@ -795,7 +781,7 @@ class Programa2Interfaz(ttk.Frame):
 
                 widget.insert(
                     tk.END,
-                    termino_independiente
+                    termino
                 )
 
             widget.insert(
@@ -803,7 +789,7 @@ class Programa2Interfaz(ttk.Frame):
                 " ]\n"
             )
 
-    # Nombre visible del tipo de sistema
+    # Nombre del tipo de sistema
     def nombre_tipo_sistema(
         self,
         tipo
@@ -847,34 +833,16 @@ class Programa2Interfaz(ttk.Frame):
             "ecuaciones"
         ]:
 
-            numero = ecuacion[
-                "ecuacion"
-            ]
-
-            lado_izquierdo = ecuacion[
-                "lado_izquierdo"
-            ]
-
-            lado_derecho = ecuacion[
-                "lado_derecho"
-            ]
-
-            correcta = ecuacion[
-                "correcta"
-            ]
-
-            if correcta:
-
-                estado = "Correcta"
-
-            else:
-
-                estado = "Incorrecta"
+            estado = (
+                "Correcta"
+                if ecuacion["correcta"]
+                else "Incorrecta"
+            )
 
             lineas.append(
-                f"Ecuación {numero}: "
-                f"{lado_izquierdo} = "
-                f"{lado_derecho} "
+                f"Ecuación {ecuacion['ecuacion']}: "
+                f"{ecuacion['lado_izquierdo']} = "
+                f"{ecuacion['lado_derecho']} "
                 f"({estado})"
             )
 
@@ -896,15 +864,15 @@ class Programa2Interfaz(ttk.Frame):
             lineas
         )
 
-    # Mostramos el resultado final
+    # Mostramos resultados
     def mostrar_resultado(
         self,
         resultado
     ):
 
         self.marco_resultado.pack(
-            padx=20,
-            pady=15,
+            padx=15,
+            pady=(5, 8),
             fill="both",
             expand=True
         )
@@ -918,7 +886,6 @@ class Programa2Interfaz(ttk.Frame):
             tk.END
         )
 
-        # Datos recibidos desde la lógica
         matriz_original = resultado[
             "matriz_original"
         ]
@@ -935,7 +902,7 @@ class Programa2Interfaz(ttk.Frame):
             "posiciones_pivote"
         ]
 
-        pivote_columna_aumentada = resultado[
+        pivote_aumentada = resultado[
             "pivote_columna_aumentada"
         ]
 
@@ -959,53 +926,35 @@ class Programa2Interfaz(ttk.Frame):
             "verificacion"
         ]
 
-        # Columnas pivote
-        columnas_texto = []
+        columnas_texto = [
+            str(columna + 1)
+            for columna in columnas_pivote
+        ]
 
-        for columna in columnas_pivote:
+        posiciones_texto = [
+            f"({fila + 1}, {columna + 1})"
+            for fila, columna in posiciones_pivote
+        ]
 
-            columnas_texto.append(
-                str(columna + 1)
+        basicas_texto = [
+            nombre_variable(
+                variable + 1
             )
+            for variable in variables_basicas
+        ]
 
-        # Posiciones pivote
-        posiciones_texto = []
-
-        for fila, columna in posiciones_pivote:
-
-            posiciones_texto.append(
-                f"({fila + 1}, {columna + 1})"
+        libres_texto = [
+            nombre_variable(
+                variable + 1
             )
+            for variable in variables_libres
+        ]
 
-        # Variables básicas
-        basicas_texto = []
-
-        for variable in variables_basicas:
-
-            basicas_texto.append(
-                nombre_variable(
-                    variable + 1
-                )
-            )
-
-        # Variables libres
-        libres_texto = []
-
-        for variable in variables_libres:
-
-            libres_texto.append(
-                nombre_variable(
-                    variable + 1
-                )
-            )
-
-        # Método utilizado
         self.txt_resultado.insert(
             tk.END,
             "Método utilizado: Gauss-Jordan\n\n"
         )
 
-        # Clasificación
         self.txt_resultado.insert(
             tk.END,
             "Clasificación del sistema:\n"
@@ -1013,144 +962,92 @@ class Programa2Interfaz(ttk.Frame):
 
         self.txt_resultado.insert(
             tk.END,
+            self.nombre_tipo_sistema(
+                tipo
+            )
+            + "\n\n"
+        )
+
+        self.txt_resultado.insert(
+            tk.END,
             (
-                self.nombre_tipo_sistema(
-                    tipo
+                "Columnas pivote de las variables: "
+                + (
+                    ", ".join(columnas_texto)
+                    if columnas_texto
+                    else "Ninguna"
                 )
-                + "\n\n"
+                + "\n"
             )
         )
 
-        # Columnas pivote de variables
-        if columnas_texto:
-
-            self.txt_resultado.insert(
-                tk.END,
-                (
-                    "Columnas pivote de las variables: "
-                    + ", ".join(columnas_texto)
-                    + "\n"
+        self.txt_resultado.insert(
+            tk.END,
+            (
+                "Pivote en la columna aumentada: "
+                + (
+                    "Sí"
+                    if pivote_aumentada
+                    else "No"
                 )
+                + "\n"
             )
+        )
 
-        else:
-
-            self.txt_resultado.insert(
-                tk.END,
-                (
-                    "Columnas pivote de las variables: "
-                    "Ninguna\n"
+        self.txt_resultado.insert(
+            tk.END,
+            (
+                "Posiciones pivote: "
+                + (
+                    ", ".join(posiciones_texto)
+                    if posiciones_texto
+                    else "Ninguna"
                 )
+                + "\n"
             )
+        )
 
-        # Pivote en columna aumentada
-        if pivote_columna_aumentada:
-
-            self.txt_resultado.insert(
-                tk.END,
-                "Pivote en la columna aumentada: Sí\n"
-            )
-
-        else:
-
-            self.txt_resultado.insert(
-                tk.END,
-                "Pivote en la columna aumentada: No\n"
-            )
-
-        # Posiciones pivote
-        if posiciones_texto:
-
-            self.txt_resultado.insert(
-                tk.END,
-                (
-                    "Posiciones pivote: "
-                    + ", ".join(posiciones_texto)
-                    + "\n"
+        self.txt_resultado.insert(
+            tk.END,
+            (
+                "Variables básicas: "
+                + (
+                    ", ".join(basicas_texto)
+                    if basicas_texto
+                    else "Ninguna"
                 )
+                + "\n"
             )
+        )
 
-        else:
-
-            self.txt_resultado.insert(
-                tk.END,
-                "Posiciones pivote: Ninguna\n"
-            )
-
-        # Variables básicas
-        if basicas_texto:
-
-            self.txt_resultado.insert(
-                tk.END,
-                (
-                    "Variables básicas: "
-                    + ", ".join(basicas_texto)
-                    + "\n"
+        self.txt_resultado.insert(
+            tk.END,
+            (
+                "Variables libres: "
+                + (
+                    ", ".join(libres_texto)
+                    if libres_texto
+                    else "Ninguna"
                 )
+                + "\n"
             )
+        )
 
-        else:
-
-            self.txt_resultado.insert(
-                tk.END,
-                "Variables básicas: Ninguna\n"
-            )
-
-        # Variables libres
-        if libres_texto:
-
-            self.txt_resultado.insert(
-                tk.END,
-                (
-                    "Variables libres: "
-                    + ", ".join(libres_texto)
-                    + "\n"
-                )
-            )
-
-        else:
-
-            self.txt_resultado.insert(
-                tk.END,
-                "Variables libres: Ninguna\n"
-            )
-
-        # Solución
         self.txt_resultado.insert(
             tk.END,
             "\nSolución:\n"
         )
 
-        if isinstance(
-            solucion,
-            (list, tuple)
-        ):
-
-            for linea in solucion:
-
-                self.txt_resultado.insert(
-                    tk.END,
-                    (
-                        formatear_texto_matematico(
-                            linea
-                        )
-                        + "\n"
-                    )
-                )
-
-        else:
+        for linea in solucion:
 
             self.txt_resultado.insert(
                 tk.END,
-                (
-                    formatear_texto_matematico(
-                        solucion
-                    )
-                    + "\n"
+                formatear_texto_matematico(
+                    linea
                 )
+                + "\n"
             )
 
-        # Matriz aumentada inicial
         self.txt_resultado.insert(
             tk.END,
             "\nMatriz aumentada inicial:\n"
@@ -1161,7 +1058,6 @@ class Programa2Interfaz(ttk.Frame):
             matriz_original
         )
 
-        # RREF
         self.txt_resultado.insert(
             tk.END,
             (
@@ -1170,14 +1066,12 @@ class Programa2Interfaz(ttk.Frame):
             )
         )
 
-        # Aquí resaltamos los pivotes en rojo
         self.insertar_matriz_con_pivotes(
             self.txt_resultado,
             matriz_reducida,
             posiciones_pivote
         )
 
-        # Leyenda
         self.txt_resultado.insert(
             tk.END,
             (
@@ -1186,7 +1080,6 @@ class Programa2Interfaz(ttk.Frame):
             )
         )
 
-        # Verificación final
         self.txt_resultado.insert(
             tk.END,
             "\nVerificación de la solución:\n"
@@ -1199,22 +1092,19 @@ class Programa2Interfaz(ttk.Frame):
             )
         )
 
-        # Bloqueamos nuevamente el Text
         self.txt_resultado.config(
             state="disabled"
         )
 
-        # Regresamos al inicio
         self.txt_resultado.see(
             "1.0"
         )
 
-        # Seleccionamos Resultado
         self.cuaderno_resultados.select(
             self.pestana_resultado
         )
 
-    # Mostramos el procedimiento completo
+    # Mostramos el procedimiento
     def mostrar_historial(
         self,
         resultado
@@ -1233,7 +1123,6 @@ class Programa2Interfaz(ttk.Frame):
             tk.END
         )
 
-        # Si no existen operaciones
         if not historial:
 
             self.txt_historial.insert(
@@ -1253,7 +1142,6 @@ class Programa2Interfaz(ttk.Frame):
             ""
         ]
 
-        # Recorremos todos los pasos
         for indice, paso in enumerate(
             historial
         ):
@@ -1272,7 +1160,6 @@ class Programa2Interfaz(ttk.Frame):
                 "verificada"
             )
 
-            # Número del paso
             if indice == 0:
 
                 lineas.append(
@@ -1293,7 +1180,6 @@ class Programa2Interfaz(ttk.Frame):
                 ""
             )
 
-            # Matriz correspondiente al paso
             if matriz:
 
                 lineas.append(
@@ -1302,13 +1188,6 @@ class Programa2Interfaz(ttk.Frame):
                     )
                 )
 
-            else:
-
-                lineas.append(
-                    "No hay matriz registrada."
-                )
-
-            # Verificación del paso
             if verificada is True:
 
                 lineas.append(
@@ -1321,17 +1200,9 @@ class Programa2Interfaz(ttk.Frame):
                     "\nVerificación del paso: Incorrecta"
                 )
 
-            lineas.append(
-                ""
-            )
-
-            lineas.append(
-                "-" * 45
-            )
-
-            lineas.append(
-                ""
-            )
+            lineas.append("")
+            lineas.append("-" * 45)
+            lineas.append("")
 
         lineas.append(
             "Fin del procedimiento."
@@ -1346,12 +1217,11 @@ class Programa2Interfaz(ttk.Frame):
             state="disabled"
         )
 
-        # Regresamos al inicio
         self.txt_historial.see(
             "1.0"
         )
 
-    # Limpiamos completamente Programa 2
+    # Limpiamos Programa 2
     def limpiar(self):
 
         self.numero_ecuaciones.set("")
@@ -1361,15 +1231,12 @@ class Programa2Interfaz(ttk.Frame):
         self.variables = 0
 
         self.entradas_matriz = []
-
         self.ultimo_resultado = None
 
-        # Eliminamos las casillas
         for elemento in self.marco_matriz.winfo_children():
 
             elemento.destroy()
 
-        # Reiniciamos los scroll
         self.canvas_matriz.xview_moveto(
             0
         )
@@ -1378,19 +1245,14 @@ class Programa2Interfaz(ttk.Frame):
             0
         )
 
-        # Ocultamos secciones
         self.marco_matriz_contenedor.pack_forget()
-
         self.marco_acciones.pack_forget()
-
         self.marco_resultado.pack_forget()
 
-        # Limpiamos el estado
         self.lbl_estado.config(
             text=""
         )
 
-        # Limpiamos Resultado
         self.txt_resultado.config(
             state="normal"
         )
@@ -1404,7 +1266,6 @@ class Programa2Interfaz(ttk.Frame):
             state="disabled"
         )
 
-        # Limpiamos Procedimiento
         self.txt_historial.config(
             state="normal"
         )
@@ -1418,7 +1279,6 @@ class Programa2Interfaz(ttk.Frame):
             state="disabled"
         )
 
-        # Regresamos a la pestaña Resultado
         self.cuaderno_resultados.select(
             self.pestana_resultado
         )

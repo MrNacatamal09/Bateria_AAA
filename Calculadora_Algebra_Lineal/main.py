@@ -13,7 +13,7 @@ class CalculadoraAlgebraLineal:
         self.configurar_ventana()
         self.crear_interfaz()
 
-    # Configuramos la ventana principal de la calculadora
+    # Configuramos la ventana principal
     def configurar_ventana(self):
 
         self.ventana.title(
@@ -32,21 +32,21 @@ class CalculadoraAlgebraLineal:
     # Construimos la calculadora principal
     def crear_interfaz(self):
 
-        # Encabezado general
+        # Encabezado general compacto
         encabezado = ttk.Frame(
             self.ventana
         )
 
         encabezado.pack(
             fill="x",
-            padx=20,
-            pady=(15, 5)
+            padx=15,
+            pady=(8, 2)
         )
 
         titulo = ttk.Label(
             encabezado,
             text="Calculadora de Álgebra Lineal",
-            font=("Arial", 20, "bold")
+            font=("Arial", 18, "bold")
         )
 
         titulo.pack()
@@ -54,17 +54,17 @@ class CalculadoraAlgebraLineal:
         subtitulo = ttk.Label(
             encabezado,
             text=(
-                "Herramientas matriciales "
-                "y sistemas de ecuaciones lineales"
+                "Herramientas matriciales y "
+                "sistemas de ecuaciones lineales"
             ),
-            font=("Arial", 11)
+            font=("Arial", 10)
         )
 
         subtitulo.pack(
-            pady=(5, 10)
+            pady=(2, 4)
         )
 
-        # Contenedor de los diferentes programas
+        # Contenedor de programas
         self.cuaderno_programas = ttk.Notebook(
             self.ventana
         )
@@ -72,8 +72,8 @@ class CalculadoraAlgebraLineal:
         self.cuaderno_programas.pack(
             fill="both",
             expand=True,
-            padx=15,
-            pady=10
+            padx=10,
+            pady=(2, 8)
         )
 
         # Programa 1
