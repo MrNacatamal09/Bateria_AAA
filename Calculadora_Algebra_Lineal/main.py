@@ -3,6 +3,7 @@ from tkinter import ttk
 
 from interfaz.programa_1_interfaz import Programa1Interfaz
 from interfaz.programa_2_interfaz import Programa2Interfaz
+from interfaz.programa_3_interfaz import Programa3Interfaz
 
 
 class CalculadoraAlgebraLineal:
@@ -94,6 +95,16 @@ class CalculadoraAlgebraLineal:
         self.cuaderno_programas.add(
             self.programa_2,
             text="Programa 2"
+        )
+
+        # Programa 3
+        self.programa_3 = Programa3Interfaz(
+            self.cuaderno_programas
+        )
+
+        self.cuaderno_programas.add(
+            self.programa_3,
+            text="Programa 3"
         )
 
 
