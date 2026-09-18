@@ -30,10 +30,17 @@ class Programa3Interfaz(ttk.Frame):
             value="suma"
         )
 
+        self.cantidad_vectores_suma = tk.StringVar(
+            value="2"
+        )
+
         self.escalar_vector = tk.StringVar()
 
         self.entradas_vector_1 = []
         self.entradas_vector_2 = []
+
+        # Para v₁, v₂, ..., vₙ en la suma
+        self.entradas_vectores_suma = []
 
         # ==================================================
         # MATRICES
@@ -76,7 +83,7 @@ class Programa3Interfaz(ttk.Frame):
         self.entradas_vector_b_combinacion = []
 
         # ==================================================
-        # ECUACIÓN Ax = b
+        # ECUACIÓN MATRICIAL Ax = b
         # ==================================================
 
         self.filas_axb = tk.StringVar(
@@ -121,7 +128,6 @@ class Programa3Interfaz(ttk.Frame):
             pady=(0, 4)
         )
 
-        # Pestañas internas
         self.cuaderno_operaciones = ttk.Notebook(
             self
         )
@@ -175,7 +181,7 @@ class Programa3Interfaz(ttk.Frame):
         self.crear_interfaz_axb()
 
     # ==================================================
-    # UTILIDADES VISUALES GENERALES
+    # UTILIDADES VISUALES
     # ==================================================
 
     def crear_area_desplazable(
@@ -352,7 +358,7 @@ class Programa3Interfaz(ttk.Frame):
             xscrollcommand=scroll_horizontal.set
         )
 
-        # Pivotes en rojo
+        # Los pivotes de las RREF se mostrarán en rojo
         texto.tag_configure(
             "pivote",
             foreground="red"
@@ -488,8 +494,6 @@ class Programa3Interfaz(ttk.Frame):
             "Sin Solución"
         )
 
-    # Obtenemos las posiciones pivote directamente
-    # desde una matriz en RREF
     def obtener_posiciones_pivote_visuales(
         self,
         matriz
@@ -511,8 +515,6 @@ class Programa3Interfaz(ttk.Frame):
 
         return posiciones
 
-    # Insertamos una matriz aumentada y resaltamos
-    # visualmente sus pivotes
     def insertar_matriz_aumentada_con_pivotes(
         self,
         widget,
@@ -757,6 +759,7 @@ class Programa3Interfaz(ttk.Frame):
             pady=5
         )
 
+        # Dimensión
         ttk.Label(
             marco_configuracion,
             text="Dimensión:"
@@ -778,6 +781,7 @@ class Programa3Interfaz(ttk.Frame):
             pady=3
         )
 
+        # Operación
         ttk.Label(
             marco_configuracion,
             text="Operación:"
@@ -812,13 +816,40 @@ class Programa3Interfaz(ttk.Frame):
             self.actualizar_operacion_vector
         )
 
+        # Cantidad de vectores
+        self.lbl_cantidad_vectores = ttk.Label(
+            marco_configuracion,
+            text="Cantidad de vectores:"
+        )
+
+        self.lbl_cantidad_vectores.grid(
+            row=0,
+            column=4,
+            padx=6,
+            pady=3
+        )
+
+        self.txt_cantidad_vectores = ttk.Entry(
+            marco_configuracion,
+            textvariable=self.cantidad_vectores_suma,
+            width=7
+        )
+
+        self.txt_cantidad_vectores.grid(
+            row=0,
+            column=5,
+            padx=6,
+            pady=3
+        )
+
+        # Crear
         ttk.Button(
             marco_configuracion,
             text="Crear vectores",
             command=self.crear_vectores
         ).grid(
             row=0,
-            column=4,
+            column=6,
             padx=8,
             pady=3
         )
@@ -833,6 +864,7 @@ class Programa3Interfaz(ttk.Frame):
             100
         )
 
+        # Acciones
         self.marco_acciones_vector = ttk.Frame(
             self.pestana_vectores
         )
@@ -859,6 +891,7 @@ class Programa3Interfaz(ttk.Frame):
             pady=3
         )
 
+        # Resultado
         self.marco_resultado_vector = ttk.LabelFrame(
             self.pestana_vectores,
             text="Resultado",
@@ -892,6 +925,37 @@ class Programa3Interfaz(ttk.Frame):
 
             return
 
+        operacion = (
+            self.operacion_vector.get()
+        )
+
+        # La suma admite una cantidad variable
+        if operacion == "suma":
+
+            try:
+
+                cantidad = int(
+                    self.cantidad_vectores_suma.get()
+                )
+
+                if cantidad < 2:
+                    raise ValueError
+
+            except ValueError:
+
+                messagebox.showerror(
+                    "Cantidad inválida",
+                    "La suma debe contener "
+                    "al menos dos vectores."
+                )
+
+                return
+
+        else:
+
+            cantidad = 0
+
+        # Limpiamos entradas anteriores
         for elemento in (
             self.contenido_vectores.winfo_children()
         ):
@@ -900,48 +964,103 @@ class Programa3Interfaz(ttk.Frame):
 
         self.entradas_vector_1 = []
         self.entradas_vector_2 = []
+        self.entradas_vectores_suma = []
 
         self.marco_resultado_vector.pack_forget()
 
-        operacion = self.operacion_vector.get()
+        # ==================================================
+        # SUMA DE VARIOS VECTORES
+        # ==================================================
 
-        ttk.Label(
-            self.contenido_vectores,
-            text="Vector 1:"
-        ).grid(
-            row=0,
-            column=0,
-            padx=6,
-            pady=5
-        )
+        if operacion == "suma":
 
-        for i in range(dimension):
+            for numero_vector in range(
+                cantidad
+            ):
 
-            entrada = ttk.Entry(
-                self.contenido_vectores,
-                width=7,
-                justify="center"
-            )
+                entradas_vector = []
 
-            entrada.grid(
-                row=0,
-                column=i + 1,
-                padx=3,
-                pady=5
-            )
+                ttk.Label(
+                    self.contenido_vectores,
+                    text=(
+                        "v"
+                        + self.numero_subindice(
+                            numero_vector + 1
+                        )
+                        + ":"
+                    )
+                ).grid(
+                    row=numero_vector,
+                    column=0,
+                    padx=6,
+                    pady=4
+                )
 
-            self.entradas_vector_1.append(
-                entrada
-            )
+                for componente in range(
+                    dimension
+                ):
 
-        if operacion in (
-            "suma",
-            "resta"
-        ):
+                    entrada = ttk.Entry(
+                        self.contenido_vectores,
+                        width=7,
+                        justify="center"
+                    )
+
+                    entrada.grid(
+                        row=numero_vector,
+                        column=componente + 1,
+                        padx=3,
+                        pady=4
+                    )
+
+                    entradas_vector.append(
+                        entrada
+                    )
+
+                self.entradas_vectores_suma.append(
+                    entradas_vector
+                )
+
+            filas_visuales = cantidad
+
+        # ==================================================
+        # RESTA
+        # ==================================================
+
+        elif operacion == "resta":
 
             ttk.Label(
                 self.contenido_vectores,
-                text="Vector 2:"
+                text="v₁:"
+            ).grid(
+                row=0,
+                column=0,
+                padx=6,
+                pady=5
+            )
+
+            for i in range(dimension):
+
+                entrada = ttk.Entry(
+                    self.contenido_vectores,
+                    width=7,
+                    justify="center"
+                )
+
+                entrada.grid(
+                    row=0,
+                    column=i + 1,
+                    padx=3,
+                    pady=5
+                )
+
+                self.entradas_vector_1.append(
+                    entrada
+                )
+
+            ttk.Label(
+                self.contenido_vectores,
+                text="v₂:"
             ).grid(
                 row=1,
                 column=0,
@@ -968,7 +1087,42 @@ class Programa3Interfaz(ttk.Frame):
                     entrada
                 )
 
-        if operacion == "escalar":
+            filas_visuales = 2
+
+        # ==================================================
+        # PRODUCTO POR ESCALAR
+        # ==================================================
+
+        else:
+
+            ttk.Label(
+                self.contenido_vectores,
+                text="v₁:"
+            ).grid(
+                row=0,
+                column=0,
+                padx=6,
+                pady=5
+            )
+
+            for i in range(dimension):
+
+                entrada = ttk.Entry(
+                    self.contenido_vectores,
+                    width=7,
+                    justify="center"
+                )
+
+                entrada.grid(
+                    row=0,
+                    column=i + 1,
+                    padx=3,
+                    pady=5
+                )
+
+                self.entradas_vector_1.append(
+                    entrada
+                )
 
             ttk.Label(
                 self.contenido_vectores,
@@ -991,8 +1145,15 @@ class Programa3Interfaz(ttk.Frame):
                 pady=5
             )
 
+            filas_visuales = 2
+
+        # Altura dinámica
         self.canvas_vectores.configure(
-            height=95
+            height=self.calcular_altura(
+                filas_visuales,
+                minimo=90,
+                maximo=170
+            )
         )
 
         self.marco_vectores.pack(
@@ -1024,7 +1185,29 @@ class Programa3Interfaz(ttk.Frame):
         evento=None
     ):
 
-        if self.entradas_vector_1:
+        operacion = (
+            self.operacion_vector.get()
+        )
+
+        # Cantidad de vectores únicamente para suma
+        if operacion == "suma":
+
+            self.lbl_cantidad_vectores.grid()
+            self.txt_cantidad_vectores.grid()
+
+        else:
+
+            self.lbl_cantidad_vectores.grid_remove()
+            self.txt_cantidad_vectores.grid_remove()
+
+        # Si ya existen entradas,
+        # reconstruimos según la nueva operación
+        if (
+            self.entradas_vector_1
+            or self.entradas_vector_2
+            or self.entradas_vectores_suma
+        ):
+
             self.crear_vectores()
 
     def leer_vector(
@@ -1041,44 +1224,90 @@ class Programa3Interfaz(ttk.Frame):
 
         try:
 
-            if not self.entradas_vector_1:
-
-                raise ValueError(
-                    "Primero debe crear los vectores."
-                )
-
             operacion = (
                 self.operacion_vector.get()
             )
 
-            vector_1 = self.leer_vector(
-                self.entradas_vector_1
-            )
+            # ==================================================
+            # SUMA DE VARIOS VECTORES
+            # ==================================================
 
-            vector_2 = None
-            escalar = None
+            if operacion == "suma":
 
-            if operacion in (
-                "suma",
-                "resta"
-            ):
+                if not self.entradas_vectores_suma:
+
+                    raise ValueError(
+                        "Primero debe crear los vectores."
+                    )
+
+                vectores = []
+
+                for entradas in (
+                    self.entradas_vectores_suma
+                ):
+
+                    vectores.append(
+                        self.leer_vector(
+                            entradas
+                        )
+                    )
+
+                resultado = procesar_vectores(
+                    operacion,
+                    vectores=vectores
+                )
+
+            # ==================================================
+            # RESTA
+            # ==================================================
+
+            elif operacion == "resta":
+
+                if not self.entradas_vector_1:
+
+                    raise ValueError(
+                        "Primero debe crear los vectores."
+                    )
+
+                vector_1 = self.leer_vector(
+                    self.entradas_vector_1
+                )
 
                 vector_2 = self.leer_vector(
                     self.entradas_vector_2
                 )
 
-            elif operacion == "escalar":
+                resultado = procesar_vectores(
+                    operacion,
+                    vector_1,
+                    vector_2
+                )
+
+            # ==================================================
+            # PRODUCTO POR ESCALAR
+            # ==================================================
+
+            else:
+
+                if not self.entradas_vector_1:
+
+                    raise ValueError(
+                        "Primero debe crear el vector."
+                    )
+
+                vector_1 = self.leer_vector(
+                    self.entradas_vector_1
+                )
 
                 escalar = (
                     self.escalar_vector.get()
                 )
 
-            resultado = procesar_vectores(
-                operacion,
-                vector_1,
-                vector_2,
-                escalar
-            )
+                resultado = procesar_vectores(
+                    operacion,
+                    vector_1,
+                    escalar=escalar
+                )
 
             self.mostrar_resultado_vector(
                 resultado
@@ -1096,17 +1325,6 @@ class Programa3Interfaz(ttk.Frame):
         resultado
     ):
 
-        nombres = {
-            "suma_vectores":
-                "Suma de vectores",
-
-            "resta_vectores":
-                "Resta de vectores",
-
-            "vector_por_escalar":
-                "Multiplicación de vector por escalar"
-        }
-
         operacion = resultado[
             "operacion"
         ]
@@ -1115,12 +1333,45 @@ class Programa3Interfaz(ttk.Frame):
             "resultado"
         ]
 
-        texto = (
-            f"Operación: "
-            f"{nombres.get(operacion, operacion)}\n\n"
-            "Resultado:\n"
-            f"{self.formatear_vector(vector_resultado)}"
-        )
+        if operacion == "suma_vectores":
+
+            cantidad = resultado.get(
+                "cantidad_vectores",
+                2
+            )
+
+            expresion = " + ".join(
+                "v"
+                + self.numero_subindice(
+                    i + 1
+                )
+                for i in range(cantidad)
+            )
+
+            texto = (
+                "Operación: Suma de vectores\n\n"
+                f"{expresion}\n\n"
+                "Resultado:\n"
+                f"{self.formatear_vector(vector_resultado)}"
+            )
+
+        elif operacion == "resta_vectores":
+
+            texto = (
+                "Operación: Resta de vectores\n\n"
+                "v₁ - v₂\n\n"
+                "Resultado:\n"
+                f"{self.formatear_vector(vector_resultado)}"
+            )
+
+        else:
+
+            texto = (
+                "Operación: Multiplicación de vector "
+                "por escalar\n\n"
+                "Resultado:\n"
+                f"{self.formatear_vector(vector_resultado)}"
+            )
 
         self.marco_resultado_vector.pack(
             padx=12,
@@ -1144,12 +1395,17 @@ class Programa3Interfaz(ttk.Frame):
             "suma"
         )
 
+        self.cantidad_vectores_suma.set(
+            "2"
+        )
+
         self.escalar_vector.set(
             ""
         )
 
         self.entradas_vector_1 = []
         self.entradas_vector_2 = []
+        self.entradas_vectores_suma = []
 
         for elemento in (
             self.contenido_vectores.winfo_children()
@@ -1165,6 +1421,11 @@ class Programa3Interfaz(ttk.Frame):
             self.txt_resultado_vector,
             ""
         )
+
+        # Al volver a suma mostramos otra vez
+        # la cantidad de vectores
+        self.lbl_cantidad_vectores.grid()
+        self.txt_cantidad_vectores.grid()
 
     # ==================================================
     # MATRICES
@@ -1398,7 +1659,6 @@ class Programa3Interfaz(ttk.Frame):
             self.txt_columnas_b.grid_remove()
 
         if self.entradas_matriz_1:
-
             self.crear_matrices()
 
     def crear_matrices(self):
@@ -1417,7 +1677,6 @@ class Programa3Interfaz(ttk.Frame):
                 filas_a <= 0
                 or columnas_a <= 0
             ):
-
                 raise ValueError
 
             operacion = (
@@ -1441,7 +1700,8 @@ class Programa3Interfaz(ttk.Frame):
 
             messagebox.showerror(
                 "Dimensiones inválidas",
-                "Las dimensiones deben ser enteros mayores que cero."
+                "Las dimensiones deben ser "
+                "enteros mayores que cero."
             )
 
             return
@@ -1452,19 +1712,16 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.marco_matriz_1.winfo_children()
         ):
-
             elemento.destroy()
 
         for elemento in (
             self.marco_matriz_2.winfo_children()
         ):
-
             elemento.destroy()
 
         for elemento in (
             self.marco_escalar_matriz.winfo_children()
         ):
-
             elemento.destroy()
 
         self.marco_resultado_matriz.pack_forget()
@@ -1489,7 +1746,6 @@ class Programa3Interfaz(ttk.Frame):
         ):
 
             self.marco_matriz_2.grid()
-
             self.marco_escalar_matriz.grid_remove()
 
             self.entradas_matriz_2 = (
@@ -1503,7 +1759,6 @@ class Programa3Interfaz(ttk.Frame):
         elif operacion == "multiplicacion":
 
             self.marco_matriz_2.grid()
-
             self.marco_escalar_matriz.grid_remove()
 
             self.entradas_matriz_2 = (
@@ -1768,7 +2023,6 @@ class Programa3Interfaz(ttk.Frame):
             for elemento in (
                 contenedor.winfo_children()
             ):
-
                 elemento.destroy()
 
         self.marco_matrices_scroll.pack_forget()
@@ -1951,7 +2205,6 @@ class Programa3Interfaz(ttk.Frame):
                 cantidad <= 0
                 or dimension <= 0
             ):
-
                 raise ValueError
 
         except ValueError:
@@ -1967,7 +2220,6 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.contenido_combinacion.winfo_children()
         ):
-
             elemento.destroy()
 
         self.entradas_vectores_combinacion = []
@@ -2212,9 +2464,7 @@ class Programa3Interfaz(ttk.Frame):
             expand=True
         )
 
-        widget = (
-            self.txt_resultado_combinacion
-        )
+        widget = self.txt_resultado_combinacion
 
         widget.configure(
             state="normal"
@@ -2367,7 +2617,6 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.contenido_combinacion.winfo_children()
         ):
-
             elemento.destroy()
 
         self.marco_combinacion_entrada.pack_forget()
@@ -2585,7 +2834,6 @@ class Programa3Interfaz(ttk.Frame):
                 filas <= 0
                 or columnas <= 0
             ):
-
                 raise ValueError
 
         except ValueError:
@@ -2601,13 +2849,11 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.marco_matriz_axb.winfo_children()
         ):
-
             elemento.destroy()
 
         for elemento in (
             self.marco_vector_b_axb.winfo_children()
         ):
-
             elemento.destroy()
 
         self.entradas_matriz_axb = (
@@ -2690,11 +2936,9 @@ class Programa3Interfaz(ttk.Frame):
                 self.entradas_vector_b_axb
             )
 
-            resultado = (
-                procesar_ecuacion_matricial(
-                    matriz_a,
-                    vector_b
-                )
+            resultado = procesar_ecuacion_matricial(
+                matriz_a,
+                vector_b
             )
 
             self.mostrar_resultado_axb(
@@ -2811,9 +3055,7 @@ class Programa3Interfaz(ttk.Frame):
             expand=True
         )
 
-        widget = (
-            self.txt_resultado_axb
-        )
+        widget = self.txt_resultado_axb
 
         widget.configure(
             state="normal"
@@ -3028,13 +3270,11 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.marco_matriz_axb.winfo_children()
         ):
-
             elemento.destroy()
 
         for elemento in (
             self.marco_vector_b_axb.winfo_children()
         ):
-
             elemento.destroy()
 
         self.marco_entrada_axb.pack_forget()

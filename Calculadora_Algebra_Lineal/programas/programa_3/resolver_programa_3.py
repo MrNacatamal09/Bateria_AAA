@@ -11,36 +11,101 @@ from .matrices import (
     multiplicar_matrices
 )
 
-from .combinacion_lineal import evaluar_combinacion_lineal
-from .ecuacion_matricial import resolver_ecuacion_matricial
+from .combinacion_lineal import (
+    evaluar_combinacion_lineal
+)
+
+from .ecuacion_matricial import (
+    resolver_ecuacion_matricial
+)
+
+
+# Sumamos una cantidad variable de vectores
+def sumar_varios_vectores(vectores):
+
+    if not vectores:
+
+        raise ValueError(
+            "Debe ingresar al menos dos vectores."
+        )
+
+    if len(vectores) < 2:
+
+        raise ValueError(
+            "Para realizar una suma debe ingresar "
+            "al menos dos vectores."
+        )
+
+    # Comenzamos con el primer vector
+    resultado = vectores[0]
+
+    # Vamos acumulando las sumas
+    for i in range(1, len(vectores)):
+
+        resultado = sumar_vectores(
+            resultado,
+            vectores[i]
+        )
+
+    return resultado
 
 
 # Ejecutamos una operación con vectores
 def resolver_vectores(
     operacion,
-    vector_1,
+    vector_1=None,
     vector_2=None,
-    escalar=None
+    escalar=None,
+    vectores=None
 ):
 
+    # Suma de una cantidad variable de vectores
     if operacion == "suma":
 
+        # Nueva forma: varios vectores
+        if vectores is not None:
+
+            return {
+                "operacion": "suma_vectores",
+                "cantidad_vectores": len(vectores),
+                "resultado": sumar_varios_vectores(
+                    vectores
+                )
+            }
+
+        # Compatibilidad con el funcionamiento anterior
+        if vector_1 is None:
+
+            raise ValueError(
+                "Debe ingresar el primer vector."
+            )
+
         if vector_2 is None:
+
             raise ValueError(
                 "Debe ingresar el segundo vector."
             )
 
         return {
             "operacion": "suma_vectores",
+            "cantidad_vectores": 2,
             "resultado": sumar_vectores(
                 vector_1,
                 vector_2
             )
         }
 
+    # Resta
     if operacion == "resta":
 
+        if vector_1 is None:
+
+            raise ValueError(
+                "Debe ingresar el primer vector."
+            )
+
         if vector_2 is None:
+
             raise ValueError(
                 "Debe ingresar el segundo vector."
             )
@@ -53,9 +118,17 @@ def resolver_vectores(
             )
         }
 
+    # Producto por escalar
     if operacion == "escalar":
 
+        if vector_1 is None:
+
+            raise ValueError(
+                "Debe ingresar el vector."
+            )
+
         if escalar is None:
+
             raise ValueError(
                 "Debe ingresar un escalar."
             )
@@ -84,6 +157,7 @@ def resolver_matrices(
     if operacion == "suma":
 
         if matriz_2 is None:
+
             raise ValueError(
                 "Debe ingresar la segunda matriz."
             )
@@ -99,6 +173,7 @@ def resolver_matrices(
     if operacion == "resta":
 
         if matriz_2 is None:
+
             raise ValueError(
                 "Debe ingresar la segunda matriz."
             )
@@ -114,6 +189,7 @@ def resolver_matrices(
     if operacion == "escalar":
 
         if escalar is None:
+
             raise ValueError(
                 "Debe ingresar un escalar."
             )
@@ -129,6 +205,7 @@ def resolver_matrices(
     if operacion == "multiplicacion":
 
         if matriz_2 is None:
+
             raise ValueError(
                 "Debe ingresar la segunda matriz."
             )
@@ -147,7 +224,10 @@ def resolver_matrices(
 
 
 # Evaluamos una combinación lineal
-def resolver_combinacion_lineal(vectores, vector_b):
+def resolver_combinacion_lineal(
+    vectores,
+    vector_b
+):
 
     resultado = evaluar_combinacion_lineal(
         vectores,
@@ -161,7 +241,10 @@ def resolver_combinacion_lineal(vectores, vector_b):
 
 
 # Resolvemos una ecuación matricial Ax = b
-def resolver_ax_b(matriz_a, vector_b):
+def resolver_ax_b(
+    matriz_a,
+    vector_b
+):
 
     resultado = resolver_ecuacion_matricial(
         matriz_a,

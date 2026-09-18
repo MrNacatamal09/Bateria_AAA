@@ -16,21 +16,45 @@ from programas.programa_3.resolver_programa_3 import (
 # Preparamos y ejecutamos una operación vectorial
 def procesar_vectores(
     operacion,
-    vector_1,
+    vector_1=None,
     vector_2=None,
-    escalar=None
+    escalar=None,
+    vectores=None
 ):
 
-    vector_1 = convertir_vector(
-        vector_1
-    )
+    # Para suma de varios vectores
+    if vectores is not None:
+
+        vectores_convertidos = []
+
+        for vector in vectores:
+
+            vectores_convertidos.append(
+                convertir_vector(
+                    vector
+                )
+            )
+
+        return resolver_vectores(
+            operacion,
+            vectores=vectores_convertidos
+        )
+
+    # Operaciones tradicionales
+    if vector_1 is not None:
+
+        vector_1 = convertir_vector(
+            vector_1
+        )
 
     if vector_2 is not None:
+
         vector_2 = convertir_vector(
             vector_2
         )
 
     if escalar is not None:
+
         escalar = convertir_a_fraccion(
             escalar
         )
@@ -56,11 +80,13 @@ def procesar_matrices(
     )
 
     if matriz_2 is not None:
+
         matriz_2 = convertir_matriz(
             matriz_2
         )
 
     if escalar is not None:
+
         escalar = convertir_a_fraccion(
             escalar
         )
@@ -82,6 +108,7 @@ def procesar_combinacion_lineal(
     vectores_convertidos = []
 
     for i in range(len(vectores)):
+
         vectores_convertidos.append(
             convertir_vector(
                 vectores[i]
