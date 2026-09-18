@@ -21,28 +21,67 @@ from .ecuacion_matricial import (
 
 
 # Sumamos una cantidad variable de vectores
-def sumar_varios_vectores(vectores):
+def sumar_varios_vectores(
+    vectores
+):
 
     if not vectores:
 
         raise ValueError(
-            "Debe ingresar al menos dos vectores."
+            "Debe ingresar vectores para realizar la suma."
         )
 
     if len(vectores) < 2:
 
         raise ValueError(
-            "Para realizar una suma debe ingresar "
-            "al menos dos vectores."
+            "La suma debe contener al menos dos vectores."
         )
 
-    # Comenzamos con el primer vector
-    resultado = vectores[0]
+    resultado = list(
+        vectores[0]
+    )
 
-    # Vamos acumulando las sumas
-    for i in range(1, len(vectores)):
+    for i in range(
+        1,
+        len(vectores)
+    ):
 
         resultado = sumar_vectores(
+            resultado,
+            vectores[i]
+        )
+
+    return resultado
+
+
+# Restamos una cantidad variable de vectores
+def restar_varios_vectores(
+    vectores
+):
+
+    if not vectores:
+
+        raise ValueError(
+            "Debe ingresar vectores para realizar la resta."
+        )
+
+    if len(vectores) < 2:
+
+        raise ValueError(
+            "La resta debe contener al menos dos vectores."
+        )
+
+    # La resta se realiza de izquierda a derecha
+    resultado = list(
+        vectores[0]
+    )
+
+    for i in range(
+        1,
+        len(vectores)
+    ):
+
+        resultado = restar_vectores(
             resultado,
             vectores[i]
         )
@@ -59,10 +98,10 @@ def resolver_vectores(
     vectores=None
 ):
 
-    # Suma de una cantidad variable de vectores
+    # Suma
     if operacion == "suma":
 
-        # Nueva forma: varios vectores
+        # Suma de una cantidad variable
         if vectores is not None:
 
             return {
@@ -73,7 +112,7 @@ def resolver_vectores(
                 )
             }
 
-        # Compatibilidad con el funcionamiento anterior
+        # Compatibilidad con dos vectores
         if vector_1 is None:
 
             raise ValueError(
@@ -98,6 +137,18 @@ def resolver_vectores(
     # Resta
     if operacion == "resta":
 
+        # Resta de una cantidad variable
+        if vectores is not None:
+
+            return {
+                "operacion": "resta_vectores",
+                "cantidad_vectores": len(vectores),
+                "resultado": restar_varios_vectores(
+                    vectores
+                )
+            }
+
+        # Compatibilidad con dos vectores
         if vector_1 is None:
 
             raise ValueError(
@@ -112,13 +163,14 @@ def resolver_vectores(
 
         return {
             "operacion": "resta_vectores",
+            "cantidad_vectores": 2,
             "resultado": restar_vectores(
                 vector_1,
                 vector_2
             )
         }
 
-    # Producto por escalar
+    # Multiplicación por escalar
     if operacion == "escalar":
 
         if vector_1 is None:

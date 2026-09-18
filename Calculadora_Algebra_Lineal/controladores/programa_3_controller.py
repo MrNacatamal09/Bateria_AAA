@@ -22,7 +22,7 @@ def procesar_vectores(
     vectores=None
 ):
 
-    # Para suma de varios vectores
+    # Para suma o resta de varios vectores
     if vectores is not None:
 
         vectores_convertidos = []
@@ -40,7 +40,7 @@ def procesar_vectores(
             vectores=vectores_convertidos
         )
 
-    # Operaciones tradicionales
+    # Operaciones que utilizan un vector
     if vector_1 is not None:
 
         vector_1 = convertir_vector(
