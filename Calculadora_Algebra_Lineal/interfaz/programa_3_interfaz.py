@@ -36,10 +36,7 @@ class Programa3Interfaz(ttk.Frame):
 
         self.escalar_vector = tk.StringVar()
 
-        # Para suma o resta de varios vectores
         self.entradas_vectores_operacion = []
-
-        # Para multiplicación por escalar
         self.entradas_vector_1 = []
 
         # ==================================================
@@ -276,8 +273,9 @@ class Programa3Interfaz(ttk.Frame):
     ):
 
         canvas.configure(
-            scrollregion=
-                canvas.bbox("all")
+            scrollregion=canvas.bbox(
+                "all"
+            )
         )
 
     def calcular_altura(
@@ -425,6 +423,103 @@ class Programa3Interfaz(ttk.Frame):
             + " ]"
         )
 
+    def formatear_vector_transpuesto(
+        self,
+        vector
+    ):
+
+        return (
+            "[ "
+            + ", ".join(
+                str(valor)
+                for valor in vector
+            )
+            + " ]ᵀ"
+        )
+
+    def formatear_forma_vectorial(
+        self,
+        forma_vectorial
+    ):
+
+        tipo = forma_vectorial[
+            "tipo"
+        ]
+
+        if tipo == "sin_solucion":
+
+            return (
+                "No existe forma vectorial de solución "
+                "porque el sistema no tiene solución."
+            )
+
+        vector_particular = forma_vectorial[
+            "vector_particular"
+        ]
+
+        if tipo == "unica":
+
+            return (
+                "x = "
+                + self.formatear_vector_transpuesto(
+                    vector_particular
+                )
+            )
+
+        terminos = forma_vectorial[
+            "terminos_parametricos"
+        ]
+
+        partes = []
+
+        if any(
+            valor != 0
+            for valor in vector_particular
+        ):
+
+            partes.append(
+                self.formatear_vector_transpuesto(
+                    vector_particular
+                )
+            )
+
+        for termino in terminos:
+
+            parametro = (
+                formatear_texto_matematico(
+                    termino[
+                        "parametro"
+                    ]
+                )
+            )
+
+            vector = (
+                self.formatear_vector_transpuesto(
+                    termino[
+                        "vector"
+                    ]
+                )
+            )
+
+            partes.append(
+                f"{parametro} {vector}"
+            )
+
+        if not partes:
+
+            partes.append(
+                self.formatear_vector_transpuesto(
+                    vector_particular
+                )
+            )
+
+        return (
+            "x = "
+            + " + ".join(
+                partes
+            )
+        )
+
     def formatear_matriz(
         self,
         matriz
@@ -500,9 +595,13 @@ class Programa3Interfaz(ttk.Frame):
 
         posiciones = []
 
-        for i, fila in enumerate(matriz):
+        for i, fila in enumerate(
+            matriz
+        ):
 
-            for j, valor in enumerate(fila):
+            for j, valor in enumerate(
+                fila
+            ):
 
                 if valor != 0:
 
@@ -525,7 +624,9 @@ class Programa3Interfaz(ttk.Frame):
             posiciones_pivote
         )
 
-        for i, fila in enumerate(matriz):
+        for i, fila in enumerate(
+            matriz
+        ):
 
             widget.insert(
                 tk.END,
@@ -540,7 +641,10 @@ class Programa3Interfaz(ttk.Frame):
                     fila[j]
                 )
 
-                if (i, j) in posiciones:
+                if (
+                    i,
+                    j
+                ) in posiciones:
 
                     widget.insert(
                         tk.END,
@@ -603,7 +707,9 @@ class Programa3Interfaz(ttk.Frame):
         verificacion
     ):
 
-        if not verificacion["aplica"]:
+        if not verificacion[
+            "aplica"
+        ]:
 
             return (
                 "La verificación numérica no aplica "
@@ -618,18 +724,23 @@ class Programa3Interfaz(ttk.Frame):
 
             estado = (
                 "Correcta"
-                if ecuacion["correcta"]
+                if ecuacion[
+                    "correcta"
+                ]
                 else "Incorrecta"
             )
 
             lineas.append(
-                f"Ecuación {ecuacion['ecuacion']}: "
+                f"Ecuación "
+                f"{ecuacion['ecuacion']}: "
                 f"{ecuacion['lado_izquierdo']} = "
                 f"{ecuacion['lado_derecho']} "
                 f"({estado})"
             )
 
-        if verificacion["correcta"]:
+        if verificacion[
+            "correcta"
+        ]:
 
             lineas.append(
                 "\nLa solución satisface "
@@ -648,7 +759,7 @@ class Programa3Interfaz(ttk.Frame):
         )
 
     # ==================================================
-    # PROCEDIMIENTO REUTILIZABLE
+    # PROCEDIMIENTO
     # ==================================================
 
     def mostrar_procedimiento(
@@ -738,14 +849,18 @@ class Programa3Interfaz(ttk.Frame):
 
         self.colocar_texto(
             widget,
-            "\n".join(lineas)
+            "\n".join(
+                lineas
+            )
         )
 
     # ==================================================
     # VECTORES
     # ==================================================
 
-    def crear_interfaz_vectores(self):
+    def crear_interfaz_vectores(
+        self
+    ):
 
         marco_configuracion = ttk.LabelFrame(
             self.pestana_vectores,
@@ -813,7 +928,6 @@ class Programa3Interfaz(ttk.Frame):
             self.actualizar_operacion_vector
         )
 
-        # Cantidad para suma y resta
         self.lbl_cantidad_vectores = ttk.Label(
             marco_configuracion,
             text="Cantidad de vectores:"
@@ -899,7 +1013,9 @@ class Programa3Interfaz(ttk.Frame):
             )
         )
 
-    def crear_vectores(self):
+    def crear_vectores(
+        self
+    ):
 
         try:
 
@@ -908,6 +1024,7 @@ class Programa3Interfaz(ttk.Frame):
             )
 
             if dimension <= 0:
+
                 raise ValueError
 
         except ValueError:
@@ -924,7 +1041,6 @@ class Programa3Interfaz(ttk.Frame):
             self.operacion_vector.get()
         )
 
-        # Suma y resta admiten varios vectores
         if operacion in (
             "suma",
             "resta"
@@ -937,6 +1053,7 @@ class Programa3Interfaz(ttk.Frame):
                 )
 
                 if cantidad < 2:
+
                     raise ValueError
 
             except ValueError:
@@ -953,20 +1070,16 @@ class Programa3Interfaz(ttk.Frame):
 
             cantidad = 1
 
-        # Limpiamos entradas anteriores
         for elemento in (
             self.contenido_vectores.winfo_children()
         ):
+
             elemento.destroy()
 
         self.entradas_vectores_operacion = []
         self.entradas_vector_1 = []
 
         self.marco_resultado_vector.pack_forget()
-
-        # ==================================================
-        # SUMA O RESTA DE VARIOS VECTORES
-        # ==================================================
 
         if operacion in (
             "suma",
@@ -1022,10 +1135,6 @@ class Programa3Interfaz(ttk.Frame):
 
             filas_visuales = cantidad
 
-        # ==================================================
-        # PRODUCTO POR ESCALAR
-        # ==================================================
-
         else:
 
             ttk.Label(
@@ -1038,7 +1147,9 @@ class Programa3Interfaz(ttk.Frame):
                 pady=5
             )
 
-            for i in range(dimension):
+            for i in range(
+                dimension
+            ):
 
                 entrada = ttk.Entry(
                     self.contenido_vectores,
@@ -1121,7 +1232,6 @@ class Programa3Interfaz(ttk.Frame):
             self.operacion_vector.get()
         )
 
-        # Suma y resta necesitan cantidad
         if operacion in (
             "suma",
             "resta"
@@ -1130,13 +1240,11 @@ class Programa3Interfaz(ttk.Frame):
             self.lbl_cantidad_vectores.grid()
             self.txt_cantidad_vectores.grid()
 
-        # Producto por escalar utiliza un solo vector
         else:
 
             self.lbl_cantidad_vectores.grid_remove()
             self.txt_cantidad_vectores.grid_remove()
 
-        # Reconstruimos si ya había entradas
         if (
             self.entradas_vectores_operacion
             or self.entradas_vector_1
@@ -1154,17 +1262,15 @@ class Programa3Interfaz(ttk.Frame):
             for entrada in entradas
         ]
 
-    def resolver_vector(self):
+    def resolver_vector(
+        self
+    ):
 
         try:
 
             operacion = (
                 self.operacion_vector.get()
             )
-
-            # ==================================================
-            # SUMA O RESTA DE VARIOS VECTORES
-            # ==================================================
 
             if operacion in (
                 "suma",
@@ -1193,10 +1299,6 @@ class Programa3Interfaz(ttk.Frame):
                     operacion,
                     vectores=vectores
                 )
-
-            # ==================================================
-            # PRODUCTO POR ESCALAR
-            # ==================================================
 
             else:
 
@@ -1244,10 +1346,6 @@ class Programa3Interfaz(ttk.Frame):
             "resultado"
         ]
 
-        # ==================================================
-        # SUMA
-        # ==================================================
-
         if operacion == "suma_vectores":
 
             cantidad = resultado.get(
@@ -1260,7 +1358,9 @@ class Programa3Interfaz(ttk.Frame):
                 + self.numero_subindice(
                     i + 1
                 )
-                for i in range(cantidad)
+                for i in range(
+                    cantidad
+                )
             )
 
             texto = (
@@ -1269,10 +1369,6 @@ class Programa3Interfaz(ttk.Frame):
                 "Resultado:\n"
                 f"{self.formatear_vector(vector_resultado)}"
             )
-
-        # ==================================================
-        # RESTA
-        # ==================================================
 
         elif operacion == "resta_vectores":
 
@@ -1286,7 +1382,9 @@ class Programa3Interfaz(ttk.Frame):
                 + self.numero_subindice(
                     i + 1
                 )
-                for i in range(cantidad)
+                for i in range(
+                    cantidad
+                )
             )
 
             texto = (
@@ -1296,10 +1394,6 @@ class Programa3Interfaz(ttk.Frame):
                 "Resultado:\n"
                 f"{self.formatear_vector(vector_resultado)}"
             )
-
-        # ==================================================
-        # ESCALAR
-        # ==================================================
 
         else:
 
@@ -1322,7 +1416,9 @@ class Programa3Interfaz(ttk.Frame):
             texto
         )
 
-    def limpiar_vectores(self):
+    def limpiar_vectores(
+        self
+    ):
 
         self.dimension_vector.set(
             "3"
@@ -1346,6 +1442,7 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.contenido_vectores.winfo_children()
         ):
+
             elemento.destroy()
 
         self.marco_vectores.pack_forget()
@@ -1364,7 +1461,9 @@ class Programa3Interfaz(ttk.Frame):
     # MATRICES
     # ==================================================
 
-    def crear_interfaz_matrices(self):
+    def crear_interfaz_matrices(
+        self
+    ):
 
         marco_configuracion = ttk.LabelFrame(
             self.pestana_matrices,
@@ -1592,9 +1691,12 @@ class Programa3Interfaz(ttk.Frame):
             self.txt_columnas_b.grid_remove()
 
         if self.entradas_matriz_1:
+
             self.crear_matrices()
 
-    def crear_matrices(self):
+    def crear_matrices(
+        self
+    ):
 
         try:
 
@@ -1610,6 +1712,7 @@ class Programa3Interfaz(ttk.Frame):
                 filas_a <= 0
                 or columnas_a <= 0
             ):
+
                 raise ValueError
 
             operacion = (
@@ -1623,6 +1726,7 @@ class Programa3Interfaz(ttk.Frame):
                 )
 
                 if columnas_b <= 0:
+
                     raise ValueError
 
             else:
@@ -1645,16 +1749,19 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.marco_matriz_1.winfo_children()
         ):
+
             elemento.destroy()
 
         for elemento in (
             self.marco_matriz_2.winfo_children()
         ):
+
             elemento.destroy()
 
         for elemento in (
             self.marco_escalar_matriz.winfo_children()
         ):
+
             elemento.destroy()
 
         self.marco_resultado_matriz.pack_forget()
@@ -1679,6 +1786,7 @@ class Programa3Interfaz(ttk.Frame):
         ):
 
             self.marco_matriz_2.grid()
+
             self.marco_escalar_matriz.grid_remove()
 
             self.entradas_matriz_2 = (
@@ -1692,6 +1800,7 @@ class Programa3Interfaz(ttk.Frame):
         elif operacion == "multiplicacion":
 
             self.marco_matriz_2.grid()
+
             self.marco_escalar_matriz.grid_remove()
 
             self.entradas_matriz_2 = (
@@ -1779,11 +1888,15 @@ class Programa3Interfaz(ttk.Frame):
 
         entradas = []
 
-        for i in range(filas):
+        for i in range(
+            filas
+        ):
 
             fila_entradas = []
 
-            for j in range(columnas):
+            for j in range(
+                columnas
+            ):
 
                 entrada = ttk.Entry(
                     contenedor,
@@ -1821,7 +1934,9 @@ class Programa3Interfaz(ttk.Frame):
             for fila in entradas
         ]
 
-    def resolver_matriz(self):
+    def resolver_matriz(
+        self
+    ):
 
         try:
 
@@ -1922,7 +2037,9 @@ class Programa3Interfaz(ttk.Frame):
             texto
         )
 
-    def limpiar_matrices(self):
+    def limpiar_matrices(
+        self
+    ):
 
         self.filas_matriz_1.set(
             "2"
@@ -1956,6 +2073,7 @@ class Programa3Interfaz(ttk.Frame):
             for elemento in (
                 contenedor.winfo_children()
             ):
+
                 elemento.destroy()
 
         self.marco_matrices_scroll.pack_forget()
@@ -1973,7 +2091,9 @@ class Programa3Interfaz(ttk.Frame):
     # COMBINACIÓN LINEAL
     # ==================================================
 
-    def crear_interfaz_combinacion(self):
+    def crear_interfaz_combinacion(
+        self
+    ):
 
         marco_configuracion = ttk.LabelFrame(
             self.pestana_combinacion,
@@ -2122,7 +2242,9 @@ class Programa3Interfaz(ttk.Frame):
             )
         )
 
-    def crear_vectores_combinacion(self):
+    def crear_vectores_combinacion(
+        self
+    ):
 
         try:
 
@@ -2138,6 +2260,7 @@ class Programa3Interfaz(ttk.Frame):
                 cantidad <= 0
                 or dimension <= 0
             ):
+
                 raise ValueError
 
         except ValueError:
@@ -2153,6 +2276,7 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.contenido_combinacion.winfo_children()
         ):
+
             elemento.destroy()
 
         self.entradas_vectores_combinacion = []
@@ -2160,7 +2284,9 @@ class Programa3Interfaz(ttk.Frame):
 
         self.marco_resultado_combinacion.pack_forget()
 
-        for i in range(cantidad):
+        for i in range(
+            cantidad
+        ):
 
             fila_vector = []
 
@@ -2180,7 +2306,9 @@ class Programa3Interfaz(ttk.Frame):
                 pady=3
             )
 
-            for j in range(dimension):
+            for j in range(
+                dimension
+            ):
 
                 entrada = ttk.Entry(
                     self.contenido_combinacion,
@@ -2216,7 +2344,9 @@ class Programa3Interfaz(ttk.Frame):
             pady=(7, 3)
         )
 
-        for j in range(dimension):
+        for j in range(
+            dimension
+        ):
 
             entrada = ttk.Entry(
                 self.contenido_combinacion,
@@ -2267,7 +2397,9 @@ class Programa3Interfaz(ttk.Frame):
             0
         )
 
-    def resolver_combinacion(self):
+    def resolver_combinacion(
+        self
+    ):
 
         try:
 
@@ -2433,7 +2565,9 @@ class Programa3Interfaz(ttk.Frame):
             (
                 "Posiciones pivote: "
                 + (
-                    ", ".join(posiciones_texto)
+                    ", ".join(
+                        posiciones_texto
+                    )
                     if posiciones_texto
                     else "Ninguna"
                 )
@@ -2446,7 +2580,9 @@ class Programa3Interfaz(ttk.Frame):
             (
                 "Variables básicas: "
                 + (
-                    ", ".join(basicas_texto)
+                    ", ".join(
+                        basicas_texto
+                    )
                     if basicas_texto
                     else "Ninguna"
                 )
@@ -2459,7 +2595,9 @@ class Programa3Interfaz(ttk.Frame):
             (
                 "Variables libres: "
                 + (
-                    ", ".join(libres_texto)
+                    ", ".join(
+                        libres_texto
+                    )
                     if libres_texto
                     else "Ninguna"
                 )
@@ -2528,7 +2666,9 @@ class Programa3Interfaz(ttk.Frame):
         )
 
         self.mostrar_procedimiento(
-            resultado_sistema["historial"],
+            resultado_sistema[
+                "historial"
+            ],
             self.txt_procedimiento_combinacion
         )
 
@@ -2536,7 +2676,9 @@ class Programa3Interfaz(ttk.Frame):
             self.pestana_resultado_combinacion
         )
 
-    def limpiar_combinacion(self):
+    def limpiar_combinacion(
+        self
+    ):
 
         self.numero_vectores_combinacion.set(
             "2"
@@ -2552,6 +2694,7 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.contenido_combinacion.winfo_children()
         ):
+
             elemento.destroy()
 
         self.marco_combinacion_entrada.pack_forget()
@@ -2576,7 +2719,9 @@ class Programa3Interfaz(ttk.Frame):
     # ECUACIÓN MATRICIAL Ax = b
     # ==================================================
 
-    def crear_interfaz_axb(self):
+    def crear_interfaz_axb(
+        self
+    ):
 
         marco_configuracion = ttk.LabelFrame(
             self.pestana_axb,
@@ -2753,7 +2898,9 @@ class Programa3Interfaz(ttk.Frame):
             )
         )
 
-    def crear_sistema_axb(self):
+    def crear_sistema_axb(
+        self
+    ):
 
         try:
 
@@ -2769,6 +2916,7 @@ class Programa3Interfaz(ttk.Frame):
                 filas <= 0
                 or columnas <= 0
             ):
+
                 raise ValueError
 
         except ValueError:
@@ -2784,11 +2932,13 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.marco_matriz_axb.winfo_children()
         ):
+
             elemento.destroy()
 
         for elemento in (
             self.marco_vector_b_axb.winfo_children()
         ):
+
             elemento.destroy()
 
         self.entradas_matriz_axb = (
@@ -2801,7 +2951,9 @@ class Programa3Interfaz(ttk.Frame):
 
         self.entradas_vector_b_axb = []
 
-        for i in range(filas):
+        for i in range(
+            filas
+        ):
 
             entrada = ttk.Entry(
                 self.marco_vector_b_axb,
@@ -2852,7 +3004,9 @@ class Programa3Interfaz(ttk.Frame):
             0
         )
 
-    def resolver_axb(self):
+    def resolver_axb(
+        self
+    ):
 
         try:
 
@@ -2871,9 +3025,11 @@ class Programa3Interfaz(ttk.Frame):
                 self.entradas_vector_b_axb
             )
 
-            resultado = procesar_ecuacion_matricial(
-                matriz_a,
-                vector_b
+            resultado = (
+                procesar_ecuacion_matricial(
+                    matriz_a,
+                    vector_b
+                )
             )
 
             self.mostrar_resultado_axb(
@@ -2940,6 +3096,18 @@ class Programa3Interfaz(ttk.Frame):
             "verificacion"
         ]
 
+        es_homogeneo = datos[
+            "es_homogeneo"
+        ]
+
+        analisis_homogeneo = datos[
+            "analisis_homogeneo"
+        ]
+
+        forma_vectorial = datos[
+            "forma_vectorial"
+        ]
+
         posiciones_pivote = (
             self.obtener_posiciones_pivote_visuales(
                 matriz_reducida
@@ -2956,7 +3124,6 @@ class Programa3Interfaz(ttk.Frame):
             in posiciones_pivote
         )
 
-        # Solo columnas correspondientes a variables
         columnas_pivote_variables = [
             columna
             for columna in columnas_pivote
@@ -2964,7 +3131,9 @@ class Programa3Interfaz(ttk.Frame):
         ]
 
         columnas_texto = [
-            str(i + 1)
+            str(
+                i + 1
+            )
             for i in columnas_pivote_variables
         ]
 
@@ -3015,9 +3184,36 @@ class Programa3Interfaz(ttk.Frame):
             "Ecuación matricial Ax = b\n\n"
         )
 
+        # ==================================================
+        # HOMOGÉNEO / NO HOMOGÉNEO
+        # ==================================================
+
         widget.insert(
             tk.END,
-            "Clasificación del sistema:\n"
+            "Tipo del sistema respecto al vector b:\n"
+        )
+
+        if es_homogeneo:
+
+            widget.insert(
+                tk.END,
+                "Sistema homogéneo (b = 0)\n"
+            )
+
+        else:
+
+            widget.insert(
+                tk.END,
+                "Sistema no homogéneo (b ≠ 0)\n"
+            )
+
+        # ==================================================
+        # CLASIFICACIÓN
+        # ==================================================
+
+        widget.insert(
+            tk.END,
+            "\nClasificación del sistema:\n"
         )
 
         widget.insert(
@@ -3028,12 +3224,102 @@ class Programa3Interfaz(ttk.Frame):
             + "\n\n"
         )
 
+        # ==================================================
+        # SOLUCIÓN TRIVIAL / NO TRIVIAL
+        # ==================================================
+
+        widget.insert(
+            tk.END,
+            "Análisis de solución trivial:\n"
+        )
+
+        if analisis_homogeneo[
+            "aplica"
+        ]:
+
+            vector_trivial = (
+                analisis_homogeneo[
+                    "vector_trivial"
+                ]
+            )
+
+            widget.insert(
+                tk.END,
+                "Solución trivial: Sí existe.\n"
+            )
+
+            widget.insert(
+                tk.END,
+                (
+                    "x = "
+                    + self.formatear_vector_transpuesto(
+                        vector_trivial
+                    )
+                    + "\n"
+                )
+            )
+
+            if (
+                analisis_homogeneo[
+                    "soluciones_no_triviales"
+                ]
+                == "existen"
+            ):
+
+                widget.insert(
+                    tk.END,
+                    (
+                        "Soluciones no triviales: "
+                        "Sí existen.\n"
+                    )
+                )
+
+            else:
+
+                widget.insert(
+                    tk.END,
+                    (
+                        "Soluciones no triviales: "
+                        "No existen.\n"
+                    )
+                )
+
+        else:
+
+            widget.insert(
+                tk.END,
+                (
+                    "Solución trivial: No aplica, "
+                    "porque el sistema no es homogéneo.\n"
+                )
+            )
+
+            widget.insert(
+                tk.END,
+                (
+                    "Soluciones no triviales: "
+                    "La clasificación trivial/no trivial "
+                    "se utiliza para sistemas homogéneos.\n"
+                )
+            )
+
+        # ==================================================
+        # PIVOTES
+        # ==================================================
+
+        widget.insert(
+            tk.END,
+            "\n"
+        )
+
         widget.insert(
             tk.END,
             (
                 "Columnas pivote de las variables: "
                 + (
-                    ", ".join(columnas_texto)
+                    ", ".join(
+                        columnas_texto
+                    )
                     if columnas_texto
                     else "Ninguna"
                 )
@@ -3059,7 +3345,9 @@ class Programa3Interfaz(ttk.Frame):
             (
                 "Posiciones pivote: "
                 + (
-                    ", ".join(posiciones_texto)
+                    ", ".join(
+                        posiciones_texto
+                    )
                     if posiciones_texto
                     else "Ninguna"
                 )
@@ -3072,7 +3360,9 @@ class Programa3Interfaz(ttk.Frame):
             (
                 "Variables básicas: "
                 + (
-                    ", ".join(basicas_texto)
+                    ", ".join(
+                        basicas_texto
+                    )
                     if basicas_texto
                     else "Ninguna"
                 )
@@ -3085,13 +3375,19 @@ class Programa3Interfaz(ttk.Frame):
             (
                 "Variables libres: "
                 + (
-                    ", ".join(libres_texto)
+                    ", ".join(
+                        libres_texto
+                    )
                     if libres_texto
                     else "Ninguna"
                 )
                 + "\n"
             )
         )
+
+        # ==================================================
+        # SOLUCIÓN PARAMÉTRICA
+        # ==================================================
 
         widget.insert(
             tk.END,
@@ -3108,6 +3404,27 @@ class Programa3Interfaz(ttk.Frame):
                 + "\n"
             )
 
+        # ==================================================
+        # FORMA VECTORIAL
+        # ==================================================
+
+        widget.insert(
+            tk.END,
+            "\nForma vectorial de la solución:\n"
+        )
+
+        widget.insert(
+            tk.END,
+            self.formatear_forma_vectorial(
+                forma_vectorial
+            )
+            + "\n"
+        )
+
+        # ==================================================
+        # MATRIZ A
+        # ==================================================
+
         widget.insert(
             tk.END,
             "\nMatriz A:\n"
@@ -3120,6 +3437,10 @@ class Programa3Interfaz(ttk.Frame):
             )
             + "\n"
         )
+
+        # ==================================================
+        # VECTOR b
+        # ==================================================
 
         widget.insert(
             tk.END,
@@ -3134,6 +3455,10 @@ class Programa3Interfaz(ttk.Frame):
             + "\n"
         )
 
+        # ==================================================
+        # MATRIZ AUMENTADA
+        # ==================================================
+
         widget.insert(
             tk.END,
             "\nMatriz aumentada [A|b]:\n"
@@ -3146,6 +3471,10 @@ class Programa3Interfaz(ttk.Frame):
             )
             + "\n"
         )
+
+        # ==================================================
+        # RREF
+        # ==================================================
 
         widget.insert(
             tk.END,
@@ -3168,6 +3497,10 @@ class Programa3Interfaz(ttk.Frame):
                 "corresponden a posiciones pivote.\n"
             )
         )
+
+        # ==================================================
+        # VERIFICACIÓN
+        # ==================================================
 
         widget.insert(
             tk.END,
@@ -3198,7 +3531,9 @@ class Programa3Interfaz(ttk.Frame):
             self.pestana_resultado_axb
         )
 
-    def limpiar_axb(self):
+    def limpiar_axb(
+        self
+    ):
 
         self.filas_axb.set(
             "2"
@@ -3214,11 +3549,13 @@ class Programa3Interfaz(ttk.Frame):
         for elemento in (
             self.marco_matriz_axb.winfo_children()
         ):
+
             elemento.destroy()
 
         for elemento in (
             self.marco_vector_b_axb.winfo_children()
         ):
+
             elemento.destroy()
 
         self.marco_entrada_axb.pack_forget()

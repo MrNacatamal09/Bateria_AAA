@@ -1,78 +1,73 @@
-# Convertimos números normales a caracteres de subíndice
-def convertir_a_subindice(numero):
-
-    equivalencias = {
-        "0": "₀",
-        "1": "₁",
-        "2": "₂",
-        "3": "₃",
-        "4": "₄",
-        "5": "₅",
-        "6": "₆",
-        "7": "₇",
-        "8": "₈",
-        "9": "₉"
-    }
-
-    resultado = ""
-
-    for caracter in str(numero):
-        resultado += equivalencias.get(
-            caracter,
-            caracter
-        )
-
-    return resultado
+import re
 
 
-# Creamos el nombre visual de una variable
-def nombre_variable(numero):
+# Convertimos números normales a subíndices Unicode
+def convertir_numero_subindice(numero):
 
-    return (
-        "x"
-        + convertir_a_subindice(numero)
+    equivalencias = str.maketrans(
+        "0123456789",
+        "₀₁₂₃₄₅₆₇₈₉"
+    )
+
+    return str(numero).translate(
+        equivalencias
     )
 
 
-# Convertimos x1, x2, t1... dentro de un texto
+# Obtenemos el nombre visual de una variable
+# El índice recibido comienza desde 0
+# Ejemplo:
+# 0 -> x₁
+# 1 -> x₂
+# 2 -> x₃
+def nombre_variable(indice):
+
+    return (
+        "x"
+        + convertir_numero_subindice(
+            indice + 1
+        )
+    )
+
+
+# Obtenemos el nombre visual de un parámetro
+# El índice recibido comienza desde 0
+# Ejemplo:
+# 0 -> t₁
+# 1 -> t₂
+# 2 -> t₃
+def nombre_parametro(indice):
+
+    return (
+        "t"
+        + convertir_numero_subindice(
+            indice + 1
+        )
+    )
+
+
+# Convertimos expresiones escritas con x1, x2, x3...
+# y t1, t2, t3... a notación con subíndices
 def formatear_texto_matematico(texto):
 
     texto = str(texto)
 
-    resultado = ""
-    i = 0
+    def reemplazar_variable(coincidencia):
 
-    while i < len(texto):
+        letra = coincidencia.group(1)
+        numero = coincidencia.group(2)
 
-        caracter = texto[i]
-
-        # Buscamos variables x o parámetros t
-        if (
-            caracter in ("x", "t")
-            and i + 1 < len(texto)
-            and texto[i + 1].isdigit()
-        ):
-
-            resultado += caracter
-            i += 1
-
-            numero = ""
-
-            while (
-                i < len(texto)
-                and texto[i].isdigit()
-            ):
-
-                numero += texto[i]
-                i += 1
-
-            resultado += convertir_a_subindice(
+        return (
+            letra
+            + convertir_numero_subindice(
                 numero
             )
+        )
 
-            continue
+    texto = re.sub(
+        r"\b([xt])(\d+)\b",
+        reemplazar_variable,
+        texto
+    )
 
-        resultado += caracter
-        i += 1
-
-    return resultado
+    return texto
