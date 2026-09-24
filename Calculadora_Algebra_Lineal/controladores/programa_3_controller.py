@@ -3,13 +3,19 @@ from utilidades.estructuras_entrada import (
     convertir_matriz
 )
 
-from utilidades.numeros import convertir_a_fraccion
+from utilidades.numeros import (
+    convertir_a_fraccion
+)
 
 from programas.programa_3.resolver_programa_3 import (
     resolver_vectores,
     resolver_matrices,
     resolver_combinacion_lineal,
     resolver_ax_b
+)
+
+from programas.programa_3.propiedades_matriz import (
+    verificar_propiedades_matriz
 )
 
 
@@ -22,7 +28,7 @@ def procesar_vectores(
     vectores=None
 ):
 
-    # Para suma o resta de varios vectores
+    # Suma o resta de varios vectores
     if vectores is not None:
 
         vectores_convertidos = []
@@ -40,7 +46,7 @@ def procesar_vectores(
             vectores=vectores_convertidos
         )
 
-    # Operaciones que utilizan un vector
+    # Operaciones que utilizan un solo vector
     if vector_1 is not None:
 
         vector_1 = convertir_vector(
@@ -107,7 +113,9 @@ def procesar_combinacion_lineal(
 
     vectores_convertidos = []
 
-    for i in range(len(vectores)):
+    for i in range(
+        len(vectores)
+    ):
 
         vectores_convertidos.append(
             convertir_vector(
@@ -142,4 +150,42 @@ def procesar_ecuacion_matricial(
     return resolver_ax_b(
         matriz_a,
         vector_b
+    )
+
+
+# Preparamos y verificamos las propiedades de la transformación
+# matricial A(u + v) = Au + Av y A(cu) = c(Au)
+def procesar_propiedades_matriz(
+    matriz_a,
+    vector_u,
+    vector_v,
+    escalar
+):
+
+    # Convertimos A
+    matriz_a = convertir_matriz(
+        matriz_a
+    )
+
+    # Convertimos u
+    vector_u = convertir_vector(
+        vector_u
+    )
+
+    # Convertimos v
+    vector_v = convertir_vector(
+        vector_v
+    )
+
+    # Convertimos c
+    escalar = convertir_a_fraccion(
+        escalar
+    )
+
+    # Enviamos los datos al motor matemático
+    return verificar_propiedades_matriz(
+        matriz_a,
+        vector_u,
+        vector_v,
+        escalar
     )
