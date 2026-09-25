@@ -16,8 +16,14 @@ from utilidades.formato_interfaz import (
 
 class Programa3Interfaz(ttk.Frame):
 
-    def __init__(self, contenedor):
-        super().__init__(contenedor)
+    def __init__(
+        self,
+        contenedor
+    ):
+
+        super().__init__(
+            contenedor
+        )
 
         # ==================================================
         # VECTORES
@@ -99,6 +105,10 @@ class Programa3Interfaz(ttk.Frame):
         # PROPIEDADES DE A
         # ==================================================
 
+        self.propiedad_seleccionada = tk.StringVar(
+            value="A(u + v) = Au + Av"
+        )
+
         self.filas_propiedades = tk.StringVar(
             value="2"
         )
@@ -115,22 +125,35 @@ class Programa3Interfaz(ttk.Frame):
         self.entradas_vector_u_propiedades = []
         self.entradas_vector_v_propiedades = []
 
+        # ==================================================
+        # CREACIÓN GENERAL
+        # ==================================================
+
         self.crear_interfaz()
 
     # ==================================================
     # INTERFAZ GENERAL
     # ==================================================
 
-    def crear_interfaz(self):
+    def crear_interfaz(
+        self
+    ):
 
         titulo = ttk.Label(
             self,
             text="Programa 3 - Vectores y Matrices",
-            font=("Arial", 16, "bold")
+            font=(
+                "Arial",
+                16,
+                "bold"
+            )
         )
 
         titulo.pack(
-            pady=(5, 1)
+            pady=(
+                5,
+                1
+            )
         )
 
         subtitulo = ttk.Label(
@@ -140,11 +163,17 @@ class Programa3Interfaz(ttk.Frame):
                 "combinación lineal, ecuación Ax = b "
                 "y propiedades de la multiplicación matricial"
             ),
-            font=("Arial", 10)
+            font=(
+                "Arial",
+                10
+            )
         )
 
         subtitulo.pack(
-            pady=(0, 4)
+            pady=(
+                0,
+                4
+            )
         )
 
         self.cuaderno_operaciones = ttk.Notebook(
@@ -155,7 +184,10 @@ class Programa3Interfaz(ttk.Frame):
             fill="both",
             expand=True,
             padx=8,
-            pady=(2, 5)
+            pady=(
+                2,
+                5
+            )
         )
 
         self.pestana_vectores = ttk.Frame(
@@ -282,7 +314,10 @@ class Programa3Interfaz(ttk.Frame):
         )
 
         canvas.create_window(
-            (0, 0),
+            (
+                0,
+                0
+            ),
             window=contenido,
             anchor="nw"
         )
@@ -290,7 +325,9 @@ class Programa3Interfaz(ttk.Frame):
         contenido.bind(
             "<Configure>",
             lambda evento, c=canvas:
-                self.actualizar_scroll(c)
+                self.actualizar_scroll(
+                    c
+                )
         )
 
         return (
@@ -323,9 +360,11 @@ class Programa3Interfaz(ttk.Frame):
         )
 
         if altura < minimo:
+
             altura = minimo
 
         if altura > maximo:
+
             altura = maximo
 
         return altura
@@ -451,7 +490,9 @@ class Programa3Interfaz(ttk.Frame):
         return (
             "[ "
             + ", ".join(
-                str(valor)
+                str(
+                    valor
+                )
                 for valor in vector
             )
             + " ]"
@@ -465,7 +506,9 @@ class Programa3Interfaz(ttk.Frame):
         return (
             "[ "
             + ", ".join(
-                str(valor)
+                str(
+                    valor
+                )
                 for valor in vector
             )
             + " ]ᵀ"
@@ -477,6 +520,7 @@ class Programa3Interfaz(ttk.Frame):
     ):
 
         if not coeficientes:
+
             return ""
 
         partes = []
@@ -486,6 +530,7 @@ class Programa3Interfaz(ttk.Frame):
         ):
 
             if coeficiente == 0:
+
                 continue
 
             nombre_vector = (
@@ -502,15 +547,21 @@ class Programa3Interfaz(ttk.Frame):
             if not partes:
 
                 if coeficiente < 0:
+
                     signo = "-"
+
                 else:
+
                     signo = ""
 
             else:
 
                 if coeficiente < 0:
+
                     signo = " - "
+
                 else:
+
                     signo = " + "
 
             if valor_absoluto == 1:
@@ -535,6 +586,7 @@ class Programa3Interfaz(ttk.Frame):
             )
 
         if not partes:
+
             return "0 = 0"
 
         return (
@@ -581,7 +633,8 @@ class Programa3Interfaz(ttk.Frame):
 
         if any(
             valor != 0
-            for valor in vector_particular
+            for valor
+            in vector_particular
         ):
 
             partes.append(
@@ -637,7 +690,9 @@ class Programa3Interfaz(ttk.Frame):
         for fila in matriz:
 
             contenido = "   ".join(
-                str(valor)
+                str(
+                    valor
+                )
                 for valor in fila
             )
 
@@ -659,7 +714,9 @@ class Programa3Interfaz(ttk.Frame):
         for fila in matriz:
 
             izquierda = "   ".join(
-                str(valor)
+                str(
+                    valor
+                )
                 for valor in fila[:-1]
             )
 
@@ -713,7 +770,10 @@ class Programa3Interfaz(ttk.Frame):
                 if valor != 0:
 
                     posiciones.append(
-                        (i, j)
+                        (
+                            i,
+                            j
+                        )
                     )
 
                     break
@@ -741,7 +801,9 @@ class Programa3Interfaz(ttk.Frame):
             )
 
             for j in range(
-                len(fila) - 1
+                len(
+                    fila
+                ) - 1
             ):
 
                 valor = str(
@@ -766,7 +828,9 @@ class Programa3Interfaz(ttk.Frame):
                         valor
                     )
 
-                if j < len(fila) - 2:
+                if j < len(
+                    fila
+                ) - 2:
 
                     widget.insert(
                         tk.END,
@@ -779,7 +843,9 @@ class Programa3Interfaz(ttk.Frame):
             )
 
             columna_aumentada = (
-                len(fila) - 1
+                len(
+                    fila
+                ) - 1
             )
 
             termino = str(
@@ -1131,6 +1197,7 @@ class Programa3Interfaz(ttk.Frame):
             )
 
             if dimension <= 0:
+
                 raise ValueError
 
         except ValueError:
@@ -1159,6 +1226,7 @@ class Programa3Interfaz(ttk.Frame):
                 )
 
                 if cantidad < 2:
+
                     raise ValueError
 
             except ValueError:
@@ -1435,7 +1503,9 @@ class Programa3Interfaz(ttk.Frame):
 
             messagebox.showerror(
                 "Error en los datos",
-                str(error)
+                str(
+                    error
+                )
             )
 
     def mostrar_resultado_vector(
@@ -1459,9 +1529,11 @@ class Programa3Interfaz(ttk.Frame):
             )
 
             expresion = " + ".join(
-                "v"
-                + self.numero_subindice(
-                    i + 1
+                (
+                    "v"
+                    + self.numero_subindice(
+                        i + 1
+                    )
                 )
                 for i in range(
                     cantidad
@@ -1483,9 +1555,11 @@ class Programa3Interfaz(ttk.Frame):
             )
 
             expresion = " - ".join(
-                "v"
-                + self.numero_subindice(
-                    i + 1
+                (
+                    "v"
+                    + self.numero_subindice(
+                        i + 1
+                    )
                 )
                 for i in range(
                     cantidad
@@ -1511,7 +1585,10 @@ class Programa3Interfaz(ttk.Frame):
 
         self.marco_resultado_vector.pack(
             padx=12,
-            pady=(4, 7),
+            pady=(
+                4,
+                7
+            ),
             fill="both",
             expand=True
         )
@@ -1831,6 +1908,7 @@ class Programa3Interfaz(ttk.Frame):
                 )
 
                 if columnas_b <= 0:
+
                     raise ValueError
 
             else:
@@ -2092,7 +2170,9 @@ class Programa3Interfaz(ttk.Frame):
 
             messagebox.showerror(
                 "Error en los datos",
-                str(error)
+                str(
+                    error
+                )
             )
 
     def mostrar_resultado_matriz(
@@ -2131,7 +2211,10 @@ class Programa3Interfaz(ttk.Frame):
 
         self.marco_resultado_matriz.pack(
             padx=12,
-            pady=(4, 7),
+            pady=(
+                4,
+                7
+            ),
             fill="both",
             expand=True
         )
@@ -2440,12 +2523,19 @@ class Programa3Interfaz(ttk.Frame):
         ttk.Label(
             self.contenido_combinacion,
             text="b =",
-            font=("Arial", 10, "bold")
+            font=(
+                "Arial",
+                10,
+                "bold"
+            )
         ).grid(
             row=fila_b,
             column=0,
             padx=6,
-            pady=(7, 3)
+            pady=(
+                7,
+                3
+            )
         )
 
         for j in range(
@@ -2462,7 +2552,10 @@ class Programa3Interfaz(ttk.Frame):
                 row=fila_b,
                 column=j + 1,
                 padx=3,
-                pady=(7, 3)
+                pady=(
+                    7,
+                    3
+                )
             )
 
             self.entradas_vector_b_combinacion.append(
@@ -2542,7 +2635,9 @@ class Programa3Interfaz(ttk.Frame):
 
             messagebox.showerror(
                 "Error en los datos",
-                str(error)
+                str(
+                    error
+                )
             )
 
     def mostrar_resultado_combinacion(
@@ -2632,7 +2727,10 @@ class Programa3Interfaz(ttk.Frame):
 
         self.marco_resultado_combinacion.pack(
             padx=12,
-            pady=(4, 7),
+            pady=(
+                4,
+                7
+            ),
             fill="both",
             expand=True
         )
@@ -2652,7 +2750,8 @@ class Programa3Interfaz(ttk.Frame):
 
         widget.insert(
             tk.END,
-            respuesta + "\n\n"
+            respuesta
+            + "\n\n"
         )
 
         widget.insert(
@@ -2724,10 +2823,12 @@ class Programa3Interfaz(ttk.Frame):
 
                 widget.insert(
                     tk.END,
-                    formatear_texto_matematico(
-                        linea
+                    (
+                        formatear_texto_matematico(
+                            linea
+                        )
+                        + "\n"
                     )
-                    + "\n"
                 )
 
         widget.insert(
@@ -2737,10 +2838,12 @@ class Programa3Interfaz(ttk.Frame):
 
         widget.insert(
             tk.END,
-            self.formatear_matriz_aumentada(
-                matriz_aumentada
+            (
+                self.formatear_matriz_aumentada(
+                    matriz_aumentada
+                )
+                + "\n"
             )
-            + "\n"
         )
 
         widget.insert(
@@ -3148,7 +3251,9 @@ class Programa3Interfaz(ttk.Frame):
 
             messagebox.showerror(
                 "Error en los datos",
-                str(error)
+                str(
+                    error
+                )
             )
 
     def mostrar_resultado_axb(
@@ -3277,7 +3382,10 @@ class Programa3Interfaz(ttk.Frame):
 
         self.marco_resultado_axb.pack(
             padx=12,
-            pady=(4, 7),
+            pady=(
+                4,
+                7
+            ),
             fill="both",
             expand=True
         )
@@ -3430,7 +3538,7 @@ class Programa3Interfaz(ttk.Frame):
             )
 
         # ==================================================
-        # PIVOTES DEL SISTEMA ORIGINAL
+        # PIVOTES
         # ==================================================
 
         widget.insert(
@@ -3593,7 +3701,7 @@ class Programa3Interfaz(ttk.Frame):
         )
 
         # ==================================================
-        # VECTORES COLUMNA
+        # COLUMNAS DE A
         # ==================================================
 
         widget.insert(
@@ -3679,7 +3787,7 @@ class Programa3Interfaz(ttk.Frame):
         )
 
         # ==================================================
-        # VARIABLES DEL SISTEMA HOMOGÉNEO
+        # VARIABLES DEL HOMOGÉNEO
         # ==================================================
 
         basicas_dependencia = []
@@ -3748,7 +3856,7 @@ class Programa3Interfaz(ttk.Frame):
         )
 
         # ==================================================
-        # SOLUCIÓN DEL HOMOGÉNEO
+        # SOLUCIÓN HOMOGÉNEA
         # ==================================================
 
         widget.insert(
@@ -3936,7 +4044,7 @@ class Programa3Interfaz(ttk.Frame):
             )
 
         # ==================================================
-        # DATOS DEL SISTEMA
+        # DATOS DEL SISTEMA ORIGINAL
         # ==================================================
 
         widget.insert(
@@ -4110,6 +4218,24 @@ class Programa3Interfaz(ttk.Frame):
     # PROPIEDADES DE A
     # ==================================================
 
+    def obtener_tipo_propiedad(
+        self
+    ):
+
+        seleccion = (
+            self.propiedad_seleccionada.get()
+        )
+
+        if seleccion == "A(u + v) = Au + Av":
+
+            return "suma"
+
+        if seleccion == "A(cu) = c(Au)":
+
+            return "escalar"
+
+        return "ambas"
+
     def crear_interfaz_propiedades(
         self
     ):
@@ -4117,11 +4243,18 @@ class Programa3Interfaz(ttk.Frame):
         titulo = ttk.Label(
             self.pestana_propiedades,
             text="Propiedades de la multiplicación matricial",
-            font=("Arial", 14, "bold")
+            font=(
+                "Arial",
+                14,
+                "bold"
+            )
         )
 
         titulo.pack(
-            pady=(6, 2)
+            pady=(
+                6,
+                2
+            )
         )
 
         descripcion = ttk.Label(
@@ -4133,25 +4266,15 @@ class Programa3Interfaz(ttk.Frame):
         )
 
         descripcion.pack(
-            pady=(0, 4)
-        )
-
-        teorema = ttk.Label(
-            self.pestana_propiedades,
-            text=(
-                "a) A(u + v) = Au + Av      "
-                "b) A(cu) = c(Au)"
-            ),
-            font=("Arial", 11, "bold")
-        )
-
-        teorema.pack(
-            pady=(0, 7)
+            pady=(
+                0,
+                4
+            )
         )
 
         marco_configuracion = ttk.LabelFrame(
             self.pestana_propiedades,
-            text="Dimensiones de A",
+            text="Configuración",
             padding=6
         )
 
@@ -4160,12 +4283,54 @@ class Programa3Interfaz(ttk.Frame):
             pady=5
         )
 
+        # ==================================================
+        # SELECTOR DE PROPIEDAD
+        # ==================================================
+
+        ttk.Label(
+            marco_configuracion,
+            text="Propiedad:"
+        ).grid(
+            row=0,
+            column=0,
+            padx=6,
+            pady=3
+        )
+
+        selector_propiedad = ttk.Combobox(
+            marco_configuracion,
+            textvariable=self.propiedad_seleccionada,
+            values=[
+                "A(u + v) = Au + Av",
+                "A(cu) = c(Au)",
+                "Ambas propiedades"
+            ],
+            state="readonly",
+            width=25
+        )
+
+        selector_propiedad.grid(
+            row=0,
+            column=1,
+            padx=6,
+            pady=3
+        )
+
+        selector_propiedad.bind(
+            "<<ComboboxSelected>>",
+            self.cambiar_propiedad_seleccionada
+        )
+
+        # ==================================================
+        # DIMENSIONES
+        # ==================================================
+
         ttk.Label(
             marco_configuracion,
             text="Filas m:"
         ).grid(
             row=0,
-            column=0,
+            column=2,
             padx=6,
             pady=3
         )
@@ -4176,7 +4341,7 @@ class Programa3Interfaz(ttk.Frame):
             width=7
         ).grid(
             row=0,
-            column=1,
+            column=3,
             padx=6,
             pady=3
         )
@@ -4186,7 +4351,7 @@ class Programa3Interfaz(ttk.Frame):
             text="Columnas n:"
         ).grid(
             row=0,
-            column=2,
+            column=4,
             padx=6,
             pady=3
         )
@@ -4197,7 +4362,7 @@ class Programa3Interfaz(ttk.Frame):
             width=7
         ).grid(
             row=0,
-            column=3,
+            column=5,
             padx=6,
             pady=3
         )
@@ -4208,10 +4373,14 @@ class Programa3Interfaz(ttk.Frame):
             command=self.crear_datos_propiedades
         ).grid(
             row=0,
-            column=4,
+            column=6,
             padx=8,
             pady=3
         )
+
+        # ==================================================
+        # ENTRADA
+        # ==================================================
 
         (
             self.marco_entrada_propiedades,
@@ -4219,7 +4388,7 @@ class Programa3Interfaz(ttk.Frame):
             self.contenido_propiedades
         ) = self.crear_area_desplazable(
             self.pestana_propiedades,
-            "Datos del teorema",
+            "Datos de la propiedad",
             145
         )
 
@@ -4239,7 +4408,7 @@ class Programa3Interfaz(ttk.Frame):
 
         self.marco_vectores_propiedades = ttk.LabelFrame(
             self.contenido_propiedades,
-            text="Vectores u y v",
+            text="Vectores",
             padding=6
         )
 
@@ -4265,13 +4434,17 @@ class Programa3Interfaz(ttk.Frame):
             sticky="n"
         )
 
+        # ==================================================
+        # BOTONES
+        # ==================================================
+
         self.marco_acciones_propiedades = ttk.Frame(
             self.pestana_propiedades
         )
 
         ttk.Button(
             self.marco_acciones_propiedades,
-            text="Verificar teorema",
+            text="Verificar propiedad",
             command=self.resolver_propiedades
         ).grid(
             row=0,
@@ -4291,9 +4464,13 @@ class Programa3Interfaz(ttk.Frame):
             pady=3
         )
 
+        # ==================================================
+        # RESULTADO
+        # ==================================================
+
         self.marco_resultado_propiedades = ttk.LabelFrame(
             self.pestana_propiedades,
-            text="Verificación del teorema",
+            text="Verificación",
             padding=5
         )
 
@@ -4338,6 +4515,15 @@ class Programa3Interfaz(ttk.Frame):
             )
         )
 
+    def cambiar_propiedad_seleccionada(
+        self,
+        evento=None
+    ):
+
+        if self.entradas_matriz_propiedades:
+
+            self.crear_datos_propiedades()
+
     def crear_datos_propiedades(
         self
     ):
@@ -4369,6 +4555,14 @@ class Programa3Interfaz(ttk.Frame):
 
             return
 
+        operacion = (
+            self.obtener_tipo_propiedad()
+        )
+
+        # ==================================================
+        # LIMPIAR DATOS ANTERIORES
+        # ==================================================
+
         for elemento in (
             self.marco_matriz_propiedades.winfo_children()
         ):
@@ -4387,6 +4581,16 @@ class Programa3Interfaz(ttk.Frame):
 
             elemento.destroy()
 
+        self.entradas_matriz_propiedades = []
+        self.entradas_vector_u_propiedades = []
+        self.entradas_vector_v_propiedades = []
+
+        self.marco_resultado_propiedades.pack_forget()
+
+        # ==================================================
+        # MATRIZ A
+        # ==================================================
+
         self.entradas_matriz_propiedades = (
             self.generar_casillas_matriz(
                 self.marco_matriz_propiedades,
@@ -4395,8 +4599,9 @@ class Programa3Interfaz(ttk.Frame):
             )
         )
 
-        self.entradas_vector_u_propiedades = []
-        self.entradas_vector_v_propiedades = []
+        # ==================================================
+        # VECTOR u
+        # ==================================================
 
         ttk.Label(
             self.marco_vectores_propiedades,
@@ -4429,60 +4634,86 @@ class Programa3Interfaz(ttk.Frame):
                 entrada
             )
 
-        ttk.Label(
-            self.marco_vectores_propiedades,
-            text="v ="
-        ).grid(
-            row=1,
-            column=0,
-            padx=5,
-            pady=5
-        )
+        # ==================================================
+        # VECTOR v
+        # ==================================================
 
-        for j in range(
-            columnas
+        if operacion in (
+            "suma",
+            "ambas"
         ):
 
-            entrada = ttk.Entry(
+            ttk.Label(
                 self.marco_vectores_propiedades,
-                width=7,
-                justify="center"
-            )
-
-            entrada.grid(
+                text="v ="
+            ).grid(
                 row=1,
-                column=j + 1,
-                padx=3,
+                column=0,
+                padx=5,
                 pady=5
             )
 
-            self.entradas_vector_v_propiedades.append(
-                entrada
+            for j in range(
+                columnas
+            ):
+
+                entrada = ttk.Entry(
+                    self.marco_vectores_propiedades,
+                    width=7,
+                    justify="center"
+                )
+
+                entrada.grid(
+                    row=1,
+                    column=j + 1,
+                    padx=3,
+                    pady=5
+                )
+
+                self.entradas_vector_v_propiedades.append(
+                    entrada
+                )
+
+        # ==================================================
+        # ESCALAR c
+        # ==================================================
+
+        if operacion in (
+            "escalar",
+            "ambas"
+        ):
+
+            self.marco_escalar_propiedades.grid()
+
+            ttk.Label(
+                self.marco_escalar_propiedades,
+                text="c ="
+            ).grid(
+                row=0,
+                column=0,
+                padx=5,
+                pady=5
             )
 
-        ttk.Label(
-            self.marco_escalar_propiedades,
-            text="c ="
-        ).grid(
-            row=0,
-            column=0,
-            padx=5,
-            pady=5
-        )
+            ttk.Entry(
+                self.marco_escalar_propiedades,
+                textvariable=self.escalar_propiedades,
+                width=10,
+                justify="center"
+            ).grid(
+                row=0,
+                column=1,
+                padx=5,
+                pady=5
+            )
 
-        ttk.Entry(
-            self.marco_escalar_propiedades,
-            textvariable=self.escalar_propiedades,
-            width=10,
-            justify="center"
-        ).grid(
-            row=0,
-            column=1,
-            padx=5,
-            pady=5
-        )
+        else:
 
-        self.marco_resultado_propiedades.pack_forget()
+            self.marco_escalar_propiedades.grid_remove()
+
+        # ==================================================
+        # MOSTRAR ENTRADA
+        # ==================================================
 
         self.canvas_propiedades.configure(
             height=self.calcular_altura(
@@ -4525,9 +4756,12 @@ class Programa3Interfaz(ttk.Frame):
             if not self.entradas_matriz_propiedades:
 
                 raise ValueError(
-                    "Primero debe crear la matriz "
-                    "y los vectores."
+                    "Primero debe crear los datos."
                 )
+
+            operacion = (
+                self.obtener_tipo_propiedad()
+            )
 
             matriz_a = self.leer_matriz(
                 self.entradas_matriz_propiedades
@@ -4537,16 +4771,38 @@ class Programa3Interfaz(ttk.Frame):
                 self.entradas_vector_u_propiedades
             )
 
-            vector_v = self.leer_vector(
-                self.entradas_vector_v_propiedades
-            )
+            vector_v = None
+            escalar = None
 
-            escalar = (
-                self.escalar_propiedades.get()
-            )
+            # ==================================================
+            # VECTOR v
+            # ==================================================
+
+            if operacion in (
+                "suma",
+                "ambas"
+            ):
+
+                vector_v = self.leer_vector(
+                    self.entradas_vector_v_propiedades
+                )
+
+            # ==================================================
+            # ESCALAR c
+            # ==================================================
+
+            if operacion in (
+                "escalar",
+                "ambas"
+            ):
+
+                escalar = (
+                    self.escalar_propiedades.get()
+                )
 
             resultado = (
                 procesar_propiedades_matriz(
+                    operacion,
                     matriz_a,
                     vector_u,
                     vector_v,
@@ -4562,13 +4818,19 @@ class Programa3Interfaz(ttk.Frame):
 
             messagebox.showerror(
                 "Error en los datos",
-                str(error)
+                str(
+                    error
+                )
             )
 
     def mostrar_resultado_propiedades(
         self,
         resultado
     ):
+
+        operacion = resultado[
+            "operacion"
+        ]
 
         propiedad_suma = resultado[
             "propiedad_suma"
@@ -4580,7 +4842,10 @@ class Programa3Interfaz(ttk.Frame):
 
         self.marco_resultado_propiedades.pack(
             padx=12,
-            pady=(4, 7),
+            pady=(
+                4,
+                7
+            ),
             fill="both",
             expand=True
         )
@@ -4590,7 +4855,7 @@ class Programa3Interfaz(ttk.Frame):
         # ==================================================
 
         lineas_resultado = [
-            "TEOREMA DE PROPIEDADES DE LA MULTIPLICACIÓN MATRICIAL",
+            "PROPIEDADES DE LA MULTIPLICACIÓN MATRICIAL",
             "=" * 58,
             "",
             (
@@ -4599,98 +4864,168 @@ class Programa3Interfaz(ttk.Frame):
                 f"{resultado['columnas_a']}"
             ),
             (
-                "u, v ∈ R"
+                "u ∈ R"
                 + self.numero_subindice(
                     resultado[
                         "columnas_a"
                     ]
                 )
             ),
-            (
-                f"c = {resultado['escalar']}"
-            ),
-            "",
-            "Propiedad a)",
-            "A(u + v) = Au + Av",
-            "",
-            (
-                "A(u + v) = "
-                + self.formatear_vector(
-                    propiedad_suma[
-                        "lado_izquierdo"
-                    ]
-                )
-            ),
-            (
-                "Au + Av = "
-                + self.formatear_vector(
-                    propiedad_suma[
-                        "lado_derecho"
-                    ]
-                )
-            ),
-            "",
-            (
-                "Resultado: "
-                + (
-                    "La propiedad se cumple."
-                    if propiedad_suma[
-                        "se_cumple"
-                    ]
-                    else "La propiedad no se cumple."
-                )
-            ),
-            "",
-            "-" * 58,
-            "",
-            "Propiedad b)",
-            "A(cu) = c(Au)",
-            "",
-            (
-                "A(cu) = "
-                + self.formatear_vector(
-                    propiedad_escalar[
-                        "lado_izquierdo"
-                    ]
-                )
-            ),
-            (
-                "c(Au) = "
-                + self.formatear_vector(
-                    propiedad_escalar[
-                        "lado_derecho"
-                    ]
-                )
-            ),
-            "",
-            (
-                "Resultado: "
-                + (
-                    "La propiedad se cumple."
-                    if propiedad_escalar[
-                        "se_cumple"
-                    ]
-                    else "La propiedad no se cumple."
-                )
-            ),
-            "",
-            "=" * 58
+            ""
         ]
 
-        if resultado[
-            "teorema_verificado"
-        ]:
+        # ==================================================
+        # PROPIEDAD A
+        # ==================================================
 
-            lineas_resultado.append(
-                "Conclusión: ambas propiedades fueron verificadas."
+        if propiedad_suma is not None:
+
+            lineas_resultado.extend(
+                [
+                    "Propiedad a)",
+                    "A(u + v) = Au + Av",
+                    "",
+                    (
+                        "A(u + v) = "
+                        + self.formatear_vector(
+                            propiedad_suma[
+                                "lado_izquierdo"
+                            ]
+                        )
+                    ),
+                    (
+                        "Au + Av = "
+                        + self.formatear_vector(
+                            propiedad_suma[
+                                "lado_derecho"
+                            ]
+                        )
+                    ),
+                    "",
+                    (
+                        "Resultado: "
+                        + (
+                            "La propiedad se cumple."
+                            if propiedad_suma[
+                                "se_cumple"
+                            ]
+                            else
+                            "La propiedad no se cumple."
+                        )
+                    )
+                ]
             )
+
+        # ==================================================
+        # SEPARACIÓN
+        # ==================================================
+
+        if (
+            propiedad_suma is not None
+            and propiedad_escalar is not None
+        ):
+
+            lineas_resultado.extend(
+                [
+                    "",
+                    "-" * 58,
+                    ""
+                ]
+            )
+
+        # ==================================================
+        # PROPIEDAD B
+        # ==================================================
+
+        if propiedad_escalar is not None:
+
+            lineas_resultado.extend(
+                [
+                    "Propiedad b)",
+                    "A(cu) = c(Au)",
+                    "",
+                    (
+                        f"c = "
+                        f"{resultado['escalar']}"
+                    ),
+                    "",
+                    (
+                        "A(cu) = "
+                        + self.formatear_vector(
+                            propiedad_escalar[
+                                "lado_izquierdo"
+                            ]
+                        )
+                    ),
+                    (
+                        "c(Au) = "
+                        + self.formatear_vector(
+                            propiedad_escalar[
+                                "lado_derecho"
+                            ]
+                        )
+                    ),
+                    "",
+                    (
+                        "Resultado: "
+                        + (
+                            "La propiedad se cumple."
+                            if propiedad_escalar[
+                                "se_cumple"
+                            ]
+                            else
+                            "La propiedad no se cumple."
+                        )
+                    )
+                ]
+            )
+
+        lineas_resultado.extend(
+            [
+                "",
+                "=" * 58
+            ]
+        )
+
+        # ==================================================
+        # CONCLUSIÓN
+        # ==================================================
+
+        if operacion == "ambas":
+
+            if resultado[
+                "teorema_verificado"
+            ]:
+
+                lineas_resultado.append(
+                    "Conclusión: ambas propiedades "
+                    "fueron verificadas correctamente."
+                )
+
+            else:
+
+                lineas_resultado.append(
+                    "Conclusión: alguna de las propiedades "
+                    "no fue verificada."
+                )
 
         else:
 
-            lineas_resultado.append(
-                "Conclusión: alguna de las propiedades "
-                "no fue verificada."
-            )
+            if resultado[
+                "teorema_verificado"
+            ]:
+
+                lineas_resultado.append(
+                    "Conclusión: la propiedad seleccionada "
+                    "fue verificada correctamente."
+                )
+
+            else:
+
+                lineas_resultado.append(
+                    "Conclusión: la propiedad seleccionada "
+                    "no fue verificada."
+                )
 
         self.colocar_texto(
             self.txt_resultado_propiedades,
@@ -4704,7 +5039,7 @@ class Programa3Interfaz(ttk.Frame):
         # ==================================================
 
         procedimiento = [
-            "VERIFICACIÓN DETALLADA DEL TEOREMA",
+            "VERIFICACIÓN DETALLADA",
             "=" * 58,
             "",
             "Datos iniciales:",
@@ -4723,179 +5058,240 @@ class Programa3Interfaz(ttk.Frame):
                         "vector_u"
                     ]
                 )
-            ),
-            (
-                "v = "
-                + self.formatear_vector(
-                    resultado[
-                        "vector_v"
-                    ]
-                )
-            ),
-            (
-                f"c = {resultado['escalar']}"
-            ),
-            "",
-            "=" * 58,
-            "",
-            "a) Verificación de A(u + v) = Au + Av",
-            "",
-            "1. Calculamos u + v:",
-            (
-                "u + v = "
-                + self.formatear_vector(
-                    propiedad_suma[
-                        "suma_uv"
-                    ]
-                )
-            ),
-            "",
-            "2. Calculamos A(u + v):",
-            (
-                "A(u + v) = "
-                + self.formatear_vector(
-                    propiedad_suma[
-                        "lado_izquierdo"
-                    ]
-                )
-            ),
-            "",
-            "3. Calculamos Au:",
-            (
-                "Au = "
-                + self.formatear_vector(
-                    propiedad_suma[
-                        "au"
-                    ]
-                )
-            ),
-            "",
-            "4. Calculamos Av:",
-            (
-                "Av = "
-                + self.formatear_vector(
-                    propiedad_suma[
-                        "av"
-                    ]
-                )
-            ),
-            "",
-            "5. Calculamos Au + Av:",
-            (
-                "Au + Av = "
-                + self.formatear_vector(
-                    propiedad_suma[
-                        "lado_derecho"
-                    ]
-                )
-            ),
-            "",
-            "6. Comparamos ambos lados:",
-            (
-                "A(u + v) = "
-                + self.formatear_vector(
-                    propiedad_suma[
-                        "lado_izquierdo"
-                    ]
-                )
-            ),
-            (
-                "Au + Av = "
-                + self.formatear_vector(
-                    propiedad_suma[
-                        "lado_derecho"
-                    ]
-                )
-            ),
-            "",
-            (
-                "Propiedad verificada: "
-                + (
-                    "Sí"
-                    if propiedad_suma[
-                        "se_cumple"
-                    ]
-                    else "No"
-                )
-            ),
-            "",
-            "=" * 58,
-            "",
-            "b) Verificación de A(cu) = c(Au)",
-            "",
-            "1. Calculamos cu:",
-            (
-                "cu = "
-                + self.formatear_vector(
-                    propiedad_escalar[
-                        "cu"
-                    ]
-                )
-            ),
-            "",
-            "2. Calculamos A(cu):",
-            (
-                "A(cu) = "
-                + self.formatear_vector(
-                    propiedad_escalar[
-                        "lado_izquierdo"
-                    ]
-                )
-            ),
-            "",
-            "3. Calculamos Au:",
-            (
-                "Au = "
-                + self.formatear_vector(
-                    propiedad_escalar[
-                        "au"
-                    ]
-                )
-            ),
-            "",
-            "4. Calculamos c(Au):",
-            (
-                "c(Au) = "
-                + self.formatear_vector(
-                    propiedad_escalar[
-                        "lado_derecho"
-                    ]
-                )
-            ),
-            "",
-            "5. Comparamos ambos lados:",
-            (
-                "A(cu) = "
-                + self.formatear_vector(
-                    propiedad_escalar[
-                        "lado_izquierdo"
-                    ]
-                )
-            ),
-            (
-                "c(Au) = "
-                + self.formatear_vector(
-                    propiedad_escalar[
-                        "lado_derecho"
-                    ]
-                )
-            ),
-            "",
-            (
-                "Propiedad verificada: "
-                + (
-                    "Sí"
-                    if propiedad_escalar[
-                        "se_cumple"
-                    ]
-                    else "No"
-                )
-            ),
-            "",
-            "=" * 58,
-            "",
-            "Fin de la verificación."
+            )
         ]
+
+        if resultado[
+            "vector_v"
+        ] is not None:
+
+            procedimiento.append(
+                (
+                    "v = "
+                    + self.formatear_vector(
+                        resultado[
+                            "vector_v"
+                        ]
+                    )
+                )
+            )
+
+        if resultado[
+            "escalar"
+        ] is not None:
+
+            procedimiento.append(
+                (
+                    f"c = "
+                    f"{resultado['escalar']}"
+                )
+            )
+
+        procedimiento.extend(
+            [
+                "",
+                "=" * 58,
+                ""
+            ]
+        )
+
+        # ==================================================
+        # PROCEDIMIENTO PROPIEDAD A
+        # ==================================================
+
+        if propiedad_suma is not None:
+
+            procedimiento.extend(
+                [
+                    "a) Verificación de A(u + v) = Au + Av",
+                    "",
+                    "1. Calculamos u + v:",
+                    (
+                        "u + v = "
+                        + self.formatear_vector(
+                            propiedad_suma[
+                                "suma_uv"
+                            ]
+                        )
+                    ),
+                    "",
+                    "2. Calculamos A(u + v):",
+                    (
+                        "A(u + v) = "
+                        + self.formatear_vector(
+                            propiedad_suma[
+                                "lado_izquierdo"
+                            ]
+                        )
+                    ),
+                    "",
+                    "3. Calculamos Au:",
+                    (
+                        "Au = "
+                        + self.formatear_vector(
+                            propiedad_suma[
+                                "au"
+                            ]
+                        )
+                    ),
+                    "",
+                    "4. Calculamos Av:",
+                    (
+                        "Av = "
+                        + self.formatear_vector(
+                            propiedad_suma[
+                                "av"
+                            ]
+                        )
+                    ),
+                    "",
+                    "5. Calculamos Au + Av:",
+                    (
+                        "Au + Av = "
+                        + self.formatear_vector(
+                            propiedad_suma[
+                                "lado_derecho"
+                            ]
+                        )
+                    ),
+                    "",
+                    "6. Comparamos ambos lados:",
+                    (
+                        "A(u + v) = "
+                        + self.formatear_vector(
+                            propiedad_suma[
+                                "lado_izquierdo"
+                            ]
+                        )
+                    ),
+                    (
+                        "Au + Av = "
+                        + self.formatear_vector(
+                            propiedad_suma[
+                                "lado_derecho"
+                            ]
+                        )
+                    ),
+                    "",
+                    (
+                        "Propiedad verificada: "
+                        + (
+                            "Sí"
+                            if propiedad_suma[
+                                "se_cumple"
+                            ]
+                            else "No"
+                        )
+                    )
+                ]
+            )
+
+        # ==================================================
+        # SEPARACIÓN
+        # ==================================================
+
+        if (
+            propiedad_suma is not None
+            and propiedad_escalar is not None
+        ):
+
+            procedimiento.extend(
+                [
+                    "",
+                    "=" * 58,
+                    ""
+                ]
+            )
+
+        # ==================================================
+        # PROCEDIMIENTO PROPIEDAD B
+        # ==================================================
+
+        if propiedad_escalar is not None:
+
+            procedimiento.extend(
+                [
+                    "b) Verificación de A(cu) = c(Au)",
+                    "",
+                    "1. Calculamos cu:",
+                    (
+                        "cu = "
+                        + self.formatear_vector(
+                            propiedad_escalar[
+                                "cu"
+                            ]
+                        )
+                    ),
+                    "",
+                    "2. Calculamos A(cu):",
+                    (
+                        "A(cu) = "
+                        + self.formatear_vector(
+                            propiedad_escalar[
+                                "lado_izquierdo"
+                            ]
+                        )
+                    ),
+                    "",
+                    "3. Calculamos Au:",
+                    (
+                        "Au = "
+                        + self.formatear_vector(
+                            propiedad_escalar[
+                                "au"
+                            ]
+                        )
+                    ),
+                    "",
+                    "4. Calculamos c(Au):",
+                    (
+                        "c(Au) = "
+                        + self.formatear_vector(
+                            propiedad_escalar[
+                                "lado_derecho"
+                            ]
+                        )
+                    ),
+                    "",
+                    "5. Comparamos ambos lados:",
+                    (
+                        "A(cu) = "
+                        + self.formatear_vector(
+                            propiedad_escalar[
+                                "lado_izquierdo"
+                            ]
+                        )
+                    ),
+                    (
+                        "c(Au) = "
+                        + self.formatear_vector(
+                            propiedad_escalar[
+                                "lado_derecho"
+                            ]
+                        )
+                    ),
+                    "",
+                    (
+                        "Propiedad verificada: "
+                        + (
+                            "Sí"
+                            if propiedad_escalar[
+                                "se_cumple"
+                            ]
+                            else "No"
+                        )
+                    )
+                ]
+            )
+
+        procedimiento.extend(
+            [
+                "",
+                "=" * 58,
+                "",
+                "Fin de la verificación."
+            ]
+        )
 
         self.colocar_texto(
             self.txt_procedimiento_propiedades,
@@ -4911,6 +5307,10 @@ class Programa3Interfaz(ttk.Frame):
     def limpiar_propiedades(
         self
     ):
+
+        self.propiedad_seleccionada.set(
+            "A(u + v) = Au + Av"
+        )
 
         self.filas_propiedades.set(
             "2"

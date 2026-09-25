@@ -19,7 +19,10 @@ from programas.programa_3.propiedades_matriz import (
 )
 
 
-# Preparamos y ejecutamos una operación vectorial
+# ==========================================================
+# OPERACIONES CON VECTORES
+# ==========================================================
+
 def procesar_vectores(
     operacion,
     vector_1=None,
@@ -28,7 +31,10 @@ def procesar_vectores(
     vectores=None
 ):
 
-    # Suma o resta de varios vectores
+    # ======================================================
+    # SUMA O RESTA DE VARIOS VECTORES
+    # ======================================================
+
     if vectores is not None:
 
         vectores_convertidos = []
@@ -46,18 +52,29 @@ def procesar_vectores(
             vectores=vectores_convertidos
         )
 
-    # Operaciones que utilizan un solo vector
+    # ======================================================
+    # PRIMER VECTOR
+    # ======================================================
+
     if vector_1 is not None:
 
         vector_1 = convertir_vector(
             vector_1
         )
 
+    # ======================================================
+    # SEGUNDO VECTOR
+    # ======================================================
+
     if vector_2 is not None:
 
         vector_2 = convertir_vector(
             vector_2
         )
+
+    # ======================================================
+    # ESCALAR
+    # ======================================================
 
     if escalar is not None:
 
@@ -73,7 +90,10 @@ def procesar_vectores(
     )
 
 
-# Preparamos y ejecutamos una operación matricial
+# ==========================================================
+# OPERACIONES CON MATRICES
+# ==========================================================
+
 def procesar_matrices(
     operacion,
     matriz_1,
@@ -105,7 +125,10 @@ def procesar_matrices(
     )
 
 
-# Preparamos y evaluamos una combinación lineal
+# ==========================================================
+# COMBINACIÓN LINEAL
+# ==========================================================
+
 def procesar_combinacion_lineal(
     vectores,
     vector_b
@@ -113,13 +136,11 @@ def procesar_combinacion_lineal(
 
     vectores_convertidos = []
 
-    for i in range(
-        len(vectores)
-    ):
+    for vector in vectores:
 
         vectores_convertidos.append(
             convertir_vector(
-                vectores[i]
+                vector
             )
         )
 
@@ -133,7 +154,10 @@ def procesar_combinacion_lineal(
     )
 
 
-# Preparamos y resolvemos una ecuación matricial Ax = b
+# ==========================================================
+# ECUACIÓN MATRICIAL Ax = b
+# ==========================================================
+
 def procesar_ecuacion_matricial(
     matriz_a,
     vector_b
@@ -153,37 +177,66 @@ def procesar_ecuacion_matricial(
     )
 
 
-# Preparamos y verificamos las propiedades de la transformación
-# matricial A(u + v) = Au + Av y A(cu) = c(Au)
+# ==========================================================
+# PROPIEDADES DE A
+# ==========================================================
+
 def procesar_propiedades_matriz(
+    operacion,
     matriz_a,
     vector_u,
-    vector_v,
-    escalar
+    vector_v=None,
+    escalar=None
 ):
 
-    # Convertimos A
+    # ======================================================
+    # MATRIZ A
+    # ======================================================
+
     matriz_a = convertir_matriz(
         matriz_a
     )
 
-    # Convertimos u
+    # ======================================================
+    # VECTOR u
+    # ======================================================
+
     vector_u = convertir_vector(
         vector_u
     )
 
-    # Convertimos v
-    vector_v = convertir_vector(
-        vector_v
-    )
+    # ======================================================
+    # VECTOR v
+    #
+    # Solo se convierte cuando la propiedad seleccionada
+    # necesita el vector v.
+    # ======================================================
 
-    # Convertimos c
-    escalar = convertir_a_fraccion(
-        escalar
-    )
+    if vector_v is not None:
 
-    # Enviamos los datos al motor matemático
+        vector_v = convertir_vector(
+            vector_v
+        )
+
+    # ======================================================
+    # ESCALAR c
+    #
+    # Solo se convierte cuando la propiedad seleccionada
+    # necesita un escalar.
+    # ======================================================
+
+    if escalar is not None:
+
+        escalar = convertir_a_fraccion(
+            escalar
+        )
+
+    # ======================================================
+    # MOTOR MATEMÁTICO
+    # ======================================================
+
     return verificar_propiedades_matriz(
+        operacion,
         matriz_a,
         vector_u,
         vector_v,

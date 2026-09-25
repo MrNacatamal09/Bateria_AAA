@@ -1,4 +1,7 @@
-# Validamos que una matriz tenga una estructura correcta
+# ==========================================================
+# VALIDACIONES
+# ==========================================================
+
 def validar_matriz(matriz):
 
     if not matriz:
@@ -15,76 +18,102 @@ def validar_matriz(matriz):
             "La matriz A debe tener al menos una columna."
         )
 
-    for i in range(len(matriz)):
+    for fila in matriz:
 
-        if len(matriz[i]) != numero_columnas:
+        if len(fila) != numero_columnas:
+
             raise ValueError(
                 "Todas las filas de la matriz A deben "
                 "tener la misma cantidad de columnas."
             )
 
 
-# Validamos que dos vectores tengan la misma dimensión
-def validar_vectores(u, v):
+def validar_vector(
+    vector,
+    nombre_vector
+):
 
-    if not u:
-        raise ValueError(
-            "El vector u no puede estar vacío."
-        )
+    if not vector:
 
-    if not v:
         raise ValueError(
-            "El vector v no puede estar vacío."
-        )
-
-    if len(u) != len(v):
-        raise ValueError(
-            "Los vectores u y v deben tener "
-            "la misma dimensión."
+            f"El vector {nombre_vector} no puede estar vacío."
         )
 
 
-# Validamos las dimensiones según A de m x n
-def validar_dimensiones(matriz_a, u, v):
+def validar_dimension_vector(
+    matriz_a,
+    vector,
+    nombre_vector
+):
 
     validar_matriz(
         matriz_a
     )
 
-    validar_vectores(
-        u,
-        v
+    validar_vector(
+        vector,
+        nombre_vector
     )
 
     numero_columnas = len(
         matriz_a[0]
     )
 
-    # u y v pertenecen a R^n
-    if len(u) != numero_columnas:
-        raise ValueError(
-            "La dimensión del vector u debe coincidir "
-            "con el número de columnas de A."
-        )
+    if len(vector) != numero_columnas:
 
-    if len(v) != numero_columnas:
         raise ValueError(
-            "La dimensión del vector v debe coincidir "
-            "con el número de columnas de A."
+            f"La dimensión del vector {nombre_vector} "
+            "debe coincidir con el número de columnas de A."
         )
 
 
-# Sumamos dos vectores
-def sumar_vectores_propiedad(u, v):
+def validar_vectores_suma(
+    matriz_a,
+    u,
+    v
+):
 
-    validar_vectores(
+    validar_dimension_vector(
+        matriz_a,
         u,
-        v
+        "u"
     )
+
+    validar_dimension_vector(
+        matriz_a,
+        v,
+        "v"
+    )
+
+    if len(u) != len(v):
+
+        raise ValueError(
+            "Los vectores u y v deben tener "
+            "la misma dimensión."
+        )
+
+
+# ==========================================================
+# OPERACIONES CON VECTORES
+# ==========================================================
+
+def sumar_vectores_propiedad(
+    u,
+    v
+):
+
+    if len(u) != len(v):
+
+        raise ValueError(
+            "Los vectores deben tener "
+            "la misma dimensión."
+        )
 
     resultado = []
 
-    for i in range(len(u)):
+    for i in range(
+        len(u)
+    ):
 
         resultado.append(
             u[i] + v[i]
@@ -93,7 +122,6 @@ def sumar_vectores_propiedad(u, v):
     return resultado
 
 
-# Multiplicamos un vector por un escalar
 def multiplicar_vector_escalar_propiedad(
     vector,
     escalar
@@ -101,16 +129,19 @@ def multiplicar_vector_escalar_propiedad(
 
     resultado = []
 
-    for i in range(len(vector)):
+    for valor in vector:
 
         resultado.append(
-            escalar * vector[i]
+            escalar * valor
         )
 
     return resultado
 
 
-# Multiplicamos una matriz A por un vector x
+# ==========================================================
+# MULTIPLICACIÓN MATRIZ POR VECTOR
+# ==========================================================
+
 def multiplicar_matriz_vector(
     matriz_a,
     vector
@@ -125,6 +156,7 @@ def multiplicar_matriz_vector(
     )
 
     if len(vector) != numero_columnas:
+
         raise ValueError(
             "La dimensión del vector debe coincidir "
             "con el número de columnas de la matriz."
@@ -132,13 +164,17 @@ def multiplicar_matriz_vector(
 
     resultado = []
 
-    # i representa las filas de A
-    for i in range(len(matriz_a)):
+    # i representa las filas
+    for i in range(
+        len(matriz_a)
+    ):
 
         suma = 0
 
-        # j representa las columnas de A
-        for j in range(numero_columnas):
+        # j representa las columnas
+        for j in range(
+            numero_columnas
+        ):
 
             suma += (
                 matriz_a[i][j]
@@ -152,14 +188,17 @@ def multiplicar_matriz_vector(
     return resultado
 
 
-# Verificamos la propiedad A(u + v) = Au + Av
+# ==========================================================
+# PROPIEDAD A(u + v) = Au + Av
+# ==========================================================
+
 def verificar_propiedad_suma(
     matriz_a,
     u,
     v
 ):
 
-    validar_dimensiones(
+    validar_vectores_suma(
         matriz_a,
         u,
         v
@@ -171,7 +210,7 @@ def verificar_propiedad_suma(
         v
     )
 
-    # Lado izquierdo: A(u + v)
+    # Lado izquierdo
     lado_izquierdo = multiplicar_matriz_vector(
         matriz_a,
         suma_uv
@@ -189,50 +228,49 @@ def verificar_propiedad_suma(
         v
     )
 
-    # Lado derecho: Au + Av
+    # Lado derecho
     lado_derecho = sumar_vectores_propiedad(
         au,
         av
     )
 
     return {
-        "suma_uv": suma_uv,
-        "au": au,
-        "av": av,
-        "lado_izquierdo": lado_izquierdo,
-        "lado_derecho": lado_derecho,
-        "se_cumple": (
+        "suma_uv":
+            suma_uv,
+
+        "au":
+            au,
+
+        "av":
+            av,
+
+        "lado_izquierdo":
+            lado_izquierdo,
+
+        "lado_derecho":
+            lado_derecho,
+
+        "se_cumple":
             lado_izquierdo
             == lado_derecho
-        )
     }
 
 
-# Verificamos la propiedad A(cu) = c(Au)
+# ==========================================================
+# PROPIEDAD A(cu) = c(Au)
+# ==========================================================
+
 def verificar_propiedad_escalar(
     matriz_a,
     u,
     escalar
 ):
 
-    validar_matriz(
-        matriz_a
+    validar_dimension_vector(
+        matriz_a,
+        u,
+        "u"
     )
-
-    numero_columnas = len(
-        matriz_a[0]
-    )
-
-    if not u:
-        raise ValueError(
-            "El vector u no puede estar vacío."
-        )
-
-    if len(u) != numero_columnas:
-        raise ValueError(
-            "La dimensión del vector u debe coincidir "
-            "con el número de columnas de A."
-        )
 
     # Calculamos cu
     cu = multiplicar_vector_escalar_propiedad(
@@ -240,7 +278,7 @@ def verificar_propiedad_escalar(
         escalar
     )
 
-    # Lado izquierdo: A(cu)
+    # Lado izquierdo
     lado_izquierdo = multiplicar_matriz_vector(
         matriz_a,
         cu
@@ -252,7 +290,7 @@ def verificar_propiedad_escalar(
         u
     )
 
-    # Lado derecho: c(Au)
+    # Lado derecho
     lado_derecho = (
         multiplicar_vector_escalar_propiedad(
             au,
@@ -261,64 +299,181 @@ def verificar_propiedad_escalar(
     )
 
     return {
-        "cu": cu,
-        "au": au,
-        "lado_izquierdo": lado_izquierdo,
-        "lado_derecho": lado_derecho,
-        "se_cumple": (
+        "cu":
+            cu,
+
+        "au":
+            au,
+
+        "lado_izquierdo":
+            lado_izquierdo,
+
+        "lado_derecho":
+            lado_derecho,
+
+        "se_cumple":
             lado_izquierdo
             == lado_derecho
-        )
     }
 
 
-# Verificamos las dos propiedades del teorema
+# ==========================================================
+# RESOLUCIÓN DE LA PROPIEDAD SELECCIONADA
+# ==========================================================
+
 def verificar_propiedades_matriz(
+    operacion,
     matriz_a,
     u,
-    v,
-    escalar
+    v=None,
+    escalar=None
 ):
 
-    validar_dimensiones(
-        matriz_a,
-        u,
-        v
+    validar_matriz(
+        matriz_a
     )
 
-    propiedad_suma = verificar_propiedad_suma(
-        matriz_a,
-        u,
-        v
-    )
+    if operacion not in (
+        "suma",
+        "escalar",
+        "ambas"
+    ):
 
-    propiedad_escalar = (
-        verificar_propiedad_escalar(
-            matriz_a,
-            u,
-            escalar
+        raise ValueError(
+            "La propiedad seleccionada no es válida."
         )
-    )
+
+    propiedad_suma = None
+    propiedad_escalar = None
+
+    # ======================================================
+    # SOLO A(u + v) = Au + Av
+    # ======================================================
+
+    if operacion == "suma":
+
+        if v is None:
+
+            raise ValueError(
+                "Debe ingresar el vector v."
+            )
+
+        propiedad_suma = (
+            verificar_propiedad_suma(
+                matriz_a,
+                u,
+                v
+            )
+        )
+
+        teorema_verificado = (
+            propiedad_suma[
+                "se_cumple"
+            ]
+        )
+
+    # ======================================================
+    # SOLO A(cu) = c(Au)
+    # ======================================================
+
+    elif operacion == "escalar":
+
+        if escalar is None:
+
+            raise ValueError(
+                "Debe ingresar el escalar c."
+            )
+
+        propiedad_escalar = (
+            verificar_propiedad_escalar(
+                matriz_a,
+                u,
+                escalar
+            )
+        )
+
+        teorema_verificado = (
+            propiedad_escalar[
+                "se_cumple"
+            ]
+        )
+
+    # ======================================================
+    # AMBAS PROPIEDADES
+    # ======================================================
+
+    else:
+
+        if v is None:
+
+            raise ValueError(
+                "Debe ingresar el vector v."
+            )
+
+        if escalar is None:
+
+            raise ValueError(
+                "Debe ingresar el escalar c."
+            )
+
+        propiedad_suma = (
+            verificar_propiedad_suma(
+                matriz_a,
+                u,
+                v
+            )
+        )
+
+        propiedad_escalar = (
+            verificar_propiedad_escalar(
+                matriz_a,
+                u,
+                escalar
+            )
+        )
+
+        teorema_verificado = (
+            propiedad_suma[
+                "se_cumple"
+            ]
+            and
+            propiedad_escalar[
+                "se_cumple"
+            ]
+        )
 
     return {
-        "matriz_a": matriz_a,
-        "vector_u": u,
-        "vector_v": v,
-        "escalar": escalar,
+        "operacion":
+            operacion,
 
-        "filas_a": len(
-            matriz_a
-        ),
+        "matriz_a":
+            matriz_a,
 
-        "columnas_a": len(
-            matriz_a[0]
-        ),
+        "vector_u":
+            u,
 
-        "propiedad_suma": propiedad_suma,
-        "propiedad_escalar": propiedad_escalar,
+        "vector_v":
+            v,
 
-        "teorema_verificado": (
-            propiedad_suma["se_cumple"]
-            and propiedad_escalar["se_cumple"]
-        )
+        "escalar":
+            escalar,
+
+        "filas_a":
+            len(
+                matriz_a
+            ),
+
+        "columnas_a":
+            len(
+                matriz_a[0]
+            ),
+
+        "propiedad_suma":
+            propiedad_suma,
+
+        "propiedad_escalar":
+            propiedad_escalar,
+
+        "teorema_verificado":
+            teorema_verificado
     }
