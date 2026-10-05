@@ -1,3 +1,10 @@
+"""
+Construye la interfaz gráfica del Programa 5 para el Módulo III.
+Permite ejecutar operaciones, determinantes, inversas y propiedades.
+Tema de clase: Álgebra de Matrices, Determinantes y Matriz Inversa.
+Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
+"""
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 
@@ -5,29 +12,46 @@ from controladores.modulo_matrices_controller import (
     procesar_operacion_basica,
     procesar_multiplicacion_matrices,
     procesar_transpuesta,
-    procesar_inversa,
-    procesar_propiedad_matrices
+    procesar_determinante_programa_5,
+    procesar_inversa_gauss_jordan_programa_5,
+    procesar_inversa_adjunta_programa_5,
+    procesar_propiedad_programa_5
+)
+
+from utilidades.formato_determinantes import (
+    formatear_matriz,
+    formatear_procedimiento_determinante,
+    formatear_sarrus,
+    formatear_triangular,
+    formatear_comparacion_determinantes
 )
 
 from utilidades.formato_inversa import (
     formatear_procedimiento_inversa
 )
 
+from utilidades.formato_inversa_adjunta import (
+    formatear_inversa_adjunta,
+    formatear_comparacion_inversas
+)
 
-# ==========================================================
-# COMPONENTE REUTILIZABLE PARA INGRESAR MATRICES
-# ==========================================================
+from utilidades.formato_propiedades_programa_5 import (
+    formatear_propiedad
+)
+
 
 class EntradaMatriz(ttk.LabelFrame):
+    """Gestiona una matriz editable con dimensiones configurables."""
 
     def __init__(
         self,
         contenedor,
         titulo,
         filas=2,
-        columnas=2
+        columnas=2,
+        cuadrada=False
     ):
-
+        """Inicializa una entrada matricial con dimensiones configurables."""
         super().__init__(
             contenedor,
             text=titulo,
@@ -35,6 +59,7 @@ class EntradaMatriz(ttk.LabelFrame):
         )
 
         self.titulo = titulo
+        self.cuadrada = cuadrada
 
         self.filas = tk.StringVar(
             value=str(filas)
@@ -46,76 +71,83 @@ class EntradaMatriz(ttk.LabelFrame):
 
         self.entradas = []
 
-        self.crear_interfaz()
+        self._crear_interfaz()
 
-    # ======================================================
-    # INTERFAZ
-    # ======================================================
-
-    def crear_interfaz(
-        self
-    ):
-
-        configuracion = ttk.Frame(
+    def _crear_interfaz(self):
+        """Construye los controles de dimensión y el área desplazable."""
+        controles = ttk.Frame(
             self
         )
 
-        configuracion.pack(
+        controles.pack(
             fill="x",
-            pady=(
-                0,
-                5
+            pady=(0, 5)
+        )
+
+        if self.cuadrada:
+            ttk.Label(
+                controles,
+                text="Orden n:"
+            ).pack(
+                side="left",
+                padx=3
             )
-        )
 
-        ttk.Label(
-            configuracion,
-            text="Filas:"
-        ).pack(
-            side="left",
-            padx=3
-        )
+            ttk.Entry(
+                controles,
+                textvariable=self.filas,
+                width=6,
+                justify="center"
+            ).pack(
+                side="left",
+                padx=3
+            )
 
-        ttk.Entry(
-            configuracion,
-            textvariable=self.filas,
-            width=5,
-            justify="center"
-        ).pack(
-            side="left",
-            padx=3
-        )
+        else:
+            ttk.Label(
+                controles,
+                text="Filas:"
+            ).pack(
+                side="left",
+                padx=3
+            )
 
-        ttk.Label(
-            configuracion,
-            text="Columnas:"
-        ).pack(
-            side="left",
-            padx=3
-        )
+            ttk.Entry(
+                controles,
+                textvariable=self.filas,
+                width=6,
+                justify="center"
+            ).pack(
+                side="left",
+                padx=3
+            )
 
-        ttk.Entry(
-            configuracion,
-            textvariable=self.columnas,
-            width=5,
-            justify="center"
-        ).pack(
-            side="left",
-            padx=3
-        )
+            ttk.Label(
+                controles,
+                text="Columnas:"
+            ).pack(
+                side="left",
+                padx=3
+            )
+
+            ttk.Entry(
+                controles,
+                textvariable=self.columnas,
+                width=6,
+                justify="center"
+            ).pack(
+                side="left",
+                padx=3
+            )
 
         ttk.Button(
-            configuracion,
-            text="Crear",
+            controles,
+            text="Crear matriz",
             command=self.crear_matriz
         ).pack(
             side="left",
-            padx=5
+            padx=6
         )
-
-        # ==================================================
-        # ÁREA DESPLAZABLE
-        # ==================================================
 
         marco_canvas = ttk.Frame(
             self
@@ -138,8 +170,7 @@ class EntradaMatriz(ttk.LabelFrame):
 
         self.canvas = tk.Canvas(
             marco_canvas,
-            height=135,
-            width=280,
+            height=140,
             highlightthickness=0
         )
 
@@ -190,81 +221,67 @@ class EntradaMatriz(ttk.LabelFrame):
 
         self.contenido.bind(
             "<Configure>",
-            self.actualizar_scroll
+            self._actualizar_scroll
         )
 
         self.crear_matriz()
 
-    # ======================================================
-    # ACTUALIZAR SCROLL
-    # ======================================================
-
-    def actualizar_scroll(
-        self,
-        evento=None
-    ):
-
+    def _actualizar_scroll(self, evento=None):
+        """Actualiza el área desplazable cuando cambia el tamaño de la matriz."""
         self.canvas.configure(
             scrollregion=self.canvas.bbox(
                 "all"
             )
         )
 
-    # ======================================================
-    # CREAR ENTRADAS
-    # ======================================================
-
-    def crear_matriz(
-        self
-    ):
-
+    def _obtener_dimensiones(self):
+        """Valida y devuelve las dimensiones solicitadas por el usuario."""
         try:
-
             filas = int(
                 self.filas.get()
             )
 
-            columnas = int(
-                self.columnas.get()
-            )
-
-            if (
-                filas <= 0
-                or columnas <= 0
-            ):
-
-                raise ValueError
-
-        except ValueError:
-
-            messagebox.showerror(
-                "Dimensiones inválidas",
-                (
-                    "Las filas y columnas deben ser "
-                    "números enteros mayores que cero."
+            columnas = (
+                filas
+                if self.cuadrada
+                else int(
+                    self.columnas.get()
                 )
             )
 
+        except ValueError:
+            raise ValueError(
+                "Las dimensiones deben ser números enteros positivos."
+            )
+
+        if filas <= 0 or columnas <= 0:
+            raise ValueError(
+                "Las dimensiones deben ser números enteros positivos."
+            )
+
+        return filas, columnas
+
+    def crear_matriz(self):
+        """Crea las entradas de la matriz según las dimensiones indicadas."""
+        try:
+            filas, columnas = self._obtener_dimensiones()
+
+        except ValueError as error:
+            messagebox.showerror(
+                "Dimensiones inválidas",
+                str(error)
+            )
             return
 
-        for elemento in (
-            self.contenido.winfo_children()
-        ):
-
+        for elemento in self.contenido.winfo_children():
             elemento.destroy()
 
         self.entradas = []
 
-        for i in range(
-            filas
-        ):
-
+        for fila in range(filas):
             fila_entradas = []
 
-            for j in range(
-                columnas
-            ):
-
+            for columna in range(columnas):
                 entrada = ttk.Entry(
                     self.contenido,
                     width=8,
@@ -272,8 +289,8 @@ class EntradaMatriz(ttk.LabelFrame):
                 )
 
                 entrada.grid(
-                    row=i,
-                    column=j,
+                    row=fila,
+                    column=columna,
                     padx=3,
                     pady=3
                 )
@@ -288,42 +305,24 @@ class EntradaMatriz(ttk.LabelFrame):
 
         self.update_idletasks()
 
-        self.actualizar_scroll()
+        self._actualizar_scroll()
 
-        self.canvas.xview_moveto(
-            0
-        )
+        self.canvas.xview_moveto(0)
+        self.canvas.yview_moveto(0)
 
-        self.canvas.yview_moveto(
-            0
-        )
-
-    # ======================================================
-    # LEER MATRIZ
-    # ======================================================
-
-    def leer(
-        self
-    ):
-
+    def leer(self):
+        """Devuelve el contenido escrito en las entradas de la matriz."""
         if not self.entradas:
-
             raise ValueError(
-                "Debe crear la matriz "
-                + self.titulo
-                + "."
+                f"Debe crear {self.titulo}."
             )
 
         matriz = []
 
-        for fila_entradas in (
-            self.entradas
-        ):
-
+        for fila_entradas in self.entradas:
             fila = []
 
             for entrada in fila_entradas:
-
                 fila.append(
                     entrada.get()
                 )
@@ -334,79 +333,40 @@ class EntradaMatriz(ttk.LabelFrame):
 
         return matriz
 
-    # ======================================================
-    # LIMPIAR
-    # ======================================================
-
-    def limpiar(
-        self
-    ):
-
-        for fila in self.entradas:
-
-            for entrada in fila:
-
-                entrada.delete(
-                    0,
-                    tk.END
-                )
-
-
-# ==========================================================
-# INTERFAZ DEL MÓDULO 3
-# ==========================================================
 
 class ModuloMatricesInterfaz(ttk.Frame):
+    """Presenta las opciones 1 a 9 del Programa 5 mediante pestañas."""
 
-    def __init__(
-        self,
-        contenedor
-    ):
-
+    def __init__(self, contenedor):
+        """Inicializa la interfaz gráfica con las opciones del Programa 5."""
         super().__init__(
             contenedor
         )
 
-        self.crear_interfaz()
+        self._crear_interfaz()
 
-    # ======================================================
-    # INTERFAZ GENERAL
-    # ======================================================
-
-    def crear_interfaz(
-        self
-    ):
-
-        titulo = ttk.Label(
+    def _crear_interfaz(self):
+        """Construye el encabezado y las nueve opciones del Programa 5."""
+        ttk.Label(
             self,
-            text="Módulo 3 - Álgebra de Matrices",
+            text="Programa 5 - Módulo III: Álgebra de Matrices",
             font=(
                 "Arial",
                 15,
                 "bold"
             )
+        ).pack(
+            pady=(6, 2)
         )
 
-        titulo.pack(
-            pady=(
-                6,
-                2
-            )
-        )
-
-        subtitulo = ttk.Label(
+        ttk.Label(
             self,
             text=(
-                "Operaciones, multiplicación, "
-                "transpuesta, inversa y propiedades"
+                "Operaciones, determinantes, inversas "
+                "y verificación de propiedades"
             )
-        )
-
-        subtitulo.pack(
-            pady=(
-                0,
-                5
-            )
+        ).pack(
+            pady=(0, 5)
         )
 
         self.cuaderno = ttk.Notebook(
@@ -420,22 +380,18 @@ class ModuloMatricesInterfaz(ttk.Frame):
             pady=5
         )
 
-        self.crear_pestana_operaciones()
-        self.crear_pestana_multiplicacion()
-        self.crear_pestana_transpuesta()
-        self.crear_pestana_inversa()
-        self.crear_pestana_propiedades()
+        self._crear_pestana_suma()
+        self._crear_pestana_resta()
+        self._crear_pestana_escalar()
+        self._crear_pestana_producto()
+        self._crear_pestana_transpuesta()
+        self._crear_pestana_determinante()
+        self._crear_pestana_gauss_jordan()
+        self._crear_pestana_adjunta()
+        self._crear_pestana_propiedades()
 
-    # ======================================================
-    # UTILIDADES VISUALES
-    # ======================================================
-
-    def crear_area_texto(
-        self,
-        contenedor,
-        altura=12
-    ):
-
+    def _crear_area_texto(self, contenedor):
+        """Crea un área de resultados con desplazamiento vertical y horizontal."""
         marco = ttk.Frame(
             contenedor
         )
@@ -459,9 +415,12 @@ class ModuloMatricesInterfaz(ttk.Frame):
 
         texto = tk.Text(
             marco,
-            height=altura,
             wrap="none",
-            state="disabled"
+            state="disabled",
+            font=(
+                "Consolas",
+                10
+            )
         )
 
         texto.grid(
@@ -501,12 +460,8 @@ class ModuloMatricesInterfaz(ttk.Frame):
 
         return texto
 
-    def colocar_texto(
-        self,
-        widget,
-        texto
-    ):
-
+    def _colocar_texto(self, widget, contenido):
+        """Reemplaza el contenido de un área de texto de solo lectura."""
         widget.configure(
             state="normal"
         )
@@ -518,7 +473,7 @@ class ModuloMatricesInterfaz(ttk.Frame):
 
         widget.insert(
             tk.END,
-            texto
+            contenido
         )
 
         widget.configure(
@@ -529,74 +484,193 @@ class ModuloMatricesInterfaz(ttk.Frame):
             "1.0"
         )
 
-    # ======================================================
-    # FORMATO DE MATRICES
-    # ======================================================
-
-    def formatear_matriz(
+    def _crear_dos_matrices(
         self,
-        matriz
+        contenedor,
+        filas_a=2,
+        columnas_a=2,
+        filas_b=2,
+        columnas_b=2
     ):
-
-        if matriz is None:
-
-            return "No existe."
-
-        lineas = []
-
-        for fila in matriz:
-
-            contenido = "   ".join(
-                str(valor)
-                for valor in fila
-            )
-
-            lineas.append(
-                "[ "
-                + contenido
-                + " ]"
-            )
-
-        return "\n".join(
-            lineas
+        """Crea dos entradas de matrices colocadas lado a lado."""
+        marco = ttk.Frame(
+            contenedor
         )
 
-    # ======================================================
-    # SUBÍNDICES
-    # ======================================================
-
-    def subindice(
-        self,
-        numero
-    ):
-
-        equivalencias = str.maketrans(
-            "0123456789",
-            "₀₁₂₃₄₅₆₇₈₉"
+        marco.pack(
+            fill="x",
+            padx=8,
+            pady=5
         )
 
-        return str(
-            numero
-        ).translate(
-            equivalencias
+        marco.columnconfigure(
+            0,
+            weight=1
         )
 
-    # ======================================================
-    # PESTAÑA 1
-    # OPERACIONES BÁSICAS
-    # ======================================================
+        marco.columnconfigure(
+            1,
+            weight=1
+        )
 
-    def crear_pestana_operaciones(
-        self
-    ):
+        matriz_a = EntradaMatriz(
+            marco,
+            "Matriz A",
+            filas_a,
+            columnas_a
+        )
 
+        matriz_a.grid(
+            row=0,
+            column=0,
+            padx=5,
+            sticky="nsew"
+        )
+
+        matriz_b = EntradaMatriz(
+            marco,
+            "Matriz B",
+            filas_b,
+            columnas_b
+        )
+
+        matriz_b.grid(
+            row=0,
+            column=1,
+            padx=5,
+            sticky="nsew"
+        )
+
+        return matriz_a, matriz_b
+
+    def _crear_pestana_suma(self):
+        """Construye la opción 1 para sumar matrices."""
         pestana = ttk.Frame(
             self.cuaderno
         )
 
         self.cuaderno.add(
             pestana,
-            text="Operaciones básicas"
+            text="1. Suma"
+        )
+
+        self.suma_a, self.suma_b = self._crear_dos_matrices(
+            pestana
+        )
+
+        ttk.Button(
+            pestana,
+            text="Calcular A + B",
+            command=self._resolver_suma
+        ).pack(
+            pady=4
+        )
+
+        self.txt_suma = self._crear_area_texto(
+            pestana
+        )
+
+    def _resolver_suma(self):
+        """Ejecuta la suma de las matrices ingresadas."""
+        try:
+            resultado = procesar_operacion_basica(
+                "suma",
+                self.suma_a.leer(),
+                self.suma_b.leer()
+            )
+
+            texto = (
+                "A + B =\n\n"
+                + formatear_matriz(
+                    resultado["resultado"]
+                )
+            )
+
+            self._colocar_texto(
+                self.txt_suma,
+                texto
+            )
+
+        except ValueError as error:
+            messagebox.showerror(
+                "Error",
+                str(error)
+            )
+
+    def _crear_pestana_resta(self):
+        """Construye la opción 2 para restar matrices."""
+        pestana = ttk.Frame(
+            self.cuaderno
+        )
+
+        self.cuaderno.add(
+            pestana,
+            text="2. Resta"
+        )
+
+        self.resta_a, self.resta_b = self._crear_dos_matrices(
+            pestana
+        )
+
+        ttk.Button(
+            pestana,
+            text="Calcular A - B",
+            command=self._resolver_resta
+        ).pack(
+            pady=4
+        )
+
+        self.txt_resta = self._crear_area_texto(
+            pestana
+        )
+
+    def _resolver_resta(self):
+        """Ejecuta la resta de las matrices ingresadas."""
+        try:
+            resultado = procesar_operacion_basica(
+                "resta",
+                self.resta_a.leer(),
+                self.resta_b.leer()
+            )
+
+            texto = (
+                "A - B =\n\n"
+                + formatear_matriz(
+                    resultado["resultado"]
+                )
+            )
+
+            self._colocar_texto(
+                self.txt_resta,
+                texto
+            )
+
+        except ValueError as error:
+            messagebox.showerror(
+                "Error",
+                str(error)
+            )
+
+    def _crear_pestana_escalar(self):
+        """Construye la opción 3 para multiplicar una matriz por un escalar."""
+        pestana = ttk.Frame(
+            self.cuaderno
+        )
+
+        self.cuaderno.add(
+            pestana,
+            text="3. Multiplicación por Escalar"
+        )
+
+        self.escalar_a = EntradaMatriz(
+            pestana,
+            "Matriz A"
+        )
+
+        self.escalar_a.pack(
+            fill="x",
+            padx=10,
+            pady=5
         )
 
         controles = ttk.Frame(
@@ -609,285 +683,96 @@ class ModuloMatricesInterfaz(ttk.Frame):
 
         ttk.Label(
             controles,
-            text="Operación:"
+            text="Escalar:"
         ).pack(
             side="left",
             padx=4
         )
 
-        self.operacion_basica = tk.StringVar(
-            value="A + B"
-        )
-
-        combo = ttk.Combobox(
+        self.valor_escalar = ttk.Entry(
             controles,
-            textvariable=self.operacion_basica,
-            values=[
-                "A + B",
-                "A - B",
-                "cA"
-            ],
-            state="readonly",
-            width=18
-        )
-
-        combo.pack(
-            side="left",
-            padx=4
-        )
-
-        ttk.Label(
-            controles,
-            text="Escalar c:"
-        ).pack(
-            side="left",
-            padx=4
-        )
-
-        self.escalar_basico = ttk.Entry(
-            controles,
-            width=8,
+            width=10,
             justify="center"
         )
 
-        self.escalar_basico.insert(
+        self.valor_escalar.insert(
             0,
             "2"
         )
 
-        self.escalar_basico.pack(
+        self.valor_escalar.pack(
             side="left",
             padx=4
         )
 
-        matrices = ttk.Frame(
-            pestana
-        )
-
-        matrices.pack(
-            fill="x",
-            padx=8,
-            pady=5
-        )
-
-        matrices.columnconfigure(
-            0,
-            weight=1
-        )
-
-        matrices.columnconfigure(
-            1,
-            weight=1
-        )
-
-        self.basica_a = EntradaMatriz(
-            matrices,
-            "Matriz A"
-        )
-
-        self.basica_a.grid(
-            row=0,
-            column=0,
-            padx=5,
-            sticky="nsew"
-        )
-
-        self.basica_b = EntradaMatriz(
-            matrices,
-            "Matriz B"
-        )
-
-        self.basica_b.grid(
-            row=0,
-            column=1,
-            padx=5,
-            sticky="nsew"
-        )
-
         ttk.Button(
-            pestana,
-            text="Resolver",
-            command=self.resolver_operacion_basica
+            controles,
+            text="Calcular cA",
+            command=self._resolver_escalar
         ).pack(
-            pady=4
+            side="left",
+            padx=6
         )
 
-        self.txt_basica = self.crear_area_texto(
+        self.txt_escalar = self._crear_area_texto(
             pestana
         )
 
-    def resolver_operacion_basica(
-        self
-    ):
-
+    def _resolver_escalar(self):
+        """Ejecuta la multiplicación de una matriz por un escalar."""
         try:
-
-            seleccion = (
-                self.operacion_basica.get()
+            resultado = procesar_operacion_basica(
+                "escalar",
+                self.escalar_a.leer(),
+                escalar=self.valor_escalar.get()
             )
-
-            matriz_a = self.basica_a.leer()
-
-            if seleccion == "A + B":
-
-                resultado = procesar_operacion_basica(
-                    "suma",
-                    matriz_a,
-                    self.basica_b.leer()
-                )
-
-                simbolo = "+"
-
-            elif seleccion == "A - B":
-
-                resultado = procesar_operacion_basica(
-                    "resta",
-                    matriz_a,
-                    self.basica_b.leer()
-                )
-
-                simbolo = "-"
-
-            else:
-
-                resultado = procesar_operacion_basica(
-                    "escalar",
-                    matriz_a,
-                    escalar=self.escalar_basico.get()
-                )
-
-                simbolo = None
 
             texto = (
-                "OPERACIÓN BÁSICA\n"
-                + "=" * 55
-                + "\n\n"
-            )
-
-            texto += (
-                "Matriz A:\n\n"
-                + self.formatear_matriz(
-                    resultado["matriz_a"]
+                "c = "
+                + str(
+                    resultado["escalar"]
                 )
                 + "\n\n"
+                + "cA =\n\n"
+                + formatear_matriz(
+                    resultado["resultado"]
+                )
             )
 
-            if seleccion in (
-                "A + B",
-                "A - B"
-            ):
-
-                texto += (
-                    "Matriz B:\n\n"
-                    + self.formatear_matriz(
-                        resultado["matriz_b"]
-                    )
-                    + "\n\n"
-                )
-
-                texto += (
-                    "A "
-                    + simbolo
-                    + " B =\n\n"
-                )
-
-            else:
-
-                texto += (
-                    "Escalar c = "
-                    + str(
-                        resultado["escalar"]
-                    )
-                    + "\n\n"
-                    "cA =\n\n"
-                )
-
-            texto += self.formatear_matriz(
-                resultado["resultado"]
-            )
-
-            self.colocar_texto(
-                self.txt_basica,
+            self._colocar_texto(
+                self.txt_escalar,
                 texto
             )
 
         except ValueError as error:
-
             messagebox.showerror(
                 "Error",
                 str(error)
             )
 
-    # ======================================================
-    # PESTAÑA 2
-    # MULTIPLICACIÓN
-    # ======================================================
-
-    def crear_pestana_multiplicacion(
-        self
-    ):
-
+    def _crear_pestana_producto(self):
+        """Construye la opción 4 para calcular el producto matricial."""
         pestana = ttk.Frame(
             self.cuaderno
         )
 
         self.cuaderno.add(
             pestana,
-            text="Multiplicación"
+            text="4. Producto Matricial"
         )
 
-        matrices = ttk.Frame(
-            pestana
-        )
-
-        matrices.pack(
-            fill="x",
-            padx=8,
-            pady=5
-        )
-
-        matrices.columnconfigure(
-            0,
-            weight=1
-        )
-
-        matrices.columnconfigure(
-            1,
-            weight=1
-        )
-
-        self.multi_a = EntradaMatriz(
-            matrices,
-            "Matriz A",
+        self.producto_a, self.producto_b = self._crear_dos_matrices(
+            pestana,
             2,
+            3,
+            3,
             2
-        )
-
-        self.multi_a.grid(
-            row=0,
-            column=0,
-            padx=5,
-            sticky="nsew"
-        )
-
-        self.multi_b = EntradaMatriz(
-            matrices,
-            "Matriz B",
-            2,
-            2
-        )
-
-        self.multi_b.grid(
-            row=0,
-            column=1,
-            padx=5,
-            sticky="nsew"
         )
 
         ttk.Button(
             pestana,
-            text="Calcular AB",
-            command=self.resolver_multiplicacion
+            text="Calcular A · B",
+            command=self._resolver_producto
         ).pack(
             pady=4
         )
@@ -903,200 +788,143 @@ class ModuloMatricesInterfaz(ttk.Frame):
             pady=5
         )
 
-        pesta_resultado = ttk.Frame(
+        pestana_resultado = ttk.Frame(
             resultados
         )
 
-        pesta_procedimiento = ttk.Frame(
+        pestana_procedimiento = ttk.Frame(
             resultados
         )
 
         resultados.add(
-            pesta_resultado,
+            pestana_resultado,
             text="Resultado"
         )
 
         resultados.add(
-            pesta_procedimiento,
-            text="Procedimiento"
+            pestana_procedimiento,
+            text="Regla fila-columna"
         )
 
-        self.txt_multi_resultado = (
-            self.crear_area_texto(
-                pesta_resultado
-            )
+        self.txt_producto = self._crear_area_texto(
+            pestana_resultado
         )
 
-        self.txt_multi_procedimiento = (
-            self.crear_area_texto(
-                pesta_procedimiento
-            )
+        self.txt_producto_procedimiento = self._crear_area_texto(
+            pestana_procedimiento
         )
 
-    def resolver_multiplicacion(
-        self
-    ):
-
+    def _resolver_producto(self):
+        """Calcula AB y muestra el procedimiento fila-columna."""
         try:
-
             resultado = procesar_multiplicacion_matrices(
-                self.multi_a.leer(),
-                self.multi_b.leer()
+                self.producto_a.leer(),
+                self.producto_b.leer()
             )
 
             texto = (
-                "MULTIPLICACIÓN DE MATRICES\n"
-                + "=" * 55
-                + "\n\n"
-                "A =\n\n"
-                + self.formatear_matriz(
-                    resultado["matriz_a"]
-                )
-                + "\n\nB =\n\n"
-                + self.formatear_matriz(
-                    resultado["matriz_b"]
-                )
-                + "\n\nAB =\n\n"
-                + self.formatear_matriz(
+                "A · B =\n\n"
+                + formatear_matriz(
                     resultado["resultado"]
+                )
+                + "\n\n"
+                + "Dimensiones del resultado: "
+                + str(
+                    len(
+                        resultado["resultado"]
+                    )
+                )
+                + " × "
+                + str(
+                    len(
+                        resultado["resultado"][0]
+                    )
                 )
             )
 
-            self.colocar_texto(
-                self.txt_multi_resultado,
+            self._colocar_texto(
+                self.txt_producto,
                 texto
             )
 
-            procedimiento = (
-                "REGLA FILA-COLUMNA\n"
-                + "=" * 55
-                + "\n\n"
+            procedimiento = self._formatear_producto(
+                resultado["procedimiento"]
             )
 
-            for paso in resultado[
-                "procedimiento"
-            ]:
-
-                i = (
-                    paso["fila_resultado"]
-                    + 1
-                )
-
-                j = (
-                    paso["columna_resultado"]
-                    + 1
-                )
-
-                procedimiento += (
-                    "(AB)"
-                    + self.subindice(i)
-                    + self.subindice(j)
-                    + "\n\n"
-                )
-
-                procedimiento += (
-                    "Fila "
-                    + str(i)
-                    + " de A: "
-                    + str(
-                        paso["fila_a"]
-                    )
-                    + "\n"
-                )
-
-                procedimiento += (
-                    "Columna "
-                    + str(j)
-                    + " de B: "
-                    + str(
-                        paso["columna_b"]
-                    )
-                    + "\n\n"
-                )
-
-                productos_texto = []
-
-                resultados_productos = []
-
-                for producto in paso[
-                    "productos"
-                ]:
-
-                    productos_texto.append(
-                        "("
-                        + str(
-                            producto["valor_a"]
-                        )
-                        + ")("
-                        + str(
-                            producto["valor_b"]
-                        )
-                        + ")"
-                    )
-
-                    resultados_productos.append(
-                        str(
-                            producto["producto"]
-                        )
-                    )
-
-                procedimiento += (
-                    "(AB)"
-                    + self.subindice(i)
-                    + self.subindice(j)
-                    + " = "
-                    + " + ".join(
-                        productos_texto
-                    )
-                    + "\n"
-                )
-
-                procedimiento += (
-                    "= "
-                    + " + ".join(
-                        resultados_productos
-                    )
-                    + "\n"
-                )
-
-                procedimiento += (
-                    "= "
-                    + str(
-                        paso["resultado"]
-                    )
-                    + "\n\n"
-                    + "-" * 55
-                    + "\n\n"
-                )
-
-            self.colocar_texto(
-                self.txt_multi_procedimiento,
+            self._colocar_texto(
+                self.txt_producto_procedimiento,
                 procedimiento
             )
 
         except ValueError as error:
-
             messagebox.showerror(
                 "Error",
                 str(error)
             )
 
-    # ======================================================
-    # PESTAÑA 3
-    # TRANSPUESTA
-    # ======================================================
+    def _formatear_producto(self, pasos):
+        """Convierte el procedimiento fila-columna en texto legible."""
+        lineas = [
+            "REGLA FILA-COLUMNA",
+            "=" * 60,
+            ""
+        ]
 
-    def crear_pestana_transpuesta(
-        self
-    ):
+        for paso in pasos:
+            fila = (
+                paso["fila_resultado"]
+                + 1
+            )
 
+            columna = (
+                paso["columna_resultado"]
+                + 1
+            )
+
+            productos = []
+
+            for producto in paso["productos"]:
+                productos.append(
+                    "("
+                    + str(
+                        producto["valor_a"]
+                    )
+                    + ")("
+                    + str(
+                        producto["valor_b"]
+                    )
+                    + ")"
+                )
+
+            lineas.append(
+                f"Entrada ({fila}, {columna}):"
+            )
+
+            lineas.append(
+                " + ".join(
+                    productos
+                )
+                + " = "
+                + str(
+                    paso["resultado"]
+                )
+            )
+
+            lineas.append("")
+
+        return "\n".join(
+            lineas
+        )
+
+    def _crear_pestana_transpuesta(self):
+        """Construye la opción 5 para obtener la transpuesta."""
         pestana = ttk.Frame(
             self.cuaderno
         )
 
         self.cuaderno.add(
             pestana,
-            text="Transpuesta"
+            text="5. Transposición"
         )
 
         self.transpuesta_a = EntradaMatriz(
@@ -1107,257 +935,435 @@ class ModuloMatricesInterfaz(ttk.Frame):
         )
 
         self.transpuesta_a.pack(
+            fill="x",
             padx=10,
-            pady=5,
-            fill="x"
+            pady=5
         )
 
         ttk.Button(
             pestana,
             text="Calcular Aᵀ",
-            command=self.resolver_transpuesta
+            command=self._resolver_transpuesta
         ).pack(
             pady=5
         )
 
-        self.txt_transpuesta = (
-            self.crear_area_texto(
-                pestana
-            )
+        self.txt_transpuesta = self._crear_area_texto(
+            pestana
         )
 
-    def resolver_transpuesta(
-        self
-    ):
-
+    def _resolver_transpuesta(self):
+        """Obtiene y muestra la transpuesta de A."""
         try:
-
             resultado = procesar_transpuesta(
                 self.transpuesta_a.leer()
             )
 
             texto = (
-                "TRANSPUESTA DE UNA MATRIZ\n"
-                + "=" * 55
-                + "\n\n"
-                "Matriz A:\n\n"
-                + self.formatear_matriz(
+                "A =\n\n"
+                + formatear_matriz(
                     resultado["matriz_a"]
                 )
                 + "\n\n"
-                "Las filas de A pasan a ser "
-                "las columnas de Aᵀ.\n\n"
-                "Aᵀ =\n\n"
-                + self.formatear_matriz(
+                + "Aᵀ =\n\n"
+                + formatear_matriz(
                     resultado["resultado"]
                 )
             )
 
-            self.colocar_texto(
+            self._colocar_texto(
                 self.txt_transpuesta,
                 texto
             )
 
         except ValueError as error:
-
             messagebox.showerror(
                 "Error",
                 str(error)
             )
 
-    # ======================================================
-    # PESTAÑA 4
-    # INVERSA
-    # ======================================================
-
-    def crear_pestana_inversa(
-        self
-    ):
-
+    def _crear_pestana_determinante(self):
+        """Construye la opción 6 con los métodos de determinante."""
         pestana = ttk.Frame(
             self.cuaderno
         )
 
         self.cuaderno.add(
             pestana,
-            text="Inversa"
+            text="6. Determinante"
         )
 
-        self.inversa_a = EntradaMatriz(
+        self.determinante_a = EntradaMatriz(
             pestana,
             "Matriz A",
-            2,
-            2
+            3,
+            3,
+            cuadrada=True
         )
 
-        self.inversa_a.pack(
+        self.determinante_a.pack(
+            fill="x",
             padx=10,
-            pady=5,
-            fill="x"
+            pady=5
         )
 
         ttk.Button(
             pestana,
-            text="Calcular A⁻¹",
-            command=self.resolver_inversa
+            text="Calcular determinante",
+            command=self._resolver_determinante
         ).pack(
             pady=5
         )
 
-        resultado_notebook = ttk.Notebook(
+        resultados = ttk.Notebook(
             pestana
         )
 
-        resultado_notebook.pack(
+        resultados.pack(
             fill="both",
             expand=True,
             padx=5,
             pady=5
         )
 
-        pesta_resultado = ttk.Frame(
-            resultado_notebook
+        cof = ttk.Frame(
+            resultados
         )
 
-        pesta_procedimiento = ttk.Frame(
-            resultado_notebook
+        sarrus = ttk.Frame(
+            resultados
         )
 
-        resultado_notebook.add(
-            pesta_resultado,
-            text="Resultado"
+        triangular = ttk.Frame(
+            resultados
         )
 
-        resultado_notebook.add(
-            pesta_procedimiento,
-            text="Procedimiento completo"
+        comparacion = ttk.Frame(
+            resultados
         )
 
-        self.txt_inversa_resultado = (
-            self.crear_area_texto(
-                pesta_resultado
-            )
+        resultados.add(
+            cof,
+            text="Cofactores"
         )
 
-        self.txt_inversa_procedimiento = (
-            self.crear_area_texto(
-                pesta_procedimiento
-            )
+        resultados.add(
+            sarrus,
+            text="Sarrus 3×3"
         )
 
-    def resolver_inversa(
-        self
-    ):
+        resultados.add(
+            triangular,
+            text="Triangular"
+        )
 
+        resultados.add(
+            comparacion,
+            text="Comparación"
+        )
+
+        self.txt_cofactores = self._crear_area_texto(
+            cof
+        )
+
+        self.txt_sarrus = self._crear_area_texto(
+            sarrus
+        )
+
+        self.txt_triangular = self._crear_area_texto(
+            triangular
+        )
+
+        self.txt_comparacion_det = self._crear_area_texto(
+            comparacion
+        )
+
+    def _resolver_determinante(self):
+        """Calcula el determinante por todos los métodos aplicables."""
         try:
-
-            respuesta = procesar_inversa(
-                self.inversa_a.leer()
+            respuesta = procesar_determinante_programa_5(
+                self.determinante_a.leer()
             )
 
-            resultado = respuesta[
-                "resultado"
+            metodos = respuesta[
+                "metodos"
             ]
 
-            texto = (
-                "MATRIZ INVERSA\n"
-                + "=" * 55
-                + "\n\n"
-                "A =\n\n"
-                + self.formatear_matriz(
-                    resultado[
-                        "matriz_original"
-                    ]
+            self._colocar_texto(
+                self.txt_cofactores,
+                formatear_procedimiento_determinante(
+                    metodos["cofactores"]
                 )
-                + "\n\n"
-                "det(A) = "
-                + str(
-                    resultado[
-                        "determinante"
-                    ]
-                )
-                + "\n\n"
             )
 
-            if resultado[
-                "es_invertible"
-            ]:
-
-                texto += (
-                    "La matriz es invertible.\n\n"
-                    "A⁻¹ =\n\n"
-                    + self.formatear_matriz(
-                        resultado[
-                            "inversa"
-                        ]
-                    )
-                    + "\n\n"
-                    "Verificación: "
+            if metodos["sarrus"] is None:
+                texto_sarrus = (
+                    "La regla de Sarrus solamente "
+                    "se aplica a matrices de orden 3."
                 )
-
-                if resultado[
-                    "verificacion"
-                ][
-                    "verificada"
-                ]:
-
-                    texto += (
-                        "Correcta.\n"
-                        "AA⁻¹ = I y A⁻¹A = I."
-                    )
-
-                else:
-
-                    texto += (
-                        "No satisfactoria."
-                    )
 
             else:
-
-                texto += (
-                    "La matriz no es invertible.\n\n"
-                    + resultado["mensaje"]
+                texto_sarrus = formatear_sarrus(
+                    metodos["sarrus"]
                 )
 
-            self.colocar_texto(
-                self.txt_inversa_resultado,
-                texto
+            self._colocar_texto(
+                self.txt_sarrus,
+                texto_sarrus
             )
 
-            procedimiento = (
-                formatear_procedimiento_inversa(
-                    resultado
+            self._colocar_texto(
+                self.txt_triangular,
+                formatear_triangular(
+                    metodos["triangular"]
                 )
             )
 
-            self.colocar_texto(
-                self.txt_inversa_procedimiento,
-                procedimiento
+            comparacion = (
+                formatear_comparacion_determinantes(
+                    metodos
+                )
+                + "\n\n"
+                + "Número de posiciones pivote: "
+                + str(
+                    respuesta[
+                        "diagnostico"
+                    ][
+                        "num_pivotes"
+                    ]
+                )
+                + "\n\n"
+                + respuesta[
+                    "diagnostico"
+                ][
+                    "diagnostico"
+                ]
+            )
+
+            self._colocar_texto(
+                self.txt_comparacion_det,
+                comparacion
             )
 
         except ValueError as error:
-
             messagebox.showerror(
                 "Error",
                 str(error)
             )
 
-    # ======================================================
-    # PESTAÑA 5
-    # PROPIEDADES
-    # ======================================================
-
-    def crear_pestana_propiedades(
-        self
-    ):
-
+    def _crear_pestana_gauss_jordan(self):
+        """Construye la opción 7 para calcular la inversa por Gauss-Jordan."""
         pestana = ttk.Frame(
             self.cuaderno
         )
 
         self.cuaderno.add(
             pestana,
-            text="Propiedades"
+            text="7. Inversa por Gauss-Jordan"
+        )
+
+        self.gauss_a = EntradaMatriz(
+            pestana,
+            "Matriz A",
+            3,
+            3,
+            cuadrada=True
+        )
+
+        self.gauss_a.pack(
+            fill="x",
+            padx=10,
+            pady=5
+        )
+
+        ttk.Button(
+            pestana,
+            text="Calcular A⁻¹",
+            command=self._resolver_gauss
+        ).pack(
+            pady=5
+        )
+
+        self.txt_gauss = self._crear_area_texto(
+            pestana
+        )
+
+    def _resolver_gauss(self):
+        """Calcula y presenta la inversa de A mediante Gauss-Jordan."""
+        try:
+            respuesta = (
+                procesar_inversa_gauss_jordan_programa_5(
+                    self.gauss_a.leer()
+                )
+            )
+
+            texto = formatear_procedimiento_inversa(
+                respuesta["resultado"]
+            )
+
+            texto += (
+                "\n\n"
+                + "=" * 60
+                + "\nDIAGNÓSTICO\n"
+                + "=" * 60
+                + "\n\n"
+                + "Número de posiciones pivote: "
+                + str(
+                    respuesta[
+                        "diagnostico"
+                    ][
+                        "num_pivotes"
+                    ]
+                )
+                + "\n\n"
+                + respuesta[
+                    "diagnostico"
+                ][
+                    "diagnostico"
+                ]
+            )
+
+            self._colocar_texto(
+                self.txt_gauss,
+                texto
+            )
+
+        except ValueError as error:
+            messagebox.showerror(
+                "Error",
+                str(error)
+            )
+
+    def _crear_pestana_adjunta(self):
+        """Construye la opción 8 para calcular la inversa mediante adj(A)."""
+        pestana = ttk.Frame(
+            self.cuaderno
+        )
+
+        self.cuaderno.add(
+            pestana,
+            text="8. Inversa por Matriz Adjunta"
+        )
+
+        self.adjunta_a = EntradaMatriz(
+            pestana,
+            "Matriz A",
+            3,
+            3,
+            cuadrada=True
+        )
+
+        self.adjunta_a.pack(
+            fill="x",
+            padx=10,
+            pady=5
+        )
+
+        ttk.Button(
+            pestana,
+            text="Calcular A⁻¹ por adjunta",
+            command=self._resolver_adjunta
+        ).pack(
+            pady=5
+        )
+
+        resultados = ttk.Notebook(
+            pestana
+        )
+
+        resultados.pack(
+            fill="both",
+            expand=True,
+            padx=5,
+            pady=5
+        )
+
+        procedimiento = ttk.Frame(
+            resultados
+        )
+
+        comparacion = ttk.Frame(
+            resultados
+        )
+
+        resultados.add(
+            procedimiento,
+            text="Procedimiento"
+        )
+
+        resultados.add(
+            comparacion,
+            text="Comparación"
+        )
+
+        self.txt_adjunta = self._crear_area_texto(
+            procedimiento
+        )
+
+        self.txt_comparacion_inversa = self._crear_area_texto(
+            comparacion
+        )
+
+    def _resolver_adjunta(self):
+        """Calcula la inversa por adjunta y la compara con Gauss-Jordan."""
+        try:
+            respuesta = procesar_inversa_adjunta_programa_5(
+                self.adjunta_a.leer()
+            )
+
+            texto = formatear_inversa_adjunta(
+                respuesta["resultado"]
+            )
+
+            texto += (
+                "\n\n"
+                + "=" * 60
+                + "\nDIAGNÓSTICO\n"
+                + "=" * 60
+                + "\n\n"
+                + "Número de posiciones pivote: "
+                + str(
+                    respuesta[
+                        "diagnostico"
+                    ][
+                        "num_pivotes"
+                    ]
+                )
+                + "\n\n"
+                + respuesta[
+                    "diagnostico"
+                ][
+                    "diagnostico"
+                ]
+            )
+
+            self._colocar_texto(
+                self.txt_adjunta,
+                texto
+            )
+
+            self._colocar_texto(
+                self.txt_comparacion_inversa,
+                formatear_comparacion_inversas(
+                    respuesta["comparacion"]
+                )
+            )
+
+        except ValueError as error:
+            messagebox.showerror(
+                "Error",
+                str(error)
+            )
+
+    def _crear_pestana_propiedades(self):
+        """Construye la opción 9 para verificar las seis propiedades."""
+        pestana = ttk.Frame(
+            self.cuaderno
+        )
+
+        self.cuaderno.add(
+            pestana,
+            text="9. Verificador de propiedades"
         )
 
         controles = ttk.Frame(
@@ -1365,6 +1371,8 @@ class ModuloMatricesInterfaz(ttk.Frame):
         )
 
         controles.pack(
+            fill="x",
+            padx=8,
             pady=5
         )
 
@@ -1376,55 +1384,43 @@ class ModuloMatricesInterfaz(ttk.Frame):
             padx=4
         )
 
-        self.propiedad_seleccionada = tk.StringVar(
-            value="A(BC) = (AB)C"
+        self.numero_propiedad = tk.StringVar(
+            value="1"
         )
 
-        combo = ttk.Combobox(
+        propiedades = ttk.Combobox(
             controles,
-            textvariable=self.propiedad_seleccionada,
-            values=[
-                "A(BC) = (AB)C",
-                "A(B + C) = AB + AC",
-                "(B + C)A = BA + CA",
-                "r(AB) = (rA)B = A(rB)",
-                "IA = A = AI",
-                "(Aᵀ)ᵀ = A",
-                "(A + B)ᵀ = Aᵀ + Bᵀ",
-                "(rA)ᵀ = rAᵀ",
-                "(AB)ᵀ = BᵀAᵀ"
-            ],
+            textvariable=self.numero_propiedad,
             state="readonly",
-            width=30
+            width=48,
+            values=[
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6"
+            ]
         )
 
-        combo.pack(
+        propiedades.pack(
             side="left",
             padx=4
         )
 
         ttk.Label(
             controles,
-            text="Escalar r:"
+            text=(
+                "1:(A⁻¹)⁻¹=A   "
+                "2:(AB)⁻¹=B⁻¹A⁻¹   "
+                "3:(Aᵀ)⁻¹=(A⁻¹)ᵀ   "
+                "4:det(A⁻¹)   "
+                "5:Filas   "
+                "6:Triangular"
+            )
         ).pack(
             side="left",
-            padx=4
-        )
-
-        self.escalar_propiedad = ttk.Entry(
-            controles,
-            width=8,
-            justify="center"
-        )
-
-        self.escalar_propiedad.insert(
-            0,
-            "2"
-        )
-
-        self.escalar_propiedad.pack(
-            side="left",
-            padx=4
+            padx=8
         )
 
         matrices = ttk.Frame(
@@ -1433,279 +1429,232 @@ class ModuloMatricesInterfaz(ttk.Frame):
 
         matrices.pack(
             fill="x",
-            padx=5,
+            padx=8,
             pady=5
         )
 
-        for columna in range(
-            3
-        ):
-
-            matrices.columnconfigure(
-                columna,
-                weight=1
-            )
-
-        self.prop_a = EntradaMatriz(
-            matrices,
-            "Matriz A"
+        matrices.columnconfigure(
+            0,
+            weight=1
         )
 
-        self.prop_a.grid(
+        matrices.columnconfigure(
+            1,
+            weight=1
+        )
+
+        self.propiedad_a = EntradaMatriz(
+            matrices,
+            "Matriz A",
+            2,
+            2,
+            cuadrada=True
+        )
+
+        self.propiedad_a.grid(
             row=0,
             column=0,
-            padx=3,
+            padx=5,
             sticky="nsew"
         )
 
-        self.prop_b = EntradaMatriz(
+        self.propiedad_b = EntradaMatriz(
             matrices,
-            "Matriz B"
+            "Matriz B",
+            2,
+            2,
+            cuadrada=True
         )
 
-        self.prop_b.grid(
+        self.propiedad_b.grid(
             row=0,
             column=1,
-            padx=3,
+            padx=5,
             sticky="nsew"
         )
 
-        self.prop_c = EntradaMatriz(
-            matrices,
-            "Matriz C"
-        )
-
-        self.prop_c.grid(
-            row=0,
-            column=2,
-            padx=3,
-            sticky="nsew"
+        self._crear_controles_propiedad_5(
+            pestana
         )
 
         ttk.Button(
             pestana,
             text="Verificar propiedad",
-            command=self.resolver_propiedad
+            command=self._resolver_propiedad
         ).pack(
+            pady=5
+        )
+
+        self.txt_propiedades = self._crear_area_texto(
+            pestana
+        )
+
+    def _crear_controles_propiedad_5(self, contenedor):
+        """Crea los valores que el usuario selecciona para la propiedad 5."""
+        marco = ttk.LabelFrame(
+            contenedor,
+            text="Datos para la propiedad 5",
+            padding=5
+        )
+
+        marco.pack(
+            fill="x",
+            padx=10,
             pady=4
         )
 
-        self.txt_propiedad = (
-            self.crear_area_texto(
-                pestana
-            )
+        ttk.Label(
+            marco,
+            text="Fila 1:"
+        ).pack(
+            side="left",
+            padx=3
         )
 
-    # ======================================================
-    # MAPEO DE PROPIEDADES
-    # ======================================================
-
-    def obtener_codigo_propiedad(
-        self
-    ):
-
-        seleccion = (
-            self.propiedad_seleccionada.get()
+        self.fila_1 = ttk.Entry(
+            marco,
+            width=5,
+            justify="center"
         )
 
-        equivalencias = {
-            "A(BC) = (AB)C":
-                "asociativa",
-
-            "A(B + C) = AB + AC":
-                "distributiva_izquierda",
-
-            "(B + C)A = BA + CA":
-                "distributiva_derecha",
-
-            "r(AB) = (rA)B = A(rB)":
-                "escalar_producto",
-
-            "IA = A = AI":
-                "identidad",
-
-            "(Aᵀ)ᵀ = A":
-                "transpuesta_doble",
-
-            "(A + B)ᵀ = Aᵀ + Bᵀ":
-                "transpuesta_suma",
-
-            "(rA)ᵀ = rAᵀ":
-                "transpuesta_escalar",
-
-            "(AB)ᵀ = BᵀAᵀ":
-                "transpuesta_producto"
-        }
-
-        return equivalencias[
-            seleccion
-        ]
-
-    # ======================================================
-    # FORMATEAR VALORES DE PROPIEDADES
-    # ======================================================
-
-    def formatear_valor(
-        self,
-        valor
-    ):
-
-        if (
-            isinstance(
-                valor,
-                list
-            )
-            and valor
-            and isinstance(
-                valor[0],
-                list
-            )
-        ):
-
-            return (
-                "\n"
-                + self.formatear_matriz(
-                    valor
-                )
-            )
-
-        return str(
-            valor
+        self.fila_1.insert(
+            0,
+            "1"
         )
 
-    # ======================================================
-    # RESOLVER PROPIEDAD
-    # ======================================================
+        self.fila_1.pack(
+            side="left",
+            padx=3
+        )
 
-    def resolver_propiedad(
-        self
-    ):
+        ttk.Label(
+            marco,
+            text="Fila 2:"
+        ).pack(
+            side="left",
+            padx=3
+        )
 
+        self.fila_2 = ttk.Entry(
+            marco,
+            width=5,
+            justify="center"
+        )
+
+        self.fila_2.insert(
+            0,
+            "2"
+        )
+
+        self.fila_2.pack(
+            side="left",
+            padx=3
+        )
+
+        ttk.Label(
+            marco,
+            text="k reemplazo:"
+        ).pack(
+            side="left",
+            padx=3
+        )
+
+        self.k_reemplazo = ttk.Entry(
+            marco,
+            width=7,
+            justify="center"
+        )
+
+        self.k_reemplazo.insert(
+            0,
+            "-3"
+        )
+
+        self.k_reemplazo.pack(
+            side="left",
+            padx=3
+        )
+
+        ttk.Label(
+            marco,
+            text="Fila a escalar:"
+        ).pack(
+            side="left",
+            padx=3
+        )
+
+        self.fila_escalar = ttk.Entry(
+            marco,
+            width=5,
+            justify="center"
+        )
+
+        self.fila_escalar.insert(
+            0,
+            "1"
+        )
+
+        self.fila_escalar.pack(
+            side="left",
+            padx=3
+        )
+
+        ttk.Label(
+            marco,
+            text="k:"
+        ).pack(
+            side="left",
+            padx=3
+        )
+
+        self.k_escalar = ttk.Entry(
+            marco,
+            width=7,
+            justify="center"
+        )
+
+        self.k_escalar.insert(
+            0,
+            "3"
+        )
+
+        self.k_escalar.pack(
+            side="left",
+            padx=3
+        )
+
+    def _resolver_propiedad(self):
+        """Ejecuta y presenta una de las seis propiedades del Programa 5."""
         try:
-
-            codigo = (
-                self.obtener_codigo_propiedad()
+            numero = int(
+                self.numero_propiedad.get()
             )
-
-            necesita_b = codigo in (
-                "asociativa",
-                "distributiva_izquierda",
-                "distributiva_derecha",
-                "escalar_producto",
-                "transpuesta_suma",
-                "transpuesta_producto"
-            )
-
-            necesita_c = codigo in (
-                "asociativa",
-                "distributiva_izquierda",
-                "distributiva_derecha"
-            )
-
-            necesita_escalar = codigo in (
-                "escalar_producto",
-                "transpuesta_escalar"
-            )
-
-            matriz_a = self.prop_a.leer()
 
             matriz_b = None
-            matriz_c = None
-            escalar = None
 
-            if necesita_b:
+            if numero == 2:
+                matriz_b = self.propiedad_b.leer()
 
-                matriz_b = (
-                    self.prop_b.leer()
-                )
-
-            if necesita_c:
-
-                matriz_c = (
-                    self.prop_c.leer()
-                )
-
-            if necesita_escalar:
-
-                escalar = (
-                    self.escalar_propiedad.get()
-                )
-
-            resultado = procesar_propiedad_matrices(
-                codigo,
-                matriz_a,
-                matriz_b,
-                matriz_c,
-                escalar
+            resultado = procesar_propiedad_programa_5(
+                numero,
+                self.propiedad_a.leer(),
+                matriz_b=matriz_b,
+                fila_1=self.fila_1.get(),
+                fila_2=self.fila_2.get(),
+                escalar_reemplazo=self.k_reemplazo.get(),
+                fila_escalar=self.fila_escalar.get(),
+                escalar_fila=self.k_escalar.get()
             )
 
-            texto = (
-                "VERIFICACIÓN DE PROPIEDAD\n"
-                + "=" * 55
-                + "\n\n"
-                "Propiedad:\n"
-                + str(
-                    resultado["propiedad"]
+            self._colocar_texto(
+                self.txt_propiedades,
+                formatear_propiedad(
+                    numero,
+                    resultado
                 )
-                + "\n\n"
-            )
-
-            for clave, valor in (
-                resultado.items()
-            ):
-
-                if clave in (
-                    "propiedad",
-                    "cumple"
-                ):
-
-                    continue
-
-                nombre = (
-                    clave
-                    .replace(
-                        "_",
-                        " "
-                    )
-                    .capitalize()
-                )
-
-                texto += (
-                    nombre
-                    + ": "
-                    + self.formatear_valor(
-                        valor
-                    )
-                    + "\n\n"
-                )
-
-            texto += (
-                "=" * 55
-                + "\n"
-            )
-
-            if resultado[
-                "cumple"
-            ]:
-
-                texto += (
-                    "La propiedad se verifica correctamente."
-                )
-
-            else:
-
-                texto += (
-                    "La propiedad no se verificó "
-                    "con los datos ingresados."
-                )
-
-            self.colocar_texto(
-                self.txt_propiedad,
-                texto
             )
 
         except ValueError as error:
-
             messagebox.showerror(
                 "Error",
                 str(error)

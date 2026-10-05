@@ -1,10 +1,12 @@
+"""
+Construye la ventana principal de la Calculadora de Álgebra Lineal.
+Integra los módulos, sus programas y el acceso a los teoremas correspondientes.
+Tema de clase: integración de herramientas de Álgebra Lineal.
+Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
+"""
+
 import tkinter as tk
 from tkinter import ttk
-
-
-# ==========================================================
-# INTERFACES DE LOS PROGRAMAS
-# ==========================================================
 
 from interfaz.programa_1_interfaz import (
     Programa1Interfaz
@@ -22,11 +24,6 @@ from interfaz.programa_4_interfaz import (
     Programa4Interfaz
 )
 
-
-# ==========================================================
-# INTERFACES DE LOS NUEVOS MÓDULOS
-# ==========================================================
-
 from interfaz.modulo_matrices_interfaz import (
     ModuloMatricesInterfaz
 )
@@ -34,11 +31,6 @@ from interfaz.modulo_matrices_interfaz import (
 from interfaz.modulo_determinantes_interfaz import (
     ModuloDeterminantesInterfaz
 )
-
-
-# ==========================================================
-# INFORMACIÓN DE LOS MÓDULOS
-# ==========================================================
 
 from modulos.modulo_sistemas import (
     obtener_logo_modulo as obtener_logo_sistemas,
@@ -65,32 +57,19 @@ from modulos.modulo_determinantes import (
 )
 
 
-# ==========================================================
-# CALCULADORA PRINCIPAL
-# ==========================================================
-
 class CalculadoraAlgebraLineal:
+    """Administra la ventana principal y organiza los módulos de la calculadora."""
 
-    def __init__(
-        self,
-        ventana
-    ):
-
+    def __init__(self, ventana):
+        """Inicializa la ventana y construye la interfaz principal."""
         self.ventana = ventana
-
         self.ultimo_modulo = None
 
         self.configurar_ventana()
         self.crear_interfaz()
 
-    # ======================================================
-    # CONFIGURACIÓN DE VENTANA
-    # ======================================================
-
-    def configurar_ventana(
-        self
-    ):
-
+    def configurar_ventana(self):
+        """Configura título, tamaño inicial y tamaño mínimo de la ventana."""
         self.ventana.title(
             "Calculadora de Álgebra Lineal"
         )
@@ -104,18 +83,8 @@ class CalculadoraAlgebraLineal:
             700
         )
 
-    # ======================================================
-    # INTERFAZ GENERAL
-    # ======================================================
-
-    def crear_interfaz(
-        self
-    ):
-
-        # ==================================================
-        # ENCABEZADO
-        # ==================================================
-
+    def crear_interfaz(self):
+        """Construye el encabezado y los cuatro módulos de la aplicación."""
         encabezado = ttk.Frame(
             self.ventana
         )
@@ -123,10 +92,7 @@ class CalculadoraAlgebraLineal:
         encabezado.pack(
             fill="x",
             padx=15,
-            pady=(
-                8,
-                2
-            )
+            pady=(8, 2)
         )
 
         titulo = ttk.Label(
@@ -154,15 +120,8 @@ class CalculadoraAlgebraLineal:
         )
 
         subtitulo.pack(
-            pady=(
-                2,
-                4
-            )
+            pady=(2, 4)
         )
-
-        # ==================================================
-        # NOTEBOOK PRINCIPAL
-        # ==================================================
 
         self.cuaderno_modulos = ttk.Notebook(
             self.ventana
@@ -172,41 +131,25 @@ class CalculadoraAlgebraLineal:
             fill="both",
             expand=True,
             padx=10,
-            pady=(
-                2,
-                8
-            )
+            pady=(2, 8)
         )
-
-        # ==================================================
-        # CREAMOS LOS CUATRO MÓDULOS
-        # ==================================================
 
         self.crear_modulo_sistemas()
         self.crear_modulo_vectores()
         self.crear_modulo_matrices()
         self.crear_modulo_determinantes()
 
-        # Detectamos cambio de módulo.
         self.cuaderno_modulos.bind(
             "<<NotebookTabChanged>>",
             self.cambiar_modulo
         )
 
-        # Logo inicial.
         self.mostrar_logo_consola(
             1
         )
 
-    # ======================================================
-    # MÓDULO 1
-    # SISTEMAS DE ECUACIONES
-    # ======================================================
-
-    def crear_modulo_sistemas(
-        self
-    ):
-
+    def crear_modulo_sistemas(self):
+        """Construye el Módulo 1 con teoremas y los Programas 1 y 2."""
         self.modulo_sistemas = ttk.Frame(
             self.cuaderno_modulos
         )
@@ -233,10 +176,6 @@ class CalculadoraAlgebraLineal:
             pady=5
         )
 
-        # ==================================================
-        # 0. TEOREMAS
-        # ==================================================
-
         pestana_teoremas = ttk.Frame(
             self.cuaderno_sistemas
         )
@@ -251,10 +190,6 @@ class CalculadoraAlgebraLineal:
             obtener_teoremas_sistemas()
         )
 
-        # ==================================================
-        # PROGRAMA 1
-        # ==================================================
-
         self.programa_1 = Programa1Interfaz(
             self.cuaderno_sistemas
         )
@@ -263,10 +198,6 @@ class CalculadoraAlgebraLineal:
             self.programa_1,
             text="1. Programa 1"
         )
-
-        # ==================================================
-        # PROGRAMA 2
-        # ==================================================
 
         self.programa_2 = Programa2Interfaz(
             self.cuaderno_sistemas
@@ -277,15 +208,8 @@ class CalculadoraAlgebraLineal:
             text="2. Programa 2"
         )
 
-    # ======================================================
-    # MÓDULO 2
-    # VECTORES E INDEPENDENCIA LINEAL
-    # ======================================================
-
-    def crear_modulo_vectores(
-        self
-    ):
-
+    def crear_modulo_vectores(self):
+        """Construye el Módulo 2 con teoremas y los Programas 3 y 4."""
         self.modulo_vectores = ttk.Frame(
             self.cuaderno_modulos
         )
@@ -315,10 +239,6 @@ class CalculadoraAlgebraLineal:
             pady=5
         )
 
-        # ==================================================
-        # 0. TEOREMAS
-        # ==================================================
-
         pestana_teoremas = ttk.Frame(
             self.cuaderno_vectores
         )
@@ -333,10 +253,6 @@ class CalculadoraAlgebraLineal:
             obtener_teoremas_vectores()
         )
 
-        # ==================================================
-        # PROGRAMA 3
-        # ==================================================
-
         self.programa_3 = Programa3Interfaz(
             self.cuaderno_vectores
         )
@@ -345,10 +261,6 @@ class CalculadoraAlgebraLineal:
             self.programa_3,
             text="3. Programa 3"
         )
-
-        # ==================================================
-        # PROGRAMA 4
-        # ==================================================
 
         self.programa_4 = Programa4Interfaz(
             self.cuaderno_vectores
@@ -359,15 +271,8 @@ class CalculadoraAlgebraLineal:
             text="4. Programa 4"
         )
 
-    # ======================================================
-    # MÓDULO 3
-    # ÁLGEBRA DE MATRICES
-    # ======================================================
-
-    def crear_modulo_matrices(
-        self
-    ):
-
+    def crear_modulo_matrices(self):
+        """Construye el Módulo 3 con las opciones 0 a 9 del Programa 5."""
         self.modulo_matrices = ttk.Frame(
             self.cuaderno_modulos
         )
@@ -383,26 +288,23 @@ class CalculadoraAlgebraLineal:
             obtener_descripcion_matrices()
         )
 
-        self.cuaderno_matrices = ttk.Notebook(
+        self.programa_5 = ModuloMatricesInterfaz(
             self.modulo_matrices
         )
 
-        self.cuaderno_matrices.pack(
+        self.programa_5.pack(
             fill="both",
             expand=True,
             padx=8,
             pady=5
         )
 
-        # ==================================================
-        # 0. TEOREMAS
-        # ==================================================
-
         pestana_teoremas = ttk.Frame(
-            self.cuaderno_matrices
+            self.programa_5.cuaderno
         )
 
-        self.cuaderno_matrices.add(
+        self.programa_5.cuaderno.insert(
+            0,
             pestana_teoremas,
             text="0. Teoremas clave"
         )
@@ -412,30 +314,8 @@ class CalculadoraAlgebraLineal:
             obtener_teoremas_matrices()
         )
 
-        # ==================================================
-        # HERRAMIENTAS DEL MÓDULO 3
-        # ==================================================
-
-        self.herramientas_matrices = (
-            ModuloMatricesInterfaz(
-                self.cuaderno_matrices
-            )
-        )
-
-        self.cuaderno_matrices.add(
-            self.herramientas_matrices,
-            text="1. Herramientas"
-        )
-
-    # ======================================================
-    # MÓDULO 4
-    # DETERMINANTES
-    # ======================================================
-
-    def crear_modulo_determinantes(
-        self
-    ):
-
+    def crear_modulo_determinantes(self):
+        """Construye el Módulo 4 con sus teoremas y herramientas existentes."""
         self.modulo_determinantes = ttk.Frame(
             self.cuaderno_modulos
         )
@@ -462,10 +342,6 @@ class CalculadoraAlgebraLineal:
             pady=5
         )
 
-        # ==================================================
-        # 0. TEOREMAS
-        # ==================================================
-
         pestana_teoremas = ttk.Frame(
             self.cuaderno_determinantes
         )
@@ -480,10 +356,6 @@ class CalculadoraAlgebraLineal:
             obtener_teoremas_determinantes()
         )
 
-        # ==================================================
-        # HERRAMIENTAS DEL MÓDULO 4
-        # ==================================================
-
         self.herramientas_determinantes = (
             ModuloDeterminantesInterfaz(
                 self.cuaderno_determinantes
@@ -495,17 +367,13 @@ class CalculadoraAlgebraLineal:
             text="1. Herramientas"
         )
 
-    # ======================================================
-    # ENCABEZADO DE MÓDULO
-    # ======================================================
-
     def crear_encabezado_modulo(
         self,
         contenedor,
         titulo,
         descripcion
     ):
-
+        """Crea el título y la descripción mostrados al inicio de un módulo."""
         marco = ttk.Frame(
             contenedor
         )
@@ -513,10 +381,7 @@ class CalculadoraAlgebraLineal:
         marco.pack(
             fill="x",
             padx=12,
-            pady=(
-                7,
-                2
-            )
+            pady=(7, 2)
         )
 
         etiqueta_titulo = ttk.Label(
@@ -543,22 +408,15 @@ class CalculadoraAlgebraLineal:
         )
 
         etiqueta_descripcion.pack(
-            pady=(
-                2,
-                3
-            )
+            pady=(2, 3)
         )
-
-    # ======================================================
-    # PESTAÑA DE TEXTO
-    # ======================================================
 
     def crear_pestana_texto(
         self,
         contenedor,
         contenido
     ):
-
+        """Crea un área de texto desplazable y de solo lectura."""
         contenedor.rowconfigure(
             0,
             weight=1
@@ -624,15 +482,8 @@ class CalculadoraAlgebraLineal:
             state="disabled"
         )
 
-    # ======================================================
-    # CAMBIO DE MÓDULO
-    # ======================================================
-
-    def cambiar_modulo(
-        self,
-        evento=None
-    ):
-
+    def cambiar_modulo(self, evento=None):
+        """Muestra en consola el logo del módulo seleccionado."""
         indice = self.cuaderno_modulos.index(
             self.cuaderno_modulos.select()
         )
@@ -645,52 +496,26 @@ class CalculadoraAlgebraLineal:
             numero_modulo
         )
 
-    # ======================================================
-    # LOGO ASCII EN CONSOLA
-    # ======================================================
-
-    def mostrar_logo_consola(
-        self,
-        numero_modulo
-    ):
-
-        if (
-            self.ultimo_modulo
-            == numero_modulo
-        ):
-
+    def mostrar_logo_consola(self, numero_modulo):
+        """Imprime una sola vez el logo ASCII del módulo seleccionado."""
+        if self.ultimo_modulo == numero_modulo:
             return
 
-        self.ultimo_modulo = (
-            numero_modulo
-        )
+        self.ultimo_modulo = numero_modulo
 
         if numero_modulo == 1:
-
-            logo = (
-                obtener_logo_sistemas()
-            )
+            logo = obtener_logo_sistemas()
 
         elif numero_modulo == 2:
-
-            logo = (
-                obtener_logo_vectores()
-            )
+            logo = obtener_logo_vectores()
 
         elif numero_modulo == 3:
-
-            logo = (
-                obtener_logo_matrices()
-            )
+            logo = obtener_logo_matrices()
 
         elif numero_modulo == 4:
-
-            logo = (
-                obtener_logo_determinantes()
-            )
+            logo = obtener_logo_determinantes()
 
         else:
-
             return
 
         print(
@@ -698,12 +523,8 @@ class CalculadoraAlgebraLineal:
         )
 
 
-# ==========================================================
-# PUNTO DE ENTRADA
-# ==========================================================
-
 def main():
-
+    """Inicia la ventana principal de la calculadora."""
     ventana = tk.Tk()
 
     CalculadoraAlgebraLineal(
@@ -714,5 +535,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()

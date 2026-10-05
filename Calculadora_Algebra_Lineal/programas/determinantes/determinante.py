@@ -1,55 +1,45 @@
+"""
+Implementa los métodos de cálculo de determinantes usados en el Programa 5.
+Incluye cofactores, regla de Sarrus y reducción a forma triangular.
+Tema de clase: determinantes, menores, cofactores y operaciones de fila.
+Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
+"""
+
+from copy import deepcopy
 from fractions import Fraction
 
 
-# ==========================================================
-# DETERMINANTES
-# MOTOR MATEMÁTICO
-# ==========================================================
-
-
-# ==========================================================
-# VALIDAR MATRIZ
-# ==========================================================
-
-def validar_matriz(
-    matriz
-):
-
-    if not matriz:
-
+def validar_matriz(matriz):
+    """Valida que la estructura recibida represente una matriz no vacía."""
+    if not isinstance(matriz, list) or not matriz:
         raise ValueError(
             "La matriz no puede estar vacía."
+        )
+
+    if not isinstance(matriz[0], list) or not matriz[0]:
+        raise ValueError(
+            "La matriz debe contener filas y columnas."
         )
 
     columnas = len(
         matriz[0]
     )
 
-    if columnas == 0:
-
-        raise ValueError(
-            "La matriz debe tener al menos "
-            "una columna."
-        )
-
     for fila in matriz:
+        if not isinstance(fila, list):
+            raise ValueError(
+                "Cada fila de la matriz debe ser una lista."
+            )
 
         if len(fila) != columnas:
-
             raise ValueError(
                 "Todas las filas deben tener "
                 "la misma cantidad de columnas."
             )
 
 
-# ==========================================================
-# VALIDAR MATRIZ CUADRADA
-# ==========================================================
-
-def validar_matriz_cuadrada(
-    matriz
-):
-
+def validar_matriz_cuadrada(matriz):
+    """Valida que una matriz tenga la misma cantidad de filas y columnas."""
     validar_matriz(
         matriz
     )
@@ -63,74 +53,32 @@ def validar_matriz_cuadrada(
     )
 
     if filas != columnas:
-
         raise ValueError(
-            "El determinante solamente puede "
-            "calcularse para matrices cuadradas."
+            "El determinante solamente está definido "
+            "para matrices cuadradas."
         )
 
 
-# ==========================================================
-# OBTENER MENOR
-#
-# Mij se obtiene eliminando la fila i
-# y la columna j de la matriz.
-# ==========================================================
-
-def obtener_menor(
-    matriz,
-    fila_eliminar,
-    columna_eliminar
-):
-
+def obtener_menor(matriz, fila_eliminar, columna_eliminar):
+    """Devuelve la matriz obtenida al eliminar una fila y una columna."""
     validar_matriz_cuadrada(
         matriz
     )
 
-    orden = len(
-        matriz
-    )
-
-    if (
-        fila_eliminar < 0
-        or fila_eliminar >= orden
-    ):
-
-        raise ValueError(
-            "La fila indicada no es válida."
-        )
-
-    if (
-        columna_eliminar < 0
-        or columna_eliminar >= orden
-    ):
-
-        raise ValueError(
-            "La columna indicada no es válida."
-        )
-
     menor = []
 
-    for i in range(
-        orden
-    ):
-
-        if i == fila_eliminar:
-
+    for fila, valores in enumerate(matriz):
+        if fila == fila_eliminar:
             continue
 
         nueva_fila = []
 
-        for j in range(
-            orden
-        ):
-
-            if j == columna_eliminar:
-
+        for columna, valor in enumerate(valores):
+            if columna == columna_eliminar:
                 continue
 
             nueva_fila.append(
-                matriz[i][j]
+                valor
             )
 
         menor.append(
@@ -140,118 +88,36 @@ def obtener_menor(
     return menor
 
 
-# ==========================================================
-# SIGNO DEL COFACTOR
-#
-# (-1)^(i+j)
-# ==========================================================
-
-def obtener_signo_cofactor(
-    fila,
-    columna
-):
-
-    # Python comienza los índices en 0.
-    # La paridad del signo se conserva.
-
+def obtener_signo_cofactor(fila, columna):
+    """Devuelve 1 o -1 según el signo (-1)^(i+j) del cofactor."""
     if (
-        (fila + columna) % 2
-        == 0
-    ):
+        fila + columna
+    ) % 2 == 0:
+        return Fraction(1)
 
-        return Fraction(
-            1
-        )
+    return Fraction(-1)
 
-    return Fraction(
-        -1
+
+def contar_ceros_fila(matriz, fila):
+    """Cuenta los elementos iguales a cero de una fila."""
+    return sum(
+        1
+        for valor in matriz[fila]
+        if valor == 0
     )
 
 
-# ==========================================================
-# CONTAR CEROS DE UNA FILA
-# ==========================================================
-
-def contar_ceros_fila(
-    matriz,
-    fila
-):
-
-    validar_matriz(
-        matriz
+def contar_ceros_columna(matriz, columna):
+    """Cuenta los elementos iguales a cero de una columna."""
+    return sum(
+        1
+        for fila in matriz
+        if fila[columna] == 0
     )
 
-    if (
-        fila < 0
-        or fila >= len(matriz)
-    ):
 
-        raise ValueError(
-            "La fila indicada no es válida."
-        )
-
-    cantidad = 0
-
-    for valor in matriz[
-        fila
-    ]:
-
-        if valor == 0:
-
-            cantidad += 1
-
-    return cantidad
-
-
-# ==========================================================
-# CONTAR CEROS DE UNA COLUMNA
-# ==========================================================
-
-def contar_ceros_columna(
-    matriz,
-    columna
-):
-
-    validar_matriz(
-        matriz
-    )
-
-    if (
-        columna < 0
-        or columna >= len(matriz[0])
-    ):
-
-        raise ValueError(
-            "La columna indicada no es válida."
-        )
-
-    cantidad = 0
-
-    for fila in range(
-        len(matriz)
-    ):
-
-        if (
-            matriz[fila][columna]
-            == 0
-        ):
-
-            cantidad += 1
-
-    return cantidad
-
-
-# ==========================================================
-# SELECCIONAR FILA O COLUMNA
-#
-# Se busca la fila o columna que tenga
-# la mayor cantidad de ceros.
-# ==========================================================
-
-def seleccionar_fila_o_columna(
-    matriz
-):
-
+def seleccionar_fila_o_columna(matriz):
+    """Selecciona la fila o columna con más ceros para reducir el desarrollo."""
     validar_matriz_cuadrada(
         matriz
     )
@@ -261,124 +127,53 @@ def seleccionar_fila_o_columna(
     )
 
     mejor_tipo = "fila"
-
     mejor_indice = 0
+    mayor_cantidad_ceros = -1
 
-    mayor_cantidad_ceros = (
-        contar_ceros_fila(
-            matriz,
-            0
-        )
-    )
-
-    # ======================================================
-    # REVISAMOS LAS FILAS
-    # ======================================================
-
-    for i in range(
-        orden
-    ):
-
+    for fila in range(orden):
         cantidad = contar_ceros_fila(
             matriz,
-            i
+            fila
         )
 
-        if (
-            cantidad
-            > mayor_cantidad_ceros
-        ):
-
-            mayor_cantidad_ceros = (
-                cantidad
-            )
-
+        if cantidad > mayor_cantidad_ceros:
+            mayor_cantidad_ceros = cantidad
             mejor_tipo = "fila"
+            mejor_indice = fila
 
-            mejor_indice = i
-
-    # ======================================================
-    # REVISAMOS LAS COLUMNAS
-    # ======================================================
-
-    for j in range(
-        orden
-    ):
-
+    for columna in range(orden):
         cantidad = contar_ceros_columna(
             matriz,
-            j
+            columna
         )
 
-        if (
-            cantidad
-            > mayor_cantidad_ceros
-        ):
-
-            mayor_cantidad_ceros = (
-                cantidad
-            )
-
+        if cantidad > mayor_cantidad_ceros:
+            mayor_cantidad_ceros = cantidad
             mejor_tipo = "columna"
+            mejor_indice = columna
 
-            mejor_indice = j
-
-    return (
-        mejor_tipo,
-        mejor_indice
-    )
+    return mejor_tipo, mejor_indice
 
 
-# ==========================================================
-# DETERMINANTE 2 x 2
-#
-# |a b|
-# |c d|
-#
-# det(A) = ad - bc
-# ==========================================================
-
-def calcular_determinante_2x2(
-    matriz
-):
-
+def calcular_determinante_2x2(matriz):
+    """Calcula el determinante de una matriz 2x2 mediante ad - bc."""
     validar_matriz_cuadrada(
         matriz
     )
 
     if len(matriz) != 2:
-
         raise ValueError(
-            "Esta función solamente acepta "
-            "matrices de orden 2."
+            "Este método requiere una matriz de orden 2."
         )
 
-    a = matriz[0][0]
-
-    b = matriz[0][1]
-
-    c = matriz[1][0]
-
-    d = matriz[1][1]
-
-    determinante = (
-        a * d
-        - b * c
+    return (
+        matriz[0][0] * matriz[1][1]
+        - matriz[0][1] * matriz[1][0]
     )
 
-    return determinante
 
-
-# ==========================================================
-# DETERMINANTE GENERAL
-#
-# Desarrollo por cofactores.
-# ==========================================================
-
-def calcular_determinante(
-    matriz
-):
-
+def calcular_determinante(matriz):
+    """Calcula el determinante de una matriz cuadrada mediante cofactores."""
     validar_matriz_cuadrada(
         matriz
     )
@@ -387,149 +182,378 @@ def calcular_determinante(
         matriz
     )
 
-    # ======================================================
-    # MATRIZ 1 x 1
-    # ======================================================
-
     if orden == 1:
-
         return matriz[0][0]
 
-    # ======================================================
-    # MATRIZ 2 x 2
-    # ======================================================
-
     if orden == 2:
-
         return calcular_determinante_2x2(
             matriz
         )
-
-    # ======================================================
-    # MATRICES DE ORDEN 3 O MAYOR
-    #
-    # Elegimos la fila o columna con más ceros.
-    # ======================================================
 
     tipo, indice = seleccionar_fila_o_columna(
         matriz
     )
 
-    determinante = Fraction(
-        0
-    )
-
-    # ======================================================
-    # DESARROLLO POR FILA
-    # ======================================================
+    determinante = Fraction(0)
 
     if tipo == "fila":
+        for columna in range(orden):
+            elemento = matriz[indice][columna]
 
-        fila = indice
-
-        for columna in range(
-            orden
-        ):
-
-            elemento = matriz[
-                fila
-            ][
-                columna
-            ]
-
-            # Un elemento cero no aporta
-            # nada al desarrollo.
+            # Los términos con elemento cero no aportan al desarrollo.
             if elemento == 0:
-
                 continue
 
-            menor = obtener_menor(
-                matriz,
-                fila,
-                columna
-            )
-
-            determinante_menor = (
-                calcular_determinante(
-                    menor
+            determinante += (
+                elemento
+                * calcular_cofactor(
+                    matriz,
+                    indice,
+                    columna
                 )
             )
 
-            signo = obtener_signo_cofactor(
-                fila,
-                columna
-            )
+    else:
+        for fila in range(orden):
+            elemento = matriz[fila][indice]
 
-            termino = (
-                elemento
-                * signo
-                * determinante_menor
-            )
-
-            determinante += termino
-
-    # ======================================================
-    # DESARROLLO POR COLUMNA
-    # ======================================================
-
-    elif tipo == "columna":
-
-        columna = indice
-
-        for fila in range(
-            orden
-        ):
-
-            elemento = matriz[
-                fila
-            ][
-                columna
-            ]
-
+            # Los términos con elemento cero no aportan al desarrollo.
             if elemento == 0:
-
                 continue
 
-            menor = obtener_menor(
-                matriz,
-                fila,
-                columna
-            )
-
-            determinante_menor = (
-                calcular_determinante(
-                    menor
+            determinante += (
+                elemento
+                * calcular_cofactor(
+                    matriz,
+                    fila,
+                    indice
                 )
             )
-
-            signo = obtener_signo_cofactor(
-                fila,
-                columna
-            )
-
-            termino = (
-                elemento
-                * signo
-                * determinante_menor
-            )
-
-            determinante += termino
 
     return determinante
 
 
-# ==========================================================
-# CALCULAR COFACTOR
-#
-# Cij = (-1)^(i+j) det(Mij)
-# ==========================================================
+def calcular_determinante_sarrus(matriz):
+    """Calcula el determinante de una matriz 3x3 mediante la regla de Sarrus."""
+    validar_matriz_cuadrada(
+        matriz
+    )
+
+    if len(matriz) != 3:
+        raise ValueError(
+            "La regla de Sarrus solamente se aplica "
+            "a matrices de orden 3."
+        )
+
+    a, b, c = matriz[0]
+    d, e, f = matriz[1]
+    g, h, i = matriz[2]
+
+    suma_positiva = (
+        a * e * i
+        + b * f * g
+        + c * d * h
+    )
+
+    suma_negativa = (
+        c * e * g
+        + b * d * i
+        + a * f * h
+    )
+
+    return (
+        suma_positiva
+        - suma_negativa
+    )
+
+
+def buscar_fila_pivote(
+    matriz,
+    fila_inicio,
+    columna
+):
+    """Busca desde una fila inicial una entrada no nula para usarla como pivote."""
+    for fila in range(
+        fila_inicio,
+        len(matriz)
+    ):
+        if matriz[fila][columna] != 0:
+            return fila
+
+    return None
+
+
+def _crear_texto_reemplazo(
+    fila_destino,
+    fila_pivote,
+    factor
+):
+    """Representa una operación de eliminación usando un signo natural."""
+    if factor < 0:
+        return (
+            f"F{fila_destino + 1} -> "
+            f"F{fila_destino + 1} + "
+            f"({-factor})F{fila_pivote + 1}"
+        )
+
+    return (
+        f"F{fila_destino + 1} -> "
+        f"F{fila_destino + 1} - "
+        f"({factor})F{fila_pivote + 1}"
+    )
+
+
+def _guardar_paso(
+    historial,
+    operacion,
+    matriz
+):
+    """Agrega al historial una operación y una copia del estado de la matriz."""
+    historial.append(
+        {
+            "operacion": operacion,
+            "matriz": deepcopy(
+                matriz
+            )
+        }
+    )
+
+
+def triangularizar_para_determinante(matriz_original):
+    """Reduce A a forma triangular y conserva los datos usados para det(A)."""
+    validar_matriz_cuadrada(
+        matriz_original
+    )
+
+    matriz = deepcopy(
+        matriz_original
+    )
+
+    orden = len(
+        matriz
+    )
+
+    historial = []
+
+    _guardar_paso(
+        historial,
+        "Matriz inicial",
+        matriz
+    )
+
+    intercambios = 0
+    factores_eliminacion = []
+    fila_pivote_actual = 0
+
+    for columna in range(orden):
+        if fila_pivote_actual >= orden:
+            break
+
+        fila_encontrada = buscar_fila_pivote(
+            matriz,
+            fila_pivote_actual,
+            columna
+        )
+
+        # Una columna sin pivote indica pérdida de rango, pero pueden existir
+        # pivotes en columnas posteriores y deben contarse correctamente.
+        if fila_encontrada is None:
+            continue
+
+        if fila_encontrada != fila_pivote_actual:
+            matriz[
+                fila_pivote_actual
+            ], matriz[
+                fila_encontrada
+            ] = (
+                matriz[fila_encontrada],
+                matriz[fila_pivote_actual]
+            )
+
+            intercambios += 1
+
+            _guardar_paso(
+                historial,
+                (
+                    f"F{fila_pivote_actual + 1} "
+                    f"<-> F{fila_encontrada + 1}"
+                ),
+                matriz
+            )
+
+        pivote = matriz[
+            fila_pivote_actual
+        ][
+            columna
+        ]
+
+        for fila in range(
+            fila_pivote_actual + 1,
+            orden
+        ):
+            valor = matriz[
+                fila
+            ][
+                columna
+            ]
+
+            if valor == 0:
+                continue
+
+            factor = (
+                valor
+                / pivote
+            )
+
+            for j in range(
+                columna,
+                orden
+            ):
+                matriz[fila][j] -= (
+                    factor
+                    * matriz[
+                        fila_pivote_actual
+                    ][j]
+                )
+
+            factores_eliminacion.append(
+                {
+                    "fila_destino":
+                        fila,
+
+                    "fila_pivote":
+                        fila_pivote_actual,
+
+                    "factor":
+                        factor
+                }
+            )
+
+            _guardar_paso(
+                historial,
+                _crear_texto_reemplazo(
+                    fila,
+                    fila_pivote_actual,
+                    factor
+                ),
+                matriz
+            )
+
+        fila_pivote_actual += 1
+
+    num_pivotes = fila_pivote_actual
+
+    producto_diagonal = Fraction(1)
+
+    for indice in range(orden):
+        producto_diagonal *= matriz[
+            indice
+        ][
+            indice
+        ]
+
+    signo = (
+        Fraction(-1)
+        if intercambios % 2 != 0
+        else Fraction(1)
+    )
+
+    determinante = (
+        signo
+        * producto_diagonal
+    )
+
+    return {
+        "matriz_original":
+            matriz_original,
+
+        "matriz_triangular":
+            matriz,
+
+        "historial":
+            historial,
+
+        "intercambios":
+            intercambios,
+
+        "factores_eliminacion":
+            factores_eliminacion,
+
+        "num_pivotes":
+            num_pivotes,
+
+        "producto_diagonal":
+            producto_diagonal,
+
+        "determinante":
+            determinante
+    }
+
+
+def calcular_determinante_triangular(matriz):
+    """Calcula det(A) mediante reducción triangular y producto de la diagonal."""
+    resultado = triangularizar_para_determinante(
+        matriz
+    )
+
+    return resultado[
+        "determinante"
+    ]
+
+
+def comparar_metodos_determinante(matriz):
+    """Compara cofactores, reducción triangular y Sarrus cuando corresponde."""
+    validar_matriz_cuadrada(
+        matriz
+    )
+
+    cofactores = calcular_determinante(
+        matriz
+    )
+
+    triangular = calcular_determinante_triangular(
+        matriz
+    )
+
+    sarrus = None
+
+    if len(matriz) == 3:
+        sarrus = calcular_determinante_sarrus(
+            matriz
+        )
+
+    coinciden = (
+        cofactores
+        == triangular
+    )
+
+    if sarrus is not None:
+        coinciden = (
+            coinciden
+            and cofactores == sarrus
+        )
+
+    return {
+        "cofactores":
+            cofactores,
+
+        "sarrus":
+            sarrus,
+
+        "triangular":
+            triangular,
+
+        "coinciden":
+            coinciden
+    }
+
 
 def calcular_cofactor(
     matriz,
     fila,
     columna
 ):
-
+    """Calcula el cofactor Cij asociado con una entrada de una matriz cuadrada."""
     validar_matriz_cuadrada(
         matriz
     )
@@ -538,37 +562,19 @@ def calcular_cofactor(
         matriz
     )
 
-    if (
-        fila < 0
-        or fila >= orden
-    ):
-
+    if fila < 0 or fila >= orden:
         raise ValueError(
-            "La fila indicada no es válida."
+            "La fila del cofactor no existe."
         )
 
-    if (
-        columna < 0
-        or columna >= orden
-    ):
-
+    if columna < 0 or columna >= orden:
         raise ValueError(
-            "La columna indicada no es válida."
+            "La columna del cofactor no existe."
         )
 
-    # ======================================================
-    # MATRIZ 1 x 1
-    # ======================================================
-
+    # El menor de la única entrada de una matriz 1x1 tiene determinante 1.
     if orden == 1:
-
-        return Fraction(
-            1
-        )
-
-    # ======================================================
-    # OBTENEMOS EL MENOR
-    # ======================================================
+        return Fraction(1)
 
     menor = obtener_menor(
         matriz,
@@ -576,55 +582,26 @@ def calcular_cofactor(
         columna
     )
 
-    # ======================================================
-    # DETERMINANTE DEL MENOR
-    # ======================================================
-
-    determinante_menor = (
-        calcular_determinante(
+    return (
+        obtener_signo_cofactor(
+            fila,
+            columna
+        )
+        * calcular_determinante(
             menor
         )
     )
 
-    # ======================================================
-    # SIGNO
-    # ======================================================
 
-    signo = obtener_signo_cofactor(
-        fila,
-        columna
-    )
-
-    # ======================================================
-    # COFACTOR
-    # ======================================================
-
-    cofactor = (
-        signo
-        * determinante_menor
-    )
-
-    return cofactor
-
-
-# ==========================================================
-# DETERMINAR SI UNA MATRIZ ES INVERTIBLE
-#
-# A es invertible si det(A) != 0.
-# ==========================================================
-
-def es_matriz_invertible(
-    matriz
-):
-
+def es_matriz_invertible(matriz):
+    """Devuelve True cuando una matriz cuadrada tiene determinante distinto de cero."""
     validar_matriz_cuadrada(
         matriz
     )
 
-    determinante = calcular_determinante(
-        matriz
-    )
-
     return (
-        determinante != 0
+        calcular_determinante(
+            matriz
+        )
+        != 0
     )

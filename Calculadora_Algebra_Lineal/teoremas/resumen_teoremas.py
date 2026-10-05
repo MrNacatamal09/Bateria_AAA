@@ -1,17 +1,13 @@
-# ==========================================================
-# RESUMEN DE TEOREMAS Y PROPIEDADES CLAVE
-# CALCULADORA DE ÁLGEBRA LINEAL
-# ==========================================================
+"""
+Reúne los teoremas y propiedades usados por los módulos de la calculadora.
+Proporciona textos de consulta para sistemas, vectores, matrices y determinantes.
+Tema de clase: fundamentos y teoremas principales de Álgebra Lineal.
+Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
+"""
 
-
-# ==========================================================
-# MÓDULO 1
-# SISTEMAS DE ECUACIONES LINEALES
-# Programas 1 y 2
-# ==========================================================
 
 def obtener_teoremas_sistemas():
-
+    """Devuelve los teoremas clave del módulo de sistemas de ecuaciones."""
     return """
 ========================================================
 MÓDULO 1 - SISTEMAS DE ECUACIONES LINEALES
@@ -117,14 +113,8 @@ Permite identificar directamente:
 """
 
 
-# ==========================================================
-# MÓDULO 2
-# VECTORES E INDEPENDENCIA LINEAL
-# Programas 3 y 4
-# ==========================================================
-
 def obtener_teoremas_vectores():
-
+    """Devuelve los teoremas clave del módulo de vectores."""
     return """
 ========================================================
 MÓDULO 2 - VECTORES E INDEPENDENCIA LINEAL
@@ -242,60 +232,52 @@ x₁v₁ + x₂v₂ + ... + xₖvₖ = 0
 """
 
 
-# ==========================================================
-# MÓDULO 3
-# ÁLGEBRA DE MATRICES
-# ==========================================================
-
 def obtener_teoremas_matrices():
-
+    """Devuelve los teoremas requeridos para el Módulo III y Programa 5."""
     return """
 ========================================================
 MÓDULO 3 - ÁLGEBRA DE MATRICES
+PROGRAMA 5
 ========================================================
 
 1. IGUALDAD DE MATRICES
 
-Dos matrices son iguales si poseen el mismo tamaño y sus
-entradas correspondientes son iguales.
+Dos matrices son iguales si poseen las mismas dimensiones y
+sus entradas correspondientes son iguales.
 
 
-2. SUMA DE MATRICES
+2. SUMA Y RESTA DE MATRICES
 
-La suma A + B está definida cuando A y B poseen las mismas
-dimensiones.
+A + B y A - B están definidas solamente cuando A y B poseen
+las mismas dimensiones.
 
-Se realiza elemento a elemento.
+Las operaciones se realizan entrada por entrada.
 
 
-3. PROPIEDADES DE SUMA Y ESCALAR
+3. MULTIPLICACIÓN POR ESCALAR
 
-Sean A, B y C matrices del mismo tamaño y r, s escalares:
+Si r es un escalar y A = [aᵢⱼ], entonces:
 
-A + B = B + A
+rA = [raᵢⱼ]
 
-(A + B) + C = A + (B + C)
-
-A + 0 = A
-
-r(A + B) = rA + rB
-
-(r + s)A = rA + sA
-
-r(sA) = (rs)A
+El escalar multiplica cada entrada de la matriz.
 
 
 4. MULTIPLICACIÓN DE MATRICES
 
-Si A es una matriz m × n y B es una matriz n × p,
-entonces el producto AB está definido y tiene dimensión:
+Si A tiene dimensión m × n y B tiene dimensión n × p,
+entonces AB está definido y posee dimensión:
 
 m × p
 
-Cada entrada se calcula mediante la regla fila-columna:
+Cada entrada se obtiene mediante la regla fila-columna:
 
 (AB)ᵢⱼ =
 aᵢ₁b₁ⱼ + aᵢ₂b₂ⱼ + ... + aᵢₙbₙⱼ
+
+Por tanto, para calcular AB debe cumplirse:
+
+Columnas de A = Filas de B
 
 
 5. PROPIEDADES DE LA MULTIPLICACIÓN
@@ -319,19 +301,17 @@ En general:
 
 AB ≠ BA
 
-Por tanto, no se debe intercambiar el orden de las matrices
-como si fueran números reales.
+Por tanto, el orden de los factores matriciales no puede
+intercambiarse libremente.
 
 
-7. TRANSPUESTA DE UNA MATRIZ
+7. TRANSPUESTA
 
-Si A tiene dimensión m × n, su transpuesta Aᵀ tiene
-dimensión n × m.
+Si A tiene dimensión m × n, entonces Aᵀ tiene dimensión n × m.
 
 Las filas de A se convierten en las columnas de Aᵀ.
 
-
-8. PROPIEDADES DE LA TRANSPUESTA
+Propiedades:
 
 (Aᵀ)ᵀ = A
 
@@ -342,7 +322,88 @@ Las filas de A se convierten en las columnas de Aᵀ.
 (AB)ᵀ = BᵀAᵀ
 
 
-9. MATRIZ INVERTIBLE
+8. DETERMINANTE
+
+El determinante está definido para matrices cuadradas.
+
+Para una matriz de orden 2:
+
+A = [ a  b ]
+    [ c  d ]
+
+se tiene:
+
+det(A) = ad - bc
+
+Para matrices de mayor orden puede utilizarse el desarrollo
+por cofactores.
+
+
+9. MENOR Y COFACTOR
+
+El menor Mᵢⱼ se obtiene eliminando la fila i y la columna j.
+
+El cofactor correspondiente es:
+
+Cᵢⱼ = (-1)^(i+j) det(Mᵢⱼ)
+
+
+10. DESARROLLO POR COFACTORES
+
+El determinante puede desarrollarse por cualquier fila o
+columna.
+
+Por una fila i:
+
+det(A) =
+aᵢ₁Cᵢ₁ + aᵢ₂Cᵢ₂ + ... + aᵢₙCᵢₙ
+
+
+11. REGLA DE SARRUS
+
+Para una matriz de orden 3 × 3 también puede utilizarse la
+regla de Sarrus.
+
+Este método es exclusivo para matrices 3 × 3.
+
+
+12. DETERMINANTE DE UNA MATRIZ TRIANGULAR
+
+Si A es triangular, entonces:
+
+det(A) = a₁₁a₂₂ ... aₙₙ
+
+Es decir, el determinante es el producto de las entradas
+de la diagonal principal.
+
+
+13. OPERACIONES DE FILA Y DETERMINANTE
+
+El intercambio de dos filas cambia el signo del determinante.
+
+Si:
+
+A -> B
+
+mediante un intercambio de dos filas, entonces:
+
+det(B) = -det(A)
+
+Sumar a una fila un múltiplo de otra no modifica el
+determinante:
+
+Fᵢ -> Fᵢ + kFⱼ
+
+det(B) = det(A)
+
+Multiplicar una fila por k multiplica el determinante por k:
+
+Fᵢ -> kFᵢ
+
+det(B) = k det(A)
+
+
+14. MATRIZ INVERTIBLE
 
 Una matriz cuadrada A es invertible si existe una matriz
 A⁻¹ tal que:
@@ -354,43 +415,59 @@ y
 A⁻¹A = I
 
 
-10. INVERSA DE UNA MATRIZ 2 × 2
+15. INVERSA Y DETERMINANTE
 
-Sea:
+Una matriz cuadrada A es invertible si y solo si:
 
-A = [ a  b ]
-    [ c  d ]
-
-Si:
-
-ad - bc ≠ 0
-
-entonces A es invertible y:
-
-             1       [  d  -b ]
-A⁻¹ = ------------- [        ]
-          ad - bc    [ -c   a ]
+det(A) ≠ 0
 
 Si:
 
-ad - bc = 0
+det(A) = 0
 
-la matriz no es invertible.
-
-
-11. SOLUCIÓN DE Ax = b MEDIANTE LA INVERSA
-
-Si A es una matriz invertible de orden n × n, entonces
-para cada b en Rⁿ la ecuación:
-
-Ax = b
-
-posee la solución única:
-
-x = A⁻¹b
+la matriz es singular y no posee inversa.
 
 
-12. PROPIEDADES DE MATRICES INVERTIBLES
+16. INVERSA POR GAUSS-JORDAN
+
+Para obtener la inversa mediante Gauss-Jordan se construye:
+
+[A | I]
+
+y se aplican operaciones elementales por filas.
+
+Si A es invertible, se obtiene:
+
+[I | A⁻¹]
+
+Si no aparecen n posiciones pivote, la matriz es singular.
+
+
+17. MATRIZ DE COFACTORES Y MATRIZ ADJUNTA
+
+La matriz de cofactores de A contiene los valores Cᵢⱼ.
+
+La matriz adjunta se obtiene transponiendo la matriz de
+cofactores:
+
+adj(A) = Cᵀ
+
+
+18. INVERSA POR MATRIZ ADJUNTA
+
+Si:
+
+det(A) ≠ 0
+
+entonces:
+
+A⁻¹ = (1/det(A)) adj(A)
+
+Esta fórmula solamente puede aplicarse cuando el determinante
+es distinto de cero.
+
+
+19. PROPIEDADES DE MATRICES INVERTIBLES
 
 Si A es invertible:
 
@@ -405,57 +482,61 @@ Si A es invertible:
 (Aᵀ)⁻¹ = (A⁻¹)ᵀ
 
 
-13. MATRIZ ELEMENTAL
+20. DETERMINANTE DE LA INVERSA
 
-Una matriz elemental se obtiene al realizar una única
-operación elemental por filas sobre una matriz identidad.
+Si A es invertible:
 
-
-14. INVERSA MEDIANTE GAUSS-JORDAN
-
-Una matriz A de orden n × n es invertible si puede reducirse
-por filas hasta Iₙ.
-
-Para obtener la inversa se construye:
-
-[A | I]
-
-y se aplican operaciones elementales hasta obtener:
-
-[I | A⁻¹]
-
-Si la parte izquierda no puede transformarse en I,
-A no posee inversa.
+det(A⁻¹) = 1/det(A)
 
 
-15. TEOREMA DE LA MATRIZ INVERTIBLE
+21. TEOREMA DE LA MATRIZ INVERTIBLE
 
-Para una matriz cuadrada A de orden n × n, el material de
-clase presenta como enunciados equivalentes, entre otros:
+Sea A una matriz cuadrada de orden n × n.
+
+Las siguientes afirmaciones son equivalentes:
 
 - A es invertible.
 - A es equivalente por filas a Iₙ.
 - A tiene n posiciones pivote.
 - Ax = 0 posee solamente la solución trivial.
 - Las columnas de A son linealmente independientes.
-- Ax = b posee al menos una solución para todo b en Rⁿ.
-- Las columnas de A generan Rⁿ.
-- Aᵀ es invertible.
+- Ax = b posee una solución para cada b en ℝⁿ.
+- Las columnas de A generan ℝⁿ.
 
-Estos enunciados forman parte de las caracterizaciones de
-una matriz invertible.
+En particular, para el Programa 5 se utilizan directamente
+las siguientes caracterizaciones:
+
+c) A tiene n posiciones pivote.
+
+e) Las columnas de A son linealmente independientes.
+
+h) Las columnas de A generan ℝⁿ.
+
+
+22. RELACIÓN ENTRE LAS CONDICIONES DE INVERTIBILIDAD
+
+Para una matriz cuadrada A de orden n × n, las siguientes
+condiciones describen la misma situación:
+
+det(A) ≠ 0
+
+A tiene n posiciones pivote.
+
+Las columnas de A son L.I.
+
+Las columnas de A generan ℝⁿ.
+
+A posee una matriz inversa.
+
+Por tanto, si una de estas condiciones falla, A no es
+invertible.
 
 ========================================================
 """
 
 
-# ==========================================================
-# MÓDULO 4
-# DETERMINANTES
-# ==========================================================
-
 def obtener_teoremas_determinantes():
-
+    """Devuelve los teoremas clave del módulo de determinantes."""
     return """
 ========================================================
 MÓDULO 4 - DETERMINANTES
@@ -569,28 +650,18 @@ Para calcular un determinante por cofactores la calculadora:
 """
 
 
-# ==========================================================
-# FUNCIÓN GENERAL
-# ==========================================================
-
-def obtener_teoremas_modulo(
-    numero_modulo
-):
-
+def obtener_teoremas_modulo(numero_modulo):
+    """Devuelve los teoremas correspondientes al número de módulo recibido."""
     if numero_modulo == 1:
-
         return obtener_teoremas_sistemas()
 
     if numero_modulo == 2:
-
         return obtener_teoremas_vectores()
 
     if numero_modulo == 3:
-
         return obtener_teoremas_matrices()
 
     if numero_modulo == 4:
-
         return obtener_teoremas_determinantes()
 
     raise ValueError(
