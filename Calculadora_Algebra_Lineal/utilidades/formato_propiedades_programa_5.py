@@ -1,288 +1,194 @@
 """
-Da formato a las seis propiedades verificadas en el Programa 5.
-Presenta ambos miembros de cada igualdad y la conclusión de la prueba.
-Tema de clase: propiedades de matrices invertibles y determinantes.
+Formatea los resultados del verificador de propiedades del Programa 5.
+Muestra expresiones, ambos lados y la conclusión de cada igualdad.
+Tema de clase: propiedades de matrices, inversas y determinantes.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
-from utilidades.formato_determinantes import (
-    formatear_matriz
-)
+from utilidades.formato_determinantes import formatear_matriz
 
 
 def formatear_conclusion(cumple):
-    """Devuelve la conclusión solicitada para una propiedad verificada."""
-    if cumple:
-        return "Se cumple"
+    """Devuelve la conclusión textual de una propiedad."""
+    return "Se cumple" if cumple else "No se cumple"
 
-    return "No se cumple"
+
+def _agregar_matriz(lineas, titulo, matriz):
+    """Agrega un título y una matriz formateada a una lista de líneas."""
+    lineas.extend([
+        titulo,
+        "",
+        formatear_matriz(matriz),
+        "",
+    ])
 
 
 def formatear_propiedad_1(resultado):
-    """Presenta la comprobación de (A^-1)^-1 = A."""
-    return (
-        "PROPIEDAD 1\n"
-        + "(A⁻¹)⁻¹ = A\n"
-        + "=" * 60
-        + "\n\n"
-        + "Lado izquierdo:\n\n"
-        + formatear_matriz(
-            resultado["lado_izquierdo"]
-        )
-        + "\n\n"
-        + "Lado derecho:\n\n"
-        + formatear_matriz(
-            resultado["lado_derecho"]
-        )
-        + "\n\n"
-        + formatear_conclusion(
-            resultado["cumple"]
-        )
-    )
+    """Formatea (A⁻¹)⁻¹ = A."""
+    lineas = [
+        "PROPIEDAD 1",
+        "(A⁻¹)⁻¹ = A",
+        "=" * 60,
+        "",
+        "LADO IZQUIERDO",
+        "",
+    ]
+    _agregar_matriz(lineas, "(A⁻¹)⁻¹ =", resultado["lado_izquierdo"])
+    lineas.extend(["LADO DERECHO", ""])
+    _agregar_matriz(lineas, "A =", resultado["lado_derecho"])
+    lineas.append(formatear_conclusion(resultado["cumple"]))
+    return "\n".join(lineas)
 
 
 def formatear_propiedad_2(resultado):
-    """Presenta la comprobación de (AB)^-1 = B^-1 A^-1."""
-    texto = (
-        "PROPIEDAD 2\n"
-        + "(AB)⁻¹ = B⁻¹A⁻¹\n"
-        + "=" * 60
-        + "\n\n"
-        + "AB =\n\n"
-        + formatear_matriz(
-            resultado["producto_ab"]
-        )
-        + "\n\n"
-        + "(AB)⁻¹ =\n\n"
-        + formatear_matriz(
-            resultado["lado_izquierdo"]
-        )
-        + "\n\n"
-        + "B⁻¹A⁻¹ =\n\n"
-        + formatear_matriz(
-            resultado["lado_derecho"]
-        )
-        + "\n\n"
-    )
-
-    return (
-        texto
-        + formatear_conclusion(
-            resultado["cumple"]
-        )
-    )
+    """Formatea (AB)⁻¹ = B⁻¹A⁻¹."""
+    lineas = [
+        "PROPIEDAD 2",
+        "(AB)⁻¹ = B⁻¹A⁻¹",
+        "=" * 60,
+        "",
+    ]
+    _agregar_matriz(lineas, "AB =", resultado["producto_ab"])
+    lineas.extend(["LADO IZQUIERDO", ""])
+    _agregar_matriz(lineas, "(AB)⁻¹ =", resultado["lado_izquierdo"])
+    lineas.extend(["LADO DERECHO", ""])
+    _agregar_matriz(lineas, "B⁻¹A⁻¹ =", resultado["lado_derecho"])
+    lineas.append(formatear_conclusion(resultado["cumple"]))
+    return "\n".join(lineas)
 
 
 def formatear_propiedad_3(resultado):
-    """Presenta la comprobación de (A^T)^-1 = (A^-1)^T."""
-    texto = (
-        "PROPIEDAD 3\n"
-        + "(Aᵀ)⁻¹ = (A⁻¹)ᵀ\n"
-        + "=" * 60
-        + "\n\n"
-        + "Aᵀ =\n\n"
-        + formatear_matriz(
-            resultado["transpuesta_a"]
-        )
-        + "\n\n"
-        + "(Aᵀ)⁻¹ =\n\n"
-        + formatear_matriz(
-            resultado["lado_izquierdo"]
-        )
-        + "\n\n"
-        + "(A⁻¹)ᵀ =\n\n"
-        + formatear_matriz(
-            resultado["lado_derecho"]
-        )
-        + "\n\n"
-    )
-
-    return (
-        texto
-        + formatear_conclusion(
-            resultado["cumple"]
-        )
-    )
+    """Formatea (Aᵀ)⁻¹ = (A⁻¹)ᵀ."""
+    lineas = [
+        "PROPIEDAD 3",
+        "(Aᵀ)⁻¹ = (A⁻¹)ᵀ",
+        "=" * 60,
+        "",
+    ]
+    _agregar_matriz(lineas, "Aᵀ =", resultado["transpuesta_a"])
+    lineas.extend(["LADO IZQUIERDO", ""])
+    _agregar_matriz(lineas, "(Aᵀ)⁻¹ =", resultado["lado_izquierdo"])
+    lineas.extend(["LADO DERECHO", ""])
+    _agregar_matriz(lineas, "(A⁻¹)ᵀ =", resultado["lado_derecho"])
+    lineas.append(formatear_conclusion(resultado["cumple"]))
+    return "\n".join(lineas)
 
 
 def formatear_propiedad_4(resultado):
-    """Presenta la comprobación de det(A^-1) = 1/det(A)."""
-    texto = (
-        "PROPIEDAD 4\n"
-        + "det(A⁻¹) = 1/det(A)\n"
-        + "=" * 60
-        + "\n\n"
-        + "A⁻¹ =\n\n"
-        + formatear_matriz(
-            resultado["inversa_a"]
-        )
-        + "\n\n"
-        + "det(A) = "
-        + str(
-            resultado["determinante_a"]
-        )
-        + "\n\n"
-        + "Lado izquierdo:\n"
-        + "det(A⁻¹) = "
-        + str(
-            resultado["lado_izquierdo"]
-        )
-        + "\n\n"
-        + "Lado derecho:\n"
-        + "1/det(A) = "
-        + str(
-            resultado["lado_derecho"]
-        )
-        + "\n\n"
-    )
-
-    return (
-        texto
-        + formatear_conclusion(
-            resultado["cumple"]
-        )
-    )
+    """Formatea det(A⁻¹) = 1/det(A)."""
+    lineas = [
+        "PROPIEDAD 4",
+        "det(A⁻¹) = 1/det(A)",
+        "=" * 60,
+        "",
+    ]
+    _agregar_matriz(lineas, "A⁻¹ =", resultado["inversa_a"])
+    lineas.extend([
+        f"det(A) = {resultado['determinante_a']}",
+        "",
+        "LADO IZQUIERDO",
+        f"det(A⁻¹) = {resultado['lado_izquierdo']}",
+        "",
+        "LADO DERECHO",
+        f"1/det(A) = {resultado['lado_derecho']}",
+        "",
+        formatear_conclusion(resultado["cumple"]),
+    ])
+    return "\n".join(lineas)
 
 
-def formatear_operacion_fila(nombre, resultado):
-    """Presenta una operación elemental y su efecto sobre el determinante."""
-    texto = (
-        nombre
-        + "\n"
-        + "-" * 60
-        + "\n\n"
-        + "Operación:\n"
-        + resultado["operacion"]
-        + "\n\n"
-        + "Matriz resultante:\n\n"
-        + formatear_matriz(
-            resultado["matriz_transformada"]
-        )
-        + "\n\n"
-        + "det(A) original = "
-        + str(
-            resultado["determinante_original"]
-        )
-        + "\n"
-        + "Determinante obtenido = "
-        + str(
-            resultado["determinante_transformado"]
-        )
-        + "\n"
-        + "Valor esperado = "
-        + str(
-            resultado["valor_esperado"]
-        )
-        + "\n\n"
-        + formatear_conclusion(
-            resultado["cumple"]
-        )
-    )
-
-    return texto
+def _formatear_operacion_fila(titulo, bloque, det_original):
+    """Formatea una verificación individual de la propiedad 5."""
+    lineas = [
+        titulo,
+        "-" * 60,
+        "",
+        "Operación:",
+        bloque["operacion"],
+        "",
+    ]
+    _agregar_matriz(lineas, "Matriz resultante:", bloque["matriz"])
+    lineas.extend([
+        f"det(A) original = {det_original}",
+        f"Determinante obtenido = {bloque['determinante_obtenido']}",
+        f"Valor esperado = {bloque['valor_esperado']}",
+        "",
+        formatear_conclusion(bloque["cumple"]),
+        "",
+    ])
+    return lineas
 
 
 def formatear_propiedad_5(resultado):
-    """Presenta las tres reglas del determinante ante operaciones de fila."""
-    texto = (
-        "PROPIEDAD 5\n"
-        + "DETERMINANTE Y OPERACIONES DE FILA\n"
-        + "=" * 60
-        + "\n\n"
-    )
+    """Formatea las tres operaciones de fila de la propiedad 5."""
+    lineas = [
+        "PROPIEDAD 5",
+        "DETERMINANTE Y OPERACIONES DE FILA",
+        "=" * 60,
+        "",
+    ]
 
-    texto += formatear_operacion_fila(
+    det_original = resultado["determinante_original"]
+    lineas += _formatear_operacion_fila(
         "A. Intercambio de dos filas",
-        resultado["intercambio"]
+        resultado["intercambio"],
+        det_original,
+    )
+    lineas += _formatear_operacion_fila(
+        "B. Reemplazo de una fila",
+        resultado["reemplazo"],
+        det_original,
+    )
+    lineas += _formatear_operacion_fila(
+        "C. Multiplicación de una fila por k",
+        resultado["escalamiento"],
+        det_original,
     )
 
-    texto += (
-        "\n\n"
-        + formatear_operacion_fila(
-            "B. Reemplazo de una fila",
-            resultado["reemplazo"]
-        )
-    )
-
-    texto += (
-        "\n\n"
-        + formatear_operacion_fila(
-            "C. Multiplicación de una fila por k",
-            resultado["escalamiento"]
-        )
-    )
-
-    texto += (
-        "\n\n"
-        + "=" * 60
-        + "\n"
-        + "Conclusión de la propiedad 5: "
-        + formatear_conclusion(
-            resultado["cumple"]
-        )
-    )
-
-    return texto
+    lineas.extend([
+        "=" * 60,
+        "Conclusión de la propiedad 5: " + formatear_conclusion(resultado["cumple"]),
+    ])
+    return "\n".join(lineas)
 
 
 def formatear_propiedad_6(resultado):
-    """Presenta la comparación del determinante con la reducción triangular."""
-    texto = (
-        "PROPIEDAD 6\n"
-        + "DETERMINANTE DE UNA MATRIZ TRIANGULAR\n"
-        + "=" * 60
-        + "\n\n"
-        + "Matriz triangular obtenida:\n\n"
-        + formatear_matriz(
-            resultado["matriz_triangular"]
-        )
-        + "\n\n"
-        + "Producto de la diagonal = "
-        + str(
-            resultado["producto_diagonal"]
-        )
-        + "\n"
-        + "Intercambios de fila = "
-        + str(
-            resultado["intercambios"]
-        )
-        + "\n\n"
-        + "Determinante por cofactores = "
-        + str(
-            resultado["determinante_cofactores"]
-        )
-        + "\n"
-        + "Determinante triangular corregido = "
-        + str(
-            resultado["determinante_triangular"]
-        )
-        + "\n\n"
-        + formatear_conclusion(
-            resultado["cumple"]
-        )
+    """Formatea la comparación del determinante triangular con cofactores."""
+    lineas = [
+        "PROPIEDAD 6",
+        "DETERMINANTE DE UNA MATRIZ TRIANGULAR",
+        "=" * 60,
+        "",
+    ]
+    _agregar_matriz(
+        lineas,
+        "Matriz triangular obtenida:",
+        resultado["matriz_triangular"],
     )
+    lineas.extend([
+        f"Producto de la diagonal = {resultado['producto_diagonal']}",
+        f"Intercambios de fila = {resultado['intercambios']}",
+        "",
+        f"Determinante por cofactores = {resultado['determinante_cofactores']}",
+        f"Determinante triangular corregido = {resultado['determinante_triangular']}",
+        "",
+        formatear_conclusion(resultado["cumple"]),
+    ])
+    return "\n".join(lineas)
 
-    return texto
 
-
-def formatear_propiedad(numero_propiedad, resultado):
-    """Selecciona el formato correspondiente a una propiedad del 1 al 6."""
+def formatear_propiedad(numero, resultado):
+    """Selecciona el formato correspondiente a la propiedad 1 a 6."""
     formateadores = {
         1: formatear_propiedad_1,
         2: formatear_propiedad_2,
         3: formatear_propiedad_3,
         4: formatear_propiedad_4,
         5: formatear_propiedad_5,
-        6: formatear_propiedad_6
+        6: formatear_propiedad_6,
     }
 
-    if numero_propiedad not in formateadores:
-        raise ValueError(
-            "La propiedad debe estar entre 1 y 6."
-        )
+    if numero not in formateadores:
+        raise ValueError("La propiedad seleccionada debe estar entre 1 y 6.")
 
-    return formateadores[
-        numero_propiedad
-    ](
-        resultado
-    )
+    return formateadores[numero](resultado)
