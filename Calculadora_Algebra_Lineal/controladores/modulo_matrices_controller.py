@@ -30,6 +30,7 @@ from programas.programa_3.propiedades_matrices_generales import (
     verificar_transpuesta_suma,
     verificar_transpuesta_escalar,
     verificar_transpuesta_producto,
+    verificar_distributiva_escalar_transpuesta,
 )
 
 
@@ -130,7 +131,7 @@ def procesar_propiedad_matrices(
     matriz_c=None,
     escalar=None,
 ):
-    """Ejecuta una de las nueve propiedades generales del Módulo III."""
+    """Ejecuta una de las diez propiedades generales del Módulo III."""
     matriz_a = convertir_matriz(matriz_a)
 
     if propiedad == "asociativa":
@@ -207,6 +208,19 @@ def procesar_propiedad_matrices(
         return verificar_transpuesta_producto(
             matriz_a,
             convertir_matriz(matriz_b),
+        )
+
+    if propiedad == "distributiva_escalar_transpuesta":
+        if matriz_b is None:
+            raise ValueError("Esta propiedad necesita las matrices A y B.")
+
+        if escalar is None:
+            raise ValueError("Debe ingresar el escalar r.")
+
+        return verificar_distributiva_escalar_transpuesta(
+            matriz_a,
+            convertir_matriz(matriz_b),
+            convertir_a_fraccion(escalar),
         )
 
     raise ValueError("La propiedad general seleccionada no es válida.")

@@ -10,6 +10,7 @@ from tkinter import ttk, messagebox
 
 from controladores.modulo_determinantes_controller import (
     procesar_determinante_programa_5,
+    procesar_cramer,
     procesar_inversa_gauss_jordan_programa_5,
     procesar_inversa_adjunta_programa_5,
     procesar_propiedad_programa_5,
@@ -290,6 +291,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
         )
 
         self._crear_pestana_determinante()
+        self._crear_pestana_cramer()
         self._crear_pestana_gauss_jordan()
         self._crear_pestana_adjunta()
         self._crear_pestana_propiedades()
@@ -542,6 +544,356 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
             self._colocar_texto(
                 self.txt_comparacion_det,
                 comparacion,
+            )
+
+        except ValueError as error:
+            messagebox.showerror(
+                "Error",
+                str(error),
+            )
+
+    def _crear_pestana_cramer(self):
+        """Construye una herramienta adicional para la regla de Cramer."""
+        pestana = ttk.Frame(
+            self.cuaderno
+        )
+        self.cuaderno.add(
+            pestana,
+            text="Método de Cramer",
+        )
+
+        controles = ttk.Frame(
+            pestana
+        )
+        controles.pack(
+            fill="x",
+            padx=10,
+            pady=5,
+        )
+
+        ttk.Label(
+            controles,
+            text="Orden n:",
+        ).pack(
+            side="left",
+            padx=4,
+        )
+
+        self.cramer_orden = tk.StringVar(
+            value="2"
+        )
+
+        ttk.Entry(
+            controles,
+            textvariable=self.cramer_orden,
+            width=6,
+            justify="center",
+        ).pack(
+            side="left",
+            padx=4,
+        )
+
+        ttk.Button(
+            controles,
+            text="Crear sistema",
+            command=self._crear_sistema_cramer,
+        ).pack(
+            side="left",
+            padx=6,
+        )
+
+        ttk.Button(
+            controles,
+            text="Resolver por Cramer",
+            command=self._resolver_cramer,
+        ).pack(
+            side="left",
+            padx=6,
+        )
+
+        self.marco_cramer = ttk.LabelFrame(
+            pestana,
+            text="Sistema Ax = b",
+            padding=8,
+        )
+        self.marco_cramer.pack(
+            fill="x",
+            padx=10,
+            pady=5,
+        )
+
+        self.cramer_coeficientes = []
+        self.cramer_independientes = []
+
+        self._crear_sistema_cramer()
+
+        self.txt_cramer = self._crear_area_texto(
+            pestana
+        )
+
+    def _crear_sistema_cramer(self):
+        """Crea las entradas de A y b para un sistema cuadrado."""
+        try:
+            orden = int(
+                self.cramer_orden.get()
+            )
+        except ValueError:
+            messagebox.showerror(
+                "Error",
+                "El orden debe ser un número entero positivo.",
+            )
+            return
+
+        if orden <= 0:
+            messagebox.showerror(
+                "Error",
+                "El orden debe ser un número entero positivo.",
+            )
+            return
+
+        for elemento in self.marco_cramer.winfo_children():
+            elemento.destroy()
+
+        self.cramer_coeficientes = []
+        self.cramer_independientes = []
+
+        for columna in range(orden):
+            ttk.Label(
+                self.marco_cramer,
+                text=f"x{columna + 1}",
+            ).grid(
+                row=0,
+                column=columna + 1,
+                padx=4,
+                pady=3,
+            )
+
+        ttk.Label(
+            self.marco_cramer,
+            text="|",
+        ).grid(
+            row=0,
+            column=orden + 1,
+            padx=4,
+        )
+
+        ttk.Label(
+            self.marco_cramer,
+            text="b",
+        ).grid(
+            row=0,
+            column=orden + 2,
+            padx=4,
+            pady=3,
+        )
+
+        for fila in range(orden):
+            ttk.Label(
+                self.marco_cramer,
+                text=f"E{fila + 1}",
+            ).grid(
+                row=fila + 1,
+                column=0,
+                padx=4,
+                pady=3,
+            )
+
+            fila_coeficientes = []
+
+            for columna in range(orden):
+                entrada = ttk.Entry(
+                    self.marco_cramer,
+                    width=8,
+                    justify="center",
+                )
+                entrada.grid(
+                    row=fila + 1,
+                    column=columna + 1,
+                    padx=3,
+                    pady=3,
+                )
+                fila_coeficientes.append(
+                    entrada
+                )
+
+            self.cramer_coeficientes.append(
+                fila_coeficientes
+            )
+
+            ttk.Label(
+                self.marco_cramer,
+                text="|",
+            ).grid(
+                row=fila + 1,
+                column=orden + 1,
+                padx=4,
+            )
+
+            independiente = ttk.Entry(
+                self.marco_cramer,
+                width=8,
+                justify="center",
+            )
+            independiente.grid(
+                row=fila + 1,
+                column=orden + 2,
+                padx=3,
+                pady=3,
+            )
+            self.cramer_independientes.append(
+                independiente
+            )
+
+    def _leer_sistema_cramer(self):
+        """Devuelve A y b tal como fueron escritos por el usuario."""
+        matriz_a = [
+            [
+                entrada.get()
+                for entrada in fila
+            ]
+            for fila in self.cramer_coeficientes
+        ]
+
+        vector_b = [
+            entrada.get()
+            for entrada in self.cramer_independientes
+        ]
+
+        return matriz_a, vector_b
+
+    def _formatear_matriz_simple(self, matriz):
+        """Convierte una matriz en texto para la salida de Cramer."""
+        return "\n".join(
+            "[ "
+            + "   ".join(
+                str(valor)
+                for valor in fila
+            )
+            + " ]"
+            for fila in matriz
+        )
+
+    def _formatear_cramer(self, resultado):
+        """Construye el procedimiento completo de la regla de Cramer."""
+        lineas = [
+            "MÉTODO DE CRAMER",
+            "Ax = b",
+            "=" * 60,
+            "",
+            "A =",
+            "",
+            self._formatear_matriz_simple(
+                resultado["matriz_a"]
+            ),
+            "",
+            "b =",
+            "",
+            "[ "
+            + "   ".join(
+                str(valor)
+                for valor in resultado["vector_b"]
+            )
+            + " ]ᵀ",
+            "",
+            "det(A) = "
+            + str(
+                resultado["determinante_a"]
+            ),
+            "",
+        ]
+
+        for calculo in resultado["calculos"]:
+            numero = calculo["variable"] + 1
+
+            lineas.extend(
+                [
+                    f"A{numero} =",
+                    "",
+                    self._formatear_matriz_simple(
+                        calculo["matriz"]
+                    ),
+                    "",
+                    f"det(A{numero}) = {calculo['determinante']}",
+                    f"x{numero} = det(A{numero}) / det(A)",
+                    f"x{numero} = {calculo['valor']}",
+                    "",
+                ]
+            )
+
+        lineas.extend(
+            [
+                "=" * 60,
+                "",
+                "SOLUCIÓN",
+                "",
+            ]
+        )
+
+        for indice, valor in enumerate(
+            resultado["solucion"],
+            start=1,
+        ):
+            lineas.append(
+                f"x{indice} = {valor}"
+            )
+
+        lineas.extend(
+            [
+                "",
+                "=" * 60,
+                "",
+                "VERIFICACIÓN",
+                "",
+            ]
+        )
+
+        for ecuacion in resultado["verificacion"]["ecuaciones"]:
+            estado = (
+                "Correcta"
+                if ecuacion["correcta"]
+                else "Incorrecta"
+            )
+
+            lineas.append(
+                "Ecuación "
+                + str(ecuacion["ecuacion"])
+                + ": "
+                + str(ecuacion["lado_izquierdo"])
+                + " = "
+                + str(ecuacion["lado_derecho"])
+                + f" ({estado})"
+            )
+
+        lineas.append("")
+
+        if resultado["verificacion"]["correcta"]:
+            lineas.append(
+                "La solución satisface todas las ecuaciones."
+            )
+        else:
+            lineas.append(
+                "La solución no satisface todas las ecuaciones."
+            )
+
+        return "\n".join(
+            lineas
+        )
+
+    def _resolver_cramer(self):
+        """Resuelve el sistema ingresado mediante la regla de Cramer."""
+        try:
+            matriz_a, vector_b = self._leer_sistema_cramer()
+
+            resultado = procesar_cramer(
+                matriz_a,
+                vector_b,
+            )
+
+            self._colocar_texto(
+                self.txt_cramer,
+                self._formatear_cramer(
+                    resultado
+                ),
             )
 
         except ValueError as error:

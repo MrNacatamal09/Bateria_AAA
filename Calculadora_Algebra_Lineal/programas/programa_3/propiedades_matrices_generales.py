@@ -1,3 +1,10 @@
+"""
+Verifica propiedades generales de las operaciones con matrices.
+Incluye suma, producto, escalares y propiedades de la transpuesta.
+Tema de clase: Módulo III de Álgebra de Matrices.
+Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
+"""
+
 from fractions import Fraction
 
 from programas.programa_3.matrices import (
@@ -732,3 +739,102 @@ def verificar_transpuesta_producto(
         "cumple":
             cumple
     }
+
+# ==========================================================
+# DISTRIBUTIVA DEL ESCALAR Y LA TRANSPUESTA SOBRE UNA SUMA
+#
+# (r(A + B))ᵀ = rAᵀ + rBᵀ
+# ==========================================================
+
+def verificar_distributiva_escalar_transpuesta(
+    matriz_a,
+    matriz_b,
+    escalar
+):
+    """Verifica (r(A + B))ᵀ = rAᵀ + rBᵀ y devuelve sus pasos."""
+    validar_mismas_dimensiones(
+        matriz_a,
+        matriz_b
+    )
+
+    escalar = Fraction(
+        escalar
+    )
+
+    suma_ab = sumar_matrices(
+        matriz_a,
+        matriz_b
+    )
+
+    r_suma = multiplicar_matriz_escalar(
+        suma_ab,
+        escalar
+    )
+
+    lado_izquierdo = transponer_matriz(
+        r_suma
+    )
+
+    transpuesta_a = transponer_matriz(
+        matriz_a
+    )
+
+    transpuesta_b = transponer_matriz(
+        matriz_b
+    )
+
+    r_transpuesta_a = multiplicar_matriz_escalar(
+        transpuesta_a,
+        escalar
+    )
+
+    r_transpuesta_b = multiplicar_matriz_escalar(
+        transpuesta_b,
+        escalar
+    )
+
+    lado_derecho = sumar_matrices(
+        r_transpuesta_a,
+        r_transpuesta_b
+    )
+
+    cumple = matrices_iguales(
+        lado_izquierdo,
+        lado_derecho
+    )
+
+    return {
+        "propiedad":
+            "(r(A + B))ᵀ = rAᵀ + rBᵀ",
+
+        "escalar":
+            escalar,
+
+        "suma_ab":
+            suma_ab,
+
+        "r_suma":
+            r_suma,
+
+        "transpuesta_a":
+            transpuesta_a,
+
+        "transpuesta_b":
+            transpuesta_b,
+
+        "r_transpuesta_a":
+            r_transpuesta_a,
+
+        "r_transpuesta_b":
+            r_transpuesta_b,
+
+        "lado_izquierdo":
+            lado_izquierdo,
+
+        "lado_derecho":
+            lado_derecho,
+
+        "cumple":
+            cumple
+    }
+

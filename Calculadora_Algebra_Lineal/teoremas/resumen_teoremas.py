@@ -1,120 +1,94 @@
 """
-Reúne los teoremas y propiedades usados por los módulos de la calculadora.
-Proporciona textos de consulta para sistemas, vectores, matrices y determinantes.
-Tema de clase: fundamentos y teoremas principales de Álgebra Lineal.
+Reúne los resúmenes teóricos utilizados por los cuatro módulos.
+Separa matrices de determinantes e inversa según la organización actual.
+Tema de clase: fundamentos y teoremas de Álgebra Lineal.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
 
 def obtener_teoremas_sistemas():
-    """Devuelve los teoremas clave del módulo de sistemas de ecuaciones."""
+    """Devuelve el resumen teórico del Módulo I."""
     return """
 ========================================================
 MÓDULO 1 - SISTEMAS DE ECUACIONES LINEALES
 ========================================================
 
-1. OPERACIONES ELEMENTALES POR FILAS
+1. SISTEMA DE ECUACIONES LINEALES
 
-Las operaciones elementales por filas permiten transformar
-una matriz en otra equivalente sin cambiar el conjunto de
-soluciones del sistema.
+Un sistema lineal es un conjunto de ecuaciones que puede
+representarse mediante una matriz aumentada.
+
+2. OPERACIONES ELEMENTALES POR FILAS
 
 Las operaciones permitidas son:
 
 - Intercambiar dos filas.
-- Multiplicar una fila por un escalar distinto de cero.
-- Sumar a una fila un múltiplo de otra fila.
+- Multiplicar una fila por un escalar diferente de cero.
+- Sumar a una fila un múltiplo de otra.
 
-
-2. SISTEMAS EQUIVALENTES
-
-Dos sistemas de ecuaciones son equivalentes cuando poseen
-el mismo conjunto de soluciones.
-
-Por esta razón, las operaciones elementales pueden utilizarse
-para transformar un sistema complicado en otro más sencillo.
-
+Estas operaciones conservan el conjunto solución del sistema.
 
 3. SISTEMA CONSISTENTE DETERMINADO
 
-Un sistema es consistente determinado cuando posee una única
-solución.
+Posee una única solución.
 
-En su forma escalonada reducida existe un pivote para cada
+En la forma escalonada reducida existe un pivote para cada
 variable y no existen variables libres.
-
 
 4. SISTEMA CONSISTENTE INDETERMINADO
 
-Un sistema es consistente indeterminado cuando posee infinitas
-soluciones.
+Posee infinitas soluciones.
 
-Esto ocurre cuando existe al menos una variable libre y no
-aparece ninguna contradicción en el sistema.
-
+Existe al menos una variable libre y no aparece ninguna
+contradicción.
 
 5. SISTEMA INCONSISTENTE
 
-Un sistema es inconsistente cuando no posee solución.
+No posee solución.
 
-En la matriz aumentada reducida puede aparecer una fila de la
-forma:
+Puede aparecer una fila de la forma:
 
 [ 0  0  ...  0 | b ]
 
-donde b es diferente de cero.
+con b diferente de cero.
 
+6. VARIABLES BÁSICAS Y VARIABLES LIBRES
 
-6. VARIABLES BÁSICAS
+Las variables básicas corresponden a columnas pivote.
 
-Las variables básicas son aquellas asociadas con columnas que
-contienen pivotes.
-
-
-7. VARIABLES LIBRES
-
-Las variables libres son aquellas cuyas columnas no contienen
-pivote.
-
-Normalmente se representan mediante parámetros como:
+Las variables libres corresponden a columnas sin pivote y
+pueden representarse con parámetros:
 
 t₁, t₂, t₃, ...
 
-
-8. FORMA ESCALONADA REDUCIDA POR FILAS
+7. FORMA ESCALONADA REDUCIDA POR FILAS
 
 Una matriz está en forma escalonada reducida cuando:
 
-- Cada pivote es igual a 1.
+- Cada pivote es 1.
 - Cada pivote es el único valor distinto de cero de su columna.
 - Los pivotes avanzan hacia la derecha.
-- Las filas nulas quedan en la parte inferior.
+- Las filas nulas quedan abajo.
 
+8. MÉTODO DE GAUSS
 
-9. MÉTODO DE GAUSS
+Transforma la matriz aumentada hasta obtener una forma
+escalonada.
 
-El método de Gauss transforma la matriz aumentada hasta
-obtener una forma escalonada.
+9. MÉTODO DE GAUSS-JORDAN
 
+Continúa la reducción hasta obtener la forma escalonada
+reducida por filas.
 
-10. MÉTODO DE GAUSS-JORDAN
-
-Gauss-Jordan continúa la reducción hasta obtener la forma
-escalonada reducida por filas.
-
-Permite identificar directamente:
-
-- Pivotes.
-- Variables básicas.
-- Variables libres.
-- Solución del sistema.
+Permite identificar pivotes, variables básicas, variables
+libres y la solución del sistema.
 
 ========================================================
 """
 
 
 def obtener_teoremas_vectores():
-    """Devuelve los teoremas clave del módulo de vectores."""
+    """Devuelve el resumen teórico del Módulo II."""
     return """
 ========================================================
 MÓDULO 2 - VECTORES E INDEPENDENCIA LINEAL
@@ -122,11 +96,11 @@ MÓDULO 2 - VECTORES E INDEPENDENCIA LINEAL
 
 1. COMBINACIÓN LINEAL
 
-Un vector b es combinación lineal de los vectores
+Un vector b es combinación lineal de:
 
 v₁, v₂, ..., vₖ
 
-si existen escalares
+si existen escalares:
 
 c₁, c₂, ..., cₖ
 
@@ -134,110 +108,63 @@ tales que:
 
 c₁v₁ + c₂v₂ + ... + cₖvₖ = b
 
-
 2. ECUACIÓN MATRICIAL Ax = b
 
-Si los vectores se colocan como columnas de una matriz A,
-la combinación lineal puede escribirse como:
+Si los vectores se colocan como columnas de A:
+
+A = [ v₁  v₂  ...  vₖ ]
+
+entonces la combinación lineal puede escribirse como:
 
 Ax = b
 
-
 3. SISTEMA HOMOGÉNEO
 
-Un sistema es homogéneo cuando tiene la forma:
+Un sistema homogéneo tiene la forma:
 
 Ax = 0
 
-Todo sistema homogéneo posee al menos la solución trivial.
-
+Siempre posee la solución trivial.
 
 4. SOLUCIÓN TRIVIAL
-
-La solución trivial es:
 
 x₁ = 0
 x₂ = 0
 ...
 xₖ = 0
 
+5. INDEPENDENCIA LINEAL
 
-5. SOLUCIÓN NO TRIVIAL
-
-Una solución es no trivial cuando al menos uno de sus
-coeficientes es diferente de cero.
-
-
-6. INDEPENDENCIA LINEAL
-
-Un conjunto de vectores
-
-v₁, v₂, ..., vₖ
-
-es linealmente independiente si:
+Los vectores son linealmente independientes cuando:
 
 c₁v₁ + c₂v₂ + ... + cₖvₖ = 0
 
-solamente posee la solución:
+solo posee la solución trivial.
 
-c₁ = c₂ = ... = cₖ = 0
+6. DEPENDENCIA LINEAL
 
+Existe dependencia lineal cuando la ecuación homogénea posee
+al menos una solución no trivial.
 
-7. DEPENDENCIA LINEAL
+7. CRITERIO MEDIANTE VARIABLES LIBRES
 
-Un conjunto es linealmente dependiente cuando la ecuación
+- Sin variables libres: columnas linealmente independientes.
+- Con al menos una variable libre: columnas dependientes.
 
-c₁v₁ + c₂v₂ + ... + cₖvₖ = 0
+8. CRITERIO MEDIANTE PIVOTES
 
-posee una solución no trivial.
-
-
-8. CRITERIO MEDIANTE VARIABLES LIBRES
-
-Si al reducir Ax = 0:
-
-- No existen variables libres:
-  los vectores son linealmente independientes.
-
-- Existe al menos una variable libre:
-  los vectores son linealmente dependientes.
-
-
-9. CRITERIO MEDIANTE PIVOTES
-
-Si A tiene una columna por cada vector:
-
-- Un pivote en cada columna:
-  vectores linealmente independientes.
-
-- Alguna columna sin pivote:
-  vectores linealmente dependientes.
-
-
-10. RELACIÓN ENTRE COLUMNAS DE A
-
-Si:
-
-A = [ v₁  v₂  ...  vₖ ]
-
-entonces:
-
-Ax = 0
-
-representa:
-
-x₁v₁ + x₂v₂ + ... + xₖvₖ = 0
+- Un pivote en cada columna: independencia lineal.
+- Alguna columna sin pivote: dependencia lineal.
 
 ========================================================
 """
 
 
 def obtener_teoremas_matrices():
-    """Devuelve los teoremas requeridos para el Módulo III y Programa 5."""
+    """Devuelve los teoremas de operaciones y propiedades de matrices."""
     return """
 ========================================================
 MÓDULO 3 - ÁLGEBRA DE MATRICES
-PROGRAMA 5
 ========================================================
 
 1. IGUALDAD DE MATRICES
@@ -245,28 +172,41 @@ PROGRAMA 5
 Dos matrices son iguales si poseen las mismas dimensiones y
 sus entradas correspondientes son iguales.
 
-
 2. SUMA Y RESTA DE MATRICES
 
-A + B y A - B están definidas solamente cuando A y B poseen
-las mismas dimensiones.
+A + B y A - B están definidas cuando A y B poseen las mismas
+dimensiones.
 
 Las operaciones se realizan entrada por entrada.
 
-
 3. MULTIPLICACIÓN POR ESCALAR
 
-Si r es un escalar y A = [aᵢⱼ], entonces:
+Si r es un escalar:
 
-rA = [raᵢⱼ]
+rA
 
-El escalar multiplica cada entrada de la matriz.
+se obtiene multiplicando cada entrada de A por r.
 
+4. PROPIEDADES DE SUMA Y ESCALAR
 
-4. MULTIPLICACIÓN DE MATRICES
+Siempre que las operaciones estén definidas:
 
-Si A tiene dimensión m × n y B tiene dimensión n × p,
-entonces AB está definido y posee dimensión:
+A + B = B + A
+
+(A + B) + C = A + (B + C)
+
+A + 0 = A
+
+r(A + B) = rA + rB
+
+(r + s)A = rA + sA
+
+r(sA) = (rs)A
+
+5. PRODUCTO MATRICIAL
+
+Si A es m × n y B es n × p, entonces AB está definido y su
+dimensión es:
 
 m × p
 
@@ -275,12 +215,7 @@ Cada entrada se obtiene mediante la regla fila-columna:
 (AB)ᵢⱼ =
 aᵢ₁b₁ⱼ + aᵢ₂b₂ⱼ + ... + aᵢₙbₙⱼ
 
-Por tanto, para calcular AB debe cumplirse:
-
-Columnas de A = Filas de B
-
-
-5. PROPIEDADES DE LA MULTIPLICACIÓN
+6. PROPIEDADES DEL PRODUCTO MATRICIAL
 
 Siempre que las operaciones estén definidas:
 
@@ -292,26 +227,21 @@ A(B + C) = AB + AC
 
 r(AB) = (rA)B = A(rB)
 
-IₙA = A = AIₙ
-
-
-6. LA MULTIPLICACIÓN NO ES CONMUTATIVA EN GENERAL
+IA = A = AI
 
 En general:
 
 AB ≠ BA
 
-Por tanto, el orden de los factores matriciales no puede
-intercambiarse libremente.
-
+por lo que la multiplicación matricial no es conmutativa.
 
 7. TRANSPUESTA
 
-Si A tiene dimensión m × n, entonces Aᵀ tiene dimensión n × m.
+Si A es m × n, entonces Aᵀ es n × m.
 
-Las filas de A se convierten en las columnas de Aᵀ.
+Las filas de A pasan a ser las columnas de Aᵀ.
 
-Propiedades:
+8. PROPIEDADES DE LA TRANSPUESTA
 
 (Aᵀ)ᵀ = A
 
@@ -321,225 +251,15 @@ Propiedades:
 
 (AB)ᵀ = BᵀAᵀ
 
-
-8. DETERMINANTE
-
-El determinante está definido para matrices cuadradas.
-
-Para una matriz de orden 2:
-
-A = [ a  b ]
-    [ c  d ]
-
-se tiene:
-
-det(A) = ad - bc
-
-Para matrices de mayor orden puede utilizarse el desarrollo
-por cofactores.
-
-
-9. MENOR Y COFACTOR
-
-El menor Mᵢⱼ se obtiene eliminando la fila i y la columna j.
-
-El cofactor correspondiente es:
-
-Cᵢⱼ = (-1)^(i+j) det(Mᵢⱼ)
-
-
-10. DESARROLLO POR COFACTORES
-
-El determinante puede desarrollarse por cualquier fila o
-columna.
-
-Por una fila i:
-
-det(A) =
-aᵢ₁Cᵢ₁ + aᵢ₂Cᵢ₂ + ... + aᵢₙCᵢₙ
-
-
-11. REGLA DE SARRUS
-
-Para una matriz de orden 3 × 3 también puede utilizarse la
-regla de Sarrus.
-
-Este método es exclusivo para matrices 3 × 3.
-
-
-12. DETERMINANTE DE UNA MATRIZ TRIANGULAR
-
-Si A es triangular, entonces:
-
-det(A) = a₁₁a₂₂ ... aₙₙ
-
-Es decir, el determinante es el producto de las entradas
-de la diagonal principal.
-
-
-13. OPERACIONES DE FILA Y DETERMINANTE
-
-El intercambio de dos filas cambia el signo del determinante.
-
-Si:
-
-A -> B
-
-mediante un intercambio de dos filas, entonces:
-
-det(B) = -det(A)
-
-Sumar a una fila un múltiplo de otra no modifica el
-determinante:
-
-Fᵢ -> Fᵢ + kFⱼ
-
-det(B) = det(A)
-
-Multiplicar una fila por k multiplica el determinante por k:
-
-Fᵢ -> kFᵢ
-
-det(B) = k det(A)
-
-
-14. MATRIZ INVERTIBLE
-
-Una matriz cuadrada A es invertible si existe una matriz
-A⁻¹ tal que:
-
-AA⁻¹ = I
-
-y
-
-A⁻¹A = I
-
-
-15. INVERSA Y DETERMINANTE
-
-Una matriz cuadrada A es invertible si y solo si:
-
-det(A) ≠ 0
-
-Si:
-
-det(A) = 0
-
-la matriz es singular y no posee inversa.
-
-
-16. INVERSA POR GAUSS-JORDAN
-
-Para obtener la inversa mediante Gauss-Jordan se construye:
-
-[A | I]
-
-y se aplican operaciones elementales por filas.
-
-Si A es invertible, se obtiene:
-
-[I | A⁻¹]
-
-Si no aparecen n posiciones pivote, la matriz es singular.
-
-
-17. MATRIZ DE COFACTORES Y MATRIZ ADJUNTA
-
-La matriz de cofactores de A contiene los valores Cᵢⱼ.
-
-La matriz adjunta se obtiene transponiendo la matriz de
-cofactores:
-
-adj(A) = Cᵀ
-
-
-18. INVERSA POR MATRIZ ADJUNTA
-
-Si:
-
-det(A) ≠ 0
-
-entonces:
-
-A⁻¹ = (1/det(A)) adj(A)
-
-Esta fórmula solamente puede aplicarse cuando el determinante
-es distinto de cero.
-
-
-19. PROPIEDADES DE MATRICES INVERTIBLES
-
-Si A es invertible:
-
-(A⁻¹)⁻¹ = A
-
-Si A y B son invertibles:
-
-(AB)⁻¹ = B⁻¹A⁻¹
-
-Si A es invertible:
-
-(Aᵀ)⁻¹ = (A⁻¹)ᵀ
-
-
-20. DETERMINANTE DE LA INVERSA
-
-Si A es invertible:
-
-det(A⁻¹) = 1/det(A)
-
-
-21. TEOREMA DE LA MATRIZ INVERTIBLE
-
-Sea A una matriz cuadrada de orden n × n.
-
-Las siguientes afirmaciones son equivalentes:
-
-- A es invertible.
-- A es equivalente por filas a Iₙ.
-- A tiene n posiciones pivote.
-- Ax = 0 posee solamente la solución trivial.
-- Las columnas de A son linealmente independientes.
-- Ax = b posee una solución para cada b en ℝⁿ.
-- Las columnas de A generan ℝⁿ.
-
-En particular, para el Programa 5 se utilizan directamente
-las siguientes caracterizaciones:
-
-c) A tiene n posiciones pivote.
-
-e) Las columnas de A son linealmente independientes.
-
-h) Las columnas de A generan ℝⁿ.
-
-
-22. RELACIÓN ENTRE LAS CONDICIONES DE INVERTIBILIDAD
-
-Para una matriz cuadrada A de orden n × n, las siguientes
-condiciones describen la misma situación:
-
-det(A) ≠ 0
-
-A tiene n posiciones pivote.
-
-Las columnas de A son L.I.
-
-Las columnas de A generan ℝⁿ.
-
-A posee una matriz inversa.
-
-Por tanto, si una de estas condiciones falla, A no es
-invertible.
-
 ========================================================
 """
 
 
 def obtener_teoremas_determinantes():
-    """Devuelve los teoremas clave del módulo de determinantes."""
+    """Devuelve determinantes, inversa, adjunta y teoremas relacionados."""
     return """
 ========================================================
-MÓDULO 4 - DETERMINANTES
+MÓDULO 4 - DETERMINANTES E INVERSA
 ========================================================
 
 1. DETERMINANTE DE UNA MATRIZ 2 × 2
@@ -553,117 +273,173 @@ Entonces:
 
 det(A) = ad - bc
 
+2. MENOR Y COFACTOR
 
-2. MENOR DE UNA MATRIZ
+El menor Mᵢⱼ se obtiene eliminando la fila i y la columna j.
 
-Sea A una matriz n × n.
-
-El menor Mᵢⱼ se obtiene eliminando de A:
-
-- La fila i.
-- La columna j.
-
-El resultado es una matriz de orden:
-
-(n - 1) × (n - 1)
-
-
-3. COFACTOR
-
-El cofactor correspondiente a la posición (i, j) se obtiene
-mediante:
+El cofactor correspondiente es:
 
 Cᵢⱼ = (-1)^(i+j) det(Mᵢⱼ)
 
+Los signos siguen el patrón alternado:
 
-4. SIGNOS DE LOS COFACTORES
++  -  +  - ...
+-  +  -  + ...
++  -  +  - ...
+...
 
-El signo depende de i + j:
+3. DESARROLLO POR COFACTORES
 
-Si i + j es par:
+El determinante de una matriz cuadrada puede desarrollarse
+por cualquier fila o columna.
 
-(-1)^(i+j) = 1
-
-Si i + j es impar:
-
-(-1)^(i+j) = -1
-
-
-5. DESARROLLO POR COFACTORES
-
-El determinante de una matriz cuadrada puede calcularse
-desarrollando por una fila o por una columna.
-
-Por una fila i:
+Por la fila i:
 
 det(A) =
 aᵢ₁Cᵢ₁ + aᵢ₂Cᵢ₂ + ... + aᵢₙCᵢₙ
 
-El proceso continúa calculando los determinantes de los
-menores correspondientes.
+Conviene utilizar una fila o columna con muchos ceros.
 
+4. REGLA DE SARRUS
 
-6. ELECCIÓN DE FILA O COLUMNA
+La regla de Sarrus se aplica únicamente a matrices 3 × 3.
 
-Al desarrollar por cofactores es conveniente seleccionar una
-fila o columna que contenga la mayor cantidad posible de
-ceros.
+Se suman los productos de las diagonales descendentes y se
+restan los productos de las diagonales ascendentes.
 
-Los términos asociados con elementos iguales a cero no
-aportan al determinante y pueden omitirse.
+5. DETERMINANTE POR TRIANGULARIZACIÓN
 
+Una matriz puede transformarse a forma triangular mediante
+operaciones elementales por filas.
 
-7. RELACIÓN CON LA INVERSA EN EL CASO 2 × 2
+En una matriz triangular:
 
-Para:
+det(A)
 
-A = [ a  b ]
-    [ c  d ]
+es el producto de los elementos de la diagonal, considerando
+los cambios producidos por las operaciones de fila.
 
-si:
+6. EFECTO DE OPERACIONES DE FILA SOBRE det(A)
 
-det(A) = ad - bc ≠ 0
+Intercambiar dos filas cambia el signo:
 
-la matriz es invertible.
+det(B) = -det(A)
+
+Reemplazar una fila mediante:
+
+Fᵢ -> Fᵢ + kFⱼ
+
+no cambia el determinante.
+
+Multiplicar una fila por k multiplica el determinante por k.
+
+7. MATRIZ INVERTIBLE Y MATRIZ SINGULAR
+
+Una matriz cuadrada A es invertible si existe A⁻¹ tal que:
+
+AA⁻¹ = I
+
+A⁻¹A = I
+
+Si:
+
+det(A) ≠ 0
+
+A es invertible.
 
 Si:
 
 det(A) = 0
 
-la matriz no es invertible.
+A es singular y no posee inversa.
 
+8. INVERSA POR GAUSS-JORDAN
 
-8. PROCEDIMIENTO UTILIZADO POR LA CALCULADORA
+Para calcular A⁻¹ se construye:
 
-Para calcular un determinante por cofactores la calculadora:
+[A | I]
 
-1. Verifica que la matriz sea cuadrada.
-2. Busca una fila o columna conveniente.
-3. Obtiene cada menor Mᵢⱼ.
-4. Calcula det(Mᵢⱼ).
-5. Aplica el signo (-1)^(i+j).
-6. Obtiene el cofactor Cᵢⱼ.
-7. Multiplica el elemento por su cofactor.
-8. Suma los términos del desarrollo.
+y se aplican operaciones elementales hasta obtener:
+
+[I | A⁻¹]
+
+Si la parte izquierda no puede transformarse en I, A es
+singular.
+
+9. MATRIZ DE COFACTORES Y MATRIZ ADJUNTA
+
+La matriz de cofactores de A se forma con todos los Cᵢⱼ.
+
+La matriz adjunta se obtiene transponiendo la matriz de
+cofactores:
+
+adj(A) = Cᵀ
+
+10. INVERSA POR MATRIZ ADJUNTA
+
+Si det(A) ≠ 0:
+
+A⁻¹ = (1 / det(A)) adj(A)
+
+Este resultado debe coincidir con la inversa obtenida mediante
+Gauss-Jordan.
+
+11. PROPIEDADES DE LA MATRIZ INVERSA
+
+Si A es invertible:
+
+(A⁻¹)⁻¹ = A
+
+Si A y B son invertibles:
+
+(AB)⁻¹ = B⁻¹A⁻¹
+
+Si A es invertible:
+
+(Aᵀ)⁻¹ = (A⁻¹)ᵀ
+
+Además:
+
+det(A⁻¹) = 1 / det(A)
+
+12. TEOREMA DE LA MATRIZ INVERTIBLE
+
+Para una matriz cuadrada A de orden n × n son equivalentes,
+entre otras, las siguientes afirmaciones:
+
+- A es invertible.
+- A es equivalente por filas a Iₙ.
+- A tiene n posiciones pivote.
+- Ax = 0 posee solamente la solución trivial.
+- Las columnas de A son linealmente independientes.
+- Las columnas de A generan ℝⁿ.
+- Ax = b posee una solución para todo b en ℝⁿ.
+- Aᵀ es invertible.
+- det(A) ≠ 0.
+
+Por ello, cuando det(A) ≠ 0, A tiene n posiciones pivote,
+sus columnas son L.I. y generan ℝⁿ.
 
 ========================================================
 """
 
 
 def obtener_teoremas_modulo(numero_modulo):
-    """Devuelve los teoremas correspondientes al número de módulo recibido."""
-    if numero_modulo == 1:
-        return obtener_teoremas_sistemas()
+    """Devuelve los teoremas correspondientes al número de módulo."""
+    funciones = {
+        1: obtener_teoremas_sistemas,
+        2: obtener_teoremas_vectores,
+        3: obtener_teoremas_matrices,
+        4: obtener_teoremas_determinantes,
+    }
 
-    if numero_modulo == 2:
-        return obtener_teoremas_vectores()
-
-    if numero_modulo == 3:
-        return obtener_teoremas_matrices()
-
-    if numero_modulo == 4:
-        return obtener_teoremas_determinantes()
-
-    raise ValueError(
-        "El número de módulo no es válido."
+    obtener_teoremas = funciones.get(
+        numero_modulo
     )
+
+    if obtener_teoremas is None:
+        raise ValueError(
+            "El número de módulo no es válido."
+        )
+
+    return obtener_teoremas()

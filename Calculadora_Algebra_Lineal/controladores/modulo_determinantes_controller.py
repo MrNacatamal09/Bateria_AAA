@@ -10,6 +10,7 @@ from utilidades.numeros import convertir_a_fraccion
 
 from modulos.modulo_determinantes import (
     resolver_determinante,
+    resolver_cramer,
     inversa_gauss_jordan,
     inversa_por_adjunta,
     comparar_inversas,
@@ -32,6 +33,25 @@ def procesar_determinante_programa_5(matriz_a):
         "metodos": resolver_determinante(matriz_a),
         "diagnostico": diagnosticar_invertibilidad(matriz_a),
     }
+
+
+def procesar_cramer(matriz_a, vector_b):
+    """Convierte A y b y resuelve el sistema mediante Cramer."""
+    matriz_a = convertir_matriz(
+        matriz_a
+    )
+
+    vector_b = [
+        convertir_a_fraccion(
+            valor
+        )
+        for valor in vector_b
+    ]
+
+    return resolver_cramer(
+        matriz_a,
+        vector_b,
+    )
 
 
 def procesar_inversa(matriz_a):

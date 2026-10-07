@@ -36,6 +36,10 @@ from programas.determinantes.procedimiento_determinante import (
 
 from programas.matrices.inversa import calcular_inversa
 
+from programas.determinantes.cramer import (
+    resolver_cramer as _resolver_cramer,
+)
+
 from programas.matrices.inversa_adjunta import (
     calcular_inversa_adjunta,
     comparar_metodos_inversa,
@@ -61,6 +65,14 @@ def determinante(matriz_a):
 def resolver_determinante(matriz_a):
     """Compara cofactores, Sarrus y reducción triangular cuando aplican."""
     return comparar_procedimientos_determinante(matriz_a)
+
+
+def resolver_cramer(matriz_a, vector_b):
+    """Resuelve Ax=b mediante la regla de Cramer."""
+    return _resolver_cramer(
+        matriz_a,
+        vector_b,
+    )
 
 
 def inversa_gauss_jordan(matriz_a):

@@ -636,7 +636,7 @@ class ModuloMatricesInterfaz(ttk.Frame):
             messagebox.showerror("Error", str(error))
 
     def _crear_pestana_propiedades_generales(self):
-        """Construye la pestaña con nueve propiedades generales de matrices."""
+        """Construye la pestaña con diez propiedades generales de matrices."""
         pestana = ttk.Frame(self.cuaderno)
         self.cuaderno.add(
             pestana,
@@ -674,6 +674,8 @@ class ModuloMatricesInterfaz(ttk.Frame):
                 "transpuesta_escalar",
             "Transpuesta de un producto — (AB)ᵀ = BᵀAᵀ":
                 "transpuesta_producto",
+            "Distributiva de escalar y transpuesta — (r(A + B))ᵀ = rAᵀ + rBᵀ":
+                "distributiva_escalar_transpuesta",
         }
 
         selector = ttk.Combobox(
@@ -1028,6 +1030,52 @@ class ModuloMatricesInterfaz(ttk.Frame):
                 resultado["lado_derecho"],
             )
 
+        elif codigo == "distributiva_escalar_transpuesta":
+            lineas.append("r = " + str(resultado["escalar"]))
+            lineas.append("")
+            self._agregar_matriz_propiedad(
+                lineas,
+                "A + B =",
+                resultado["suma_ab"],
+            )
+            self._agregar_matriz_propiedad(
+                lineas,
+                "r(A + B) =",
+                resultado["r_suma"],
+            )
+            lineas.extend(["LADO IZQUIERDO", ""])
+            self._agregar_matriz_propiedad(
+                lineas,
+                "(r(A + B))ᵀ =",
+                resultado["lado_izquierdo"],
+            )
+            self._agregar_matriz_propiedad(
+                lineas,
+                "Aᵀ =",
+                resultado["transpuesta_a"],
+            )
+            self._agregar_matriz_propiedad(
+                lineas,
+                "Bᵀ =",
+                resultado["transpuesta_b"],
+            )
+            self._agregar_matriz_propiedad(
+                lineas,
+                "rAᵀ =",
+                resultado["r_transpuesta_a"],
+            )
+            self._agregar_matriz_propiedad(
+                lineas,
+                "rBᵀ =",
+                resultado["r_transpuesta_b"],
+            )
+            lineas.extend(["LADO DERECHO", ""])
+            self._agregar_matriz_propiedad(
+                lineas,
+                "rAᵀ + rBᵀ =",
+                resultado["lado_derecho"],
+            )
+
         lineas.append("=" * 60)
         lineas.append("")
         lineas.append(
@@ -1052,6 +1100,7 @@ class ModuloMatricesInterfaz(ttk.Frame):
                 "escalar_producto",
                 "transpuesta_suma",
                 "transpuesta_producto",
+                "distributiva_escalar_transpuesta",
             )
 
             necesita_c = codigo in (
@@ -1063,6 +1112,7 @@ class ModuloMatricesInterfaz(ttk.Frame):
             necesita_escalar = codigo in (
                 "escalar_producto",
                 "transpuesta_escalar",
+                "distributiva_escalar_transpuesta",
             )
 
             matriz_a = self.prop_general_a.leer()
