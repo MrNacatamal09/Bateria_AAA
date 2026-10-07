@@ -1,276 +1,156 @@
-from utilidades.estructuras_entrada import (
-    convertir_matriz
+"""
+Conecta la interfaz del Módulo IV con determinantes, inversas y propiedades.
+Convierte los datos de entrada antes de enviarlos a los motores matemáticos.
+Tema de clase: determinantes, matriz inversa y propiedades asociadas.
+Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
+"""
+
+from utilidades.estructuras_entrada import convertir_matriz
+from utilidades.numeros import convertir_a_fraccion
+
+from modulos.modulo_determinantes import (
+    resolver_determinante,
+    inversa_gauss_jordan,
+    inversa_por_adjunta,
+    comparar_inversas,
+    diagnosticar_invertibilidad,
+    verificar_propiedad_1,
+    verificar_propiedad_2,
+    verificar_propiedad_3,
+    verificar_propiedad_4,
+    verificar_propiedad_5,
+    verificar_propiedad_6,
 )
 
-from programas.determinantes.determinante import (
-    validar_matriz_cuadrada,
-    obtener_menor,
-    calcular_cofactor,
-    calcular_determinante,
-    es_matriz_invertible
-)
 
-from programas.determinantes.procedimiento_determinante import (
-    calcular_determinante_con_procedimiento
-)
-
-
-# ==========================================================
-# MÓDULO 4
-# CONTROLADOR DE DETERMINANTES
-# ==========================================================
-
-
-# ==========================================================
-# CALCULAR DETERMINANTE
-# ==========================================================
-
-def procesar_determinante(
-    matriz
-):
-
-    matriz = convertir_matriz(
-        matriz
-    )
-
-    validar_matriz_cuadrada(
-        matriz
-    )
-
-    determinante = calcular_determinante(
-        matriz
-    )
+def procesar_determinante_programa_5(matriz_a):
+    """Calcula los métodos de det(A) y su diagnóstico de invertibilidad."""
+    matriz_a = convertir_matriz(matriz_a)
 
     return {
-        "operacion":
-            "determinante",
-
-        "matriz":
-            matriz,
-
-        "orden":
-            len(matriz),
-
-        "determinante":
-            determinante
+        "matriz_a": matriz_a,
+        "metodos": resolver_determinante(matriz_a),
+        "diagnostico": diagnosticar_invertibilidad(matriz_a),
     }
 
 
-# ==========================================================
-# MENOR Y COFACTOR
-#
-# La interfaz trabajará con filas y columnas
-# comenzando desde 1.
-#
-# Internamente Python trabaja desde 0.
-# ==========================================================
+def procesar_inversa(matriz_a):
+    """Mantiene compatibilidad con llamadas anteriores a la inversa."""
+    matriz_a = convertir_matriz(matriz_a)
 
-def procesar_menor_cofactor(
-    matriz,
-    fila,
-    columna
-):
+    return {
+        "matriz_a": matriz_a,
+        "resultado": inversa_gauss_jordan(matriz_a),
+    }
 
-    matriz = convertir_matriz(
-        matriz
-    )
 
-    validar_matriz_cuadrada(
-        matriz
-    )
+def procesar_inversa_gauss_jordan_programa_5(matriz_a):
+    """Calcula A⁻¹ por Gauss-Jordan y agrega el diagnóstico."""
+    matriz_a = convertir_matriz(matriz_a)
 
+    return {
+        "matriz_a": matriz_a,
+        "resultado": inversa_gauss_jordan(matriz_a),
+        "diagnostico": diagnosticar_invertibilidad(matriz_a),
+    }
+
+
+def procesar_inversa_adjunta_programa_5(matriz_a):
+    """Calcula A⁻¹ por adjunta, compara métodos y agrega diagnóstico."""
+    matriz_a = convertir_matriz(matriz_a)
+
+    return {
+        "matriz_a": matriz_a,
+        "resultado": inversa_por_adjunta(matriz_a),
+        "comparacion": comparar_inversas(matriz_a),
+        "diagnostico": diagnosticar_invertibilidad(matriz_a),
+    }
+
+
+def _convertir_fila_usuario(valor, nombre):
+    """Convierte una fila escrita desde 1 a un índice interno desde 0."""
     try:
+        fila = int(valor)
+    except (TypeError, ValueError):
+        raise ValueError(f"{nombre} debe ser un número entero.")
 
-        fila = int(
-            fila
-        )
+    if fila <= 0:
+        raise ValueError(f"{nombre} debe ser mayor que cero.")
 
-        columna = int(
-            columna
-        )
-
-    except ValueError:
-
-        raise ValueError(
-            "La fila y la columna deben ser "
-            "números enteros."
-        )
-
-    orden = len(
-        matriz
-    )
-
-    if (
-        fila < 1
-        or fila > orden
-    ):
-
-        raise ValueError(
-            "La fila indicada no existe "
-            "en la matriz."
-        )
-
-    if (
-        columna < 1
-        or columna > orden
-    ):
-
-        raise ValueError(
-            "La columna indicada no existe "
-            "en la matriz."
-        )
-
-    # Convertimos de posición matemática
-    # a índice de Python.
-    fila_indice = (
-        fila - 1
-    )
-
-    columna_indice = (
-        columna - 1
-    )
-
-    menor = obtener_menor(
-        matriz,
-        fila_indice,
-        columna_indice
-    )
-
-    determinante_menor = None
-
-    # Para una matriz 1 x 1 el menor queda vacío.
-    if orden > 1:
-
-        determinante_menor = (
-            calcular_determinante(
-                menor
-            )
-        )
-
-    cofactor = calcular_cofactor(
-        matriz,
-        fila_indice,
-        columna_indice
-    )
-
-    return {
-        "operacion":
-            "menor_cofactor",
-
-        "matriz":
-            matriz,
-
-        "orden":
-            orden,
-
-        "fila":
-            fila,
-
-        "columna":
-            columna,
-
-        "fila_indice":
-            fila_indice,
-
-        "columna_indice":
-            columna_indice,
-
-        "menor":
-            menor,
-
-        "determinante_menor":
-            determinante_menor,
-
-        "cofactor":
-            cofactor
-    }
+    return fila - 1
 
 
-# ==========================================================
-# DESARROLLO POR COFACTORES
-# ==========================================================
-
-def procesar_desarrollo_cofactores(
-    matriz
+def _procesar_propiedad_5(
+    matriz_a,
+    fila_1,
+    fila_2,
+    escalar_reemplazo,
+    fila_escalar,
+    escalar_fila,
 ):
-
-    matriz = convertir_matriz(
-        matriz
+    """Convierte los datos elegidos por el usuario para la propiedad 5."""
+    fila_1 = _convertir_fila_usuario(fila_1, "Fila 1")
+    fila_2 = _convertir_fila_usuario(fila_2, "Fila 2")
+    fila_escalar = _convertir_fila_usuario(
+        fila_escalar,
+        "Fila a escalar",
     )
 
-    validar_matriz_cuadrada(
-        matriz
+    escalar_reemplazo = convertir_a_fraccion(escalar_reemplazo)
+    escalar_fila = convertir_a_fraccion(escalar_fila)
+
+    return verificar_propiedad_5(
+        matriz_a,
+        fila_1,
+        fila_2,
+        escalar_reemplazo,
+        fila_escalar,
+        escalar_fila,
     )
 
-    resultado = (
-        calcular_determinante_con_procedimiento(
-            matriz
-        )
-    )
 
-    return {
-        "operacion":
-            "desarrollo_cofactores",
-
-        "resultado":
-            resultado
-    }
-
-
-# ==========================================================
-# ANALIZAR INVERTIBILIDAD
-# ==========================================================
-
-def procesar_invertibilidad(
-    matriz
+def procesar_propiedad_programa_5(
+    numero,
+    matriz_a,
+    matriz_b=None,
+    fila_1="1",
+    fila_2="2",
+    escalar_reemplazo="-3",
+    fila_escalar="1",
+    escalar_fila="3",
 ):
+    """Ejecuta una de las seis propiedades del verificador."""
+    matriz_a = convertir_matriz(matriz_a)
 
-    matriz = convertir_matriz(
-        matriz
-    )
+    if numero == 1:
+        return verificar_propiedad_1(matriz_a)
 
-    validar_matriz_cuadrada(
-        matriz
-    )
+    if numero == 2:
+        if matriz_b is None:
+            raise ValueError("La propiedad 2 necesita las matrices A y B.")
 
-    determinante = calcular_determinante(
-        matriz
-    )
-
-    invertible = es_matriz_invertible(
-        matriz
-    )
-
-    if invertible:
-
-        mensaje = (
-            "La matriz es invertible porque "
-            "su determinante es diferente de cero."
+        return verificar_propiedad_2(
+            matriz_a,
+            convertir_matriz(matriz_b),
         )
 
-    else:
+    if numero == 3:
+        return verificar_propiedad_3(matriz_a)
 
-        mensaje = (
-            "La matriz no es invertible porque "
-            "su determinante es igual a cero."
+    if numero == 4:
+        return verificar_propiedad_4(matriz_a)
+
+    if numero == 5:
+        return _procesar_propiedad_5(
+            matriz_a,
+            fila_1,
+            fila_2,
+            escalar_reemplazo,
+            fila_escalar,
+            escalar_fila,
         )
 
-    return {
-        "operacion":
-            "invertibilidad",
+    if numero == 6:
+        return verificar_propiedad_6(matriz_a)
 
-        "matriz":
-            matriz,
-
-        "orden":
-            len(matriz),
-
-        "determinante":
-            determinante,
-
-        "es_invertible":
-            invertible,
-
-        "mensaje":
-            mensaje
-    }
+    raise ValueError("La propiedad seleccionada debe estar entre 1 y 6.")
