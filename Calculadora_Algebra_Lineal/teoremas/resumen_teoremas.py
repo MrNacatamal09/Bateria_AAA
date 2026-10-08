@@ -251,12 +251,17 @@ Las filas de A pasan a ser las columnas de Aᵀ.
 
 (AB)ᵀ = BᵀAᵀ
 
+También puede combinarse la distributividad del escalar y
+de la transpuesta:
+
+(r(A + B))ᵀ = rAᵀ + rBᵀ
+
 ========================================================
 """
 
 
 def obtener_teoremas_determinantes():
-    """Devuelve determinantes, inversa, adjunta y teoremas relacionados."""
+    """Devuelve determinantes, inversa, adjunta, Cramer y teoremas relacionados."""
     return """
 ========================================================
 MÓDULO 4 - DETERMINANTES E INVERSA
@@ -419,6 +424,35 @@ entre otras, las siguientes afirmaciones:
 
 Por ello, cuando det(A) ≠ 0, A tiene n posiciones pivote,
 sus columnas son L.I. y generan ℝⁿ.
+
+13. MÉTODO DE CRAMER
+
+El método de Cramer permite resolver un sistema cuadrado:
+
+Ax = b
+
+cuando:
+
+det(A) ≠ 0
+
+Para cada variable xᵢ se construye una matriz Aᵢ sustituyendo
+la columna i de A por el vector b.
+
+Luego:
+
+xᵢ = det(Aᵢ) / det(A)
+
+Por ejemplo, para un sistema de dos variables:
+
+x₁ = det(A₁) / det(A)
+
+x₂ = det(A₂) / det(A)
+
+Si det(A) = 0, el método de Cramer no puede utilizarse para
+obtener una solución única.
+
+La condición det(A) ≠ 0 también confirma que A es invertible
+y que el sistema cuadrado posee una única solución.
 
 ========================================================
 """
