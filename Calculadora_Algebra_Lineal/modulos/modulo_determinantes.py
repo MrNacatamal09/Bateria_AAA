@@ -34,6 +34,10 @@ from programas.determinantes.procedimiento_determinante import (
     comparar_procedimientos_determinante,
 )
 
+from programas.determinantes.cofactores_detallados import (
+    calcular_cofactores_detallados,
+)
+
 from programas.matrices.inversa import calcular_inversa
 
 from programas.determinantes.cramer import (
@@ -65,6 +69,13 @@ def determinante(matriz_a):
 def resolver_determinante(matriz_a):
     """Compara cofactores, Sarrus y reducción triangular cuando aplican."""
     return comparar_procedimientos_determinante(matriz_a)
+
+
+def resolver_cofactores_detallados(matriz_a):
+    """Calcula paso a paso todos los cofactores Cᵢⱼ de A."""
+    return calcular_cofactores_detallados(
+        matriz_a
+    )
 
 
 def resolver_cramer(matriz_a, vector_b):

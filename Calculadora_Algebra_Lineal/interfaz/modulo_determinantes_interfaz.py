@@ -27,6 +27,10 @@ from utilidades.formato_inversa import (
     formatear_procedimiento_inversa,
 )
 
+from utilidades.formato_cofactores import (
+    formatear_cofactores_detallados,
+)
+
 from utilidades.formato_inversa_adjunta import (
     formatear_inversa_adjunta,
     formatear_comparacion_inversas,
@@ -190,7 +194,7 @@ class EntradaMatrizCuadrada(ttk.LabelFrame):
         """Crea una matriz cuadrada de orden n."""
         try:
             orden = self._obtener_orden()
-        except ValueError as error:
+        except (ValueError, KeyError, TypeError) as error:
             messagebox.showerror(
                 "Orden inválido",
                 str(error),
@@ -480,6 +484,12 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
                 + formatear_procedimiento_determinante(
                     metodos["cofactores"]
                 )
+                + "\n\n"
+                + "=" * 60
+                + "\n\n"
+                + formatear_cofactores_detallados(
+                    respuesta["cofactores_detallados"]
+                )
             )
             self._colocar_texto(
                 self.txt_cofactores,
@@ -546,7 +556,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
                 comparacion,
             )
 
-        except ValueError as error:
+        except (ValueError, KeyError, TypeError) as error:
             messagebox.showerror(
                 "Error",
                 str(error),
@@ -896,7 +906,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
                 ),
             )
 
-        except ValueError as error:
+        except (ValueError, KeyError, TypeError) as error:
             messagebox.showerror(
                 "Error",
                 str(error),
@@ -971,7 +981,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
                 texto,
             )
 
-        except ValueError as error:
+        except (ValueError, KeyError, TypeError) as error:
             messagebox.showerror(
                 "Error",
                 str(error),
@@ -1051,6 +1061,12 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
                 "A⁻¹ = (1/det(A)) adj(A)\n"
                 + "=" * 60
                 + "\n\n"
+                + formatear_cofactores_detallados(
+                    respuesta["cofactores_detallados"]
+                )
+                + "\n\n"
+                + "=" * 60
+                + "\n\n"
                 + formatear_inversa_adjunta(
                     respuesta["resultado"]
                 )
@@ -1082,7 +1098,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
                 ),
             )
 
-        except ValueError as error:
+        except (ValueError, KeyError, TypeError) as error:
             messagebox.showerror(
                 "Error",
                 str(error),

@@ -10,6 +10,7 @@ from utilidades.numeros import convertir_a_fraccion
 
 from modulos.modulo_determinantes import (
     resolver_determinante,
+    resolver_cofactores_detallados,
     resolver_cramer,
     inversa_gauss_jordan,
     inversa_por_adjunta,
@@ -31,6 +32,9 @@ def procesar_determinante_programa_5(matriz_a):
     return {
         "matriz_a": matriz_a,
         "metodos": resolver_determinante(matriz_a),
+        "cofactores_detallados": resolver_cofactores_detallados(
+            matriz_a
+        ),
         "diagnostico": diagnosticar_invertibilidad(matriz_a),
     }
 
@@ -82,6 +86,9 @@ def procesar_inversa_adjunta_programa_5(matriz_a):
     return {
         "matriz_a": matriz_a,
         "resultado": inversa_por_adjunta(matriz_a),
+        "cofactores_detallados": resolver_cofactores_detallados(
+            matriz_a
+        ),
         "comparacion": comparar_inversas(matriz_a),
         "diagnostico": diagnosticar_invertibilidad(matriz_a),
     }
