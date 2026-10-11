@@ -14,6 +14,7 @@ from controladores.modulo_determinantes_controller import (
     procesar_inversa_gauss_jordan_programa_5,
     procesar_inversa_adjunta_programa_5,
     procesar_propiedad_programa_5,
+    procesar_analisis_matricial_integrado,
 )
 
 from utilidades.formato_determinantes import (
@@ -40,6 +41,14 @@ from utilidades.formato_propiedades_programa_5 import (
     formatear_propiedad,
 )
 
+
+from utilidades.formato_analisis_matricial_integrado import (
+    formatear_determinante_integrado,
+    formatear_adjunta_inversa_integrada,
+    formatear_gauss_jordan_integrado,
+    formatear_propiedades_integradas,
+    formatear_resumen_integrado,
+)
 
 class EntradaMatrizCuadrada(ttk.LabelFrame):
     """Gestiona una matriz cuadrada editable con orden configurable."""
@@ -299,6 +308,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
         self._crear_pestana_gauss_jordan()
         self._crear_pestana_adjunta()
         self._crear_pestana_propiedades()
+        self._crear_pestana_analisis_integrado()
 
     def _crear_area_texto(self, contenedor):
         """Crea un área de resultados con barras de desplazamiento."""
@@ -1380,3 +1390,205 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
                 "Error",
                 str(error),
             )
+
+    def _crear_pestana_analisis_integrado(self):
+        """Construye el flujo que encadena múltiples resoluciones y propiedades."""
+        pestana = ttk.Frame(
+            self.cuaderno
+        )
+
+        self.cuaderno.add(
+            pestana,
+            text="Análisis Matricial Integrado",
+        )
+
+        ttk.Label(
+            pestana,
+            text=(
+                "Ingrese A y B una sola vez. El programa reutiliza los resultados "
+                "para determinantes, Cᵢⱼ, adjunta, inversa y propiedades."
+            ),
+        ).pack(
+            pady=(6, 2)
+        )
+
+        matrices = ttk.Frame(
+            pestana
+        )
+
+        matrices.pack(
+            fill="x",
+            padx=8,
+            pady=5,
+        )
+
+        matrices.columnconfigure(
+            0,
+            weight=1,
+        )
+
+        matrices.columnconfigure(
+            1,
+            weight=1,
+        )
+
+        self.integrado_a = EntradaMatrizCuadrada(
+            matrices,
+            "Matriz A",
+            3,
+        )
+
+        self.integrado_a.grid(
+            row=0,
+            column=0,
+            padx=5,
+            sticky="nsew",
+        )
+
+        self.integrado_b = EntradaMatrizCuadrada(
+            matrices,
+            "Matriz B",
+            3,
+        )
+
+        self.integrado_b.grid(
+            row=0,
+            column=1,
+            padx=5,
+            sticky="nsew",
+        )
+
+        ttk.Button(
+            pestana,
+            text="Ejecutar análisis integrado",
+            command=self._resolver_analisis_integrado,
+        ).pack(
+            pady=5
+        )
+
+        resultados = ttk.Notebook(
+            pestana
+        )
+
+        resultados.pack(
+            fill="both",
+            expand=True,
+            padx=5,
+            pady=5,
+        )
+
+        tab_determinante = ttk.Frame(
+            resultados
+        )
+
+        tab_adjunta = ttk.Frame(
+            resultados
+        )
+
+        tab_gauss = ttk.Frame(
+            resultados
+        )
+
+        tab_propiedades = ttk.Frame(
+            resultados
+        )
+
+        tab_resumen = ttk.Frame(
+            resultados
+        )
+
+        resultados.add(
+            tab_determinante,
+            text="Determinante y Cᵢⱼ",
+        )
+
+        resultados.add(
+            tab_adjunta,
+            text="Adjunta e Inversa",
+        )
+
+        resultados.add(
+            tab_gauss,
+            text="Gauss-Jordan",
+        )
+
+        resultados.add(
+            tab_propiedades,
+            text="Propiedades",
+        )
+
+        resultados.add(
+            tab_resumen,
+            text="Resumen",
+        )
+
+        self.txt_integrado_determinante = self._crear_area_texto(
+            tab_determinante
+        )
+
+        self.txt_integrado_adjunta = self._crear_area_texto(
+            tab_adjunta
+        )
+
+        self.txt_integrado_gauss = self._crear_area_texto(
+            tab_gauss
+        )
+
+        self.txt_integrado_propiedades = self._crear_area_texto(
+            tab_propiedades
+        )
+
+        self.txt_integrado_resumen = self._crear_area_texto(
+            tab_resumen
+        )
+
+    def _resolver_analisis_integrado(self):
+        """Ejecuta todo el análisis usando las mismas matrices A y B."""
+        try:
+            resultado = procesar_analisis_matricial_integrado(
+                self.integrado_a.leer(),
+                self.integrado_b.leer(),
+            )
+
+            self._colocar_texto(
+                self.txt_integrado_determinante,
+                formatear_determinante_integrado(
+                    resultado
+                ),
+            )
+
+            self._colocar_texto(
+                self.txt_integrado_adjunta,
+                formatear_adjunta_inversa_integrada(
+                    resultado
+                ),
+            )
+
+            self._colocar_texto(
+                self.txt_integrado_gauss,
+                formatear_gauss_jordan_integrado(
+                    resultado
+                ),
+            )
+
+            self._colocar_texto(
+                self.txt_integrado_propiedades,
+                formatear_propiedades_integradas(
+                    resultado
+                ),
+            )
+
+            self._colocar_texto(
+                self.txt_integrado_resumen,
+                formatear_resumen_integrado(
+                    resultado
+                ),
+            )
+
+        except (ValueError, KeyError, TypeError) as error:
+            messagebox.showerror(
+                "Error",
+                str(error),
+            )
+
+

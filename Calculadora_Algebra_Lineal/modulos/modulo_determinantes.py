@@ -38,6 +38,10 @@ from programas.determinantes.cofactores_detallados import (
     calcular_cofactores_detallados,
 )
 
+from programas.determinantes.analisis_matricial_integrado import (
+    resolver_analisis_matricial_integrado as _resolver_analisis_matricial_integrado,
+)
+
 from programas.matrices.inversa import calcular_inversa
 
 from programas.determinantes.cramer import (
@@ -83,6 +87,14 @@ def resolver_cramer(matriz_a, vector_b):
     return _resolver_cramer(
         matriz_a,
         vector_b,
+    )
+
+
+def resolver_analisis_integrado(matriz_a, matriz_b):
+    """Ejecuta el Análisis Matricial Integrado con A y B."""
+    return _resolver_analisis_matricial_integrado(
+        matriz_a,
+        matriz_b
     )
 
 

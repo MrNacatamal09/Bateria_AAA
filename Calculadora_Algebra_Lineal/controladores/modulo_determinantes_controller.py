@@ -12,6 +12,7 @@ from modulos.modulo_determinantes import (
     resolver_determinante,
     resolver_cofactores_detallados,
     resolver_cramer,
+    resolver_analisis_integrado,
     inversa_gauss_jordan,
     inversa_por_adjunta,
     comparar_inversas,
@@ -55,6 +56,22 @@ def procesar_cramer(matriz_a, vector_b):
     return resolver_cramer(
         matriz_a,
         vector_b,
+    )
+
+
+def procesar_analisis_matricial_integrado(matriz_a, matriz_b):
+    """Convierte A y B y ejecuta todo el flujo integrado."""
+    matriz_a = convertir_matriz(
+        matriz_a
+    )
+
+    matriz_b = convertir_matriz(
+        matriz_b
+    )
+
+    return resolver_analisis_integrado(
+        matriz_a,
+        matriz_b
     )
 
 
