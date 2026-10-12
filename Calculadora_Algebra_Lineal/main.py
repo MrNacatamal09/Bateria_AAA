@@ -1,7 +1,7 @@
 """
 Construye la ventana principal de la Calculadora de Álgebra Lineal.
-Organiza los cuatro módulos y coloca los teoremas dentro de cada uno.
-Tema de clase: integración de los Programas 1 al 5 por módulos.
+Organiza los cinco módulos y coloca los teoremas dentro de cada uno.
+Tema de clase: integración de los Programas 1 al 6 por módulos.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
@@ -15,7 +15,6 @@ from interfaz.programa_4_interfaz import Programa4Interfaz
 
 from interfaz.modulo_matrices_interfaz import ModuloMatricesInterfaz
 from interfaz.modulo_determinantes_interfaz import ModuloDeterminantesInterfaz
-
 from interfaz.modulo_lu_interfaz import ModuloLUInterfaz
 
 from modulos.modulo_sistemas import (
@@ -42,10 +41,10 @@ from modulos.modulo_determinantes import (
     obtener_teoremas_clave as obtener_teoremas_determinantes,
 )
 
-
 from modulos.modulo_lu import (
     obtener_logo_modulo as obtener_logo_lu,
 )
+
 
 class CalculadoraAlgebraLineal:
     """Organiza la interfaz principal de la calculadora por módulos."""
@@ -63,19 +62,22 @@ class CalculadoraAlgebraLineal:
         self.ventana.title(
             "Calculadora de Álgebra Lineal"
         )
+
         self.ventana.geometry(
             "1200x800"
         )
+
         self.ventana.minsize(
             1000,
             700,
         )
 
     def _crear_interfaz(self):
-        """Construye el encabezado y los cuatro módulos principales."""
+        """Construye el encabezado y los cinco módulos principales."""
         encabezado = ttk.Frame(
             self.ventana
         )
+
         encabezado.pack(
             fill="x",
             padx=15,
@@ -85,13 +87,20 @@ class CalculadoraAlgebraLineal:
         ttk.Label(
             encabezado,
             text="Calculadora de Álgebra Lineal",
-            font=("Arial", 18, "bold"),
+            font=(
+                "Arial",
+                18,
+                "bold",
+            ),
         ).pack()
 
         ttk.Label(
             encabezado,
             text="Proyecto Integrador - Herramientas de Álgebra Lineal",
-            font=("Arial", 10),
+            font=(
+                "Arial",
+                10,
+            ),
         ).pack(
             pady=(2, 4)
         )
@@ -99,6 +108,7 @@ class CalculadoraAlgebraLineal:
         self.cuaderno_modulos = ttk.Notebook(
             self.ventana
         )
+
         self.cuaderno_modulos.pack(
             fill="both",
             expand=True,
@@ -126,6 +136,7 @@ class CalculadoraAlgebraLineal:
         self.modulo_sistemas = ttk.Frame(
             self.cuaderno_modulos
         )
+
         self.cuaderno_modulos.add(
             self.modulo_sistemas,
             text="Módulo 1 - Sistemas",
@@ -140,6 +151,7 @@ class CalculadoraAlgebraLineal:
         self.cuaderno_sistemas = ttk.Notebook(
             self.modulo_sistemas
         )
+
         self.cuaderno_sistemas.pack(
             fill="both",
             expand=True,
@@ -150,10 +162,12 @@ class CalculadoraAlgebraLineal:
         pestana_teoremas = ttk.Frame(
             self.cuaderno_sistemas
         )
+
         self.cuaderno_sistemas.add(
             pestana_teoremas,
             text="0. Teoremas clave",
         )
+
         self._crear_pestana_texto(
             pestana_teoremas,
             obtener_teoremas_sistemas(),
@@ -162,6 +176,7 @@ class CalculadoraAlgebraLineal:
         self.programa_1 = Programa1Interfaz(
             self.cuaderno_sistemas
         )
+
         self.cuaderno_sistemas.add(
             self.programa_1,
             text="1. Programa 1",
@@ -170,6 +185,7 @@ class CalculadoraAlgebraLineal:
         self.programa_2 = Programa2Interfaz(
             self.cuaderno_sistemas
         )
+
         self.cuaderno_sistemas.add(
             self.programa_2,
             text="2. Programa 2",
@@ -180,6 +196,7 @@ class CalculadoraAlgebraLineal:
         self.modulo_vectores = ttk.Frame(
             self.cuaderno_modulos
         )
+
         self.cuaderno_modulos.add(
             self.modulo_vectores,
             text="Módulo 2 - Vectores",
@@ -194,6 +211,7 @@ class CalculadoraAlgebraLineal:
         self.cuaderno_vectores = ttk.Notebook(
             self.modulo_vectores
         )
+
         self.cuaderno_vectores.pack(
             fill="both",
             expand=True,
@@ -204,10 +222,12 @@ class CalculadoraAlgebraLineal:
         pestana_teoremas = ttk.Frame(
             self.cuaderno_vectores
         )
+
         self.cuaderno_vectores.add(
             pestana_teoremas,
             text="0. Teoremas clave",
         )
+
         self._crear_pestana_texto(
             pestana_teoremas,
             obtener_teoremas_vectores(),
@@ -216,6 +236,7 @@ class CalculadoraAlgebraLineal:
         self.programa_3 = Programa3Interfaz(
             self.cuaderno_vectores
         )
+
         self.cuaderno_vectores.add(
             self.programa_3,
             text="3. Programa 3",
@@ -224,16 +245,18 @@ class CalculadoraAlgebraLineal:
         self.programa_4 = Programa4Interfaz(
             self.cuaderno_vectores
         )
+
         self.cuaderno_vectores.add(
             self.programa_4,
             text="4. Programa 4",
         )
 
     def _crear_modulo_matrices(self):
-        """Construye el Módulo III con teoremas, opciones 1 a 5 y propiedades."""
+        """Construye el Módulo III con operaciones y propiedades de matrices."""
         self.modulo_matrices = ttk.Frame(
             self.cuaderno_modulos
         )
+
         self.cuaderno_modulos.add(
             self.modulo_matrices,
             text="Módulo 3 - Matrices",
@@ -242,6 +265,7 @@ class CalculadoraAlgebraLineal:
         self.modulo_matrices_interfaz = ModuloMatricesInterfaz(
             self.modulo_matrices
         )
+
         self.modulo_matrices_interfaz.pack(
             fill="both",
             expand=True,
@@ -250,11 +274,13 @@ class CalculadoraAlgebraLineal:
         pestana_teoremas = ttk.Frame(
             self.modulo_matrices_interfaz.cuaderno
         )
+
         self.modulo_matrices_interfaz.cuaderno.insert(
             0,
             pestana_teoremas,
             text="0. Teoremas clave",
         )
+
         self._crear_pestana_texto(
             pestana_teoremas,
             obtener_teoremas_matrices(),
@@ -265,6 +291,7 @@ class CalculadoraAlgebraLineal:
         self.modulo_determinantes = ttk.Frame(
             self.cuaderno_modulos
         )
+
         self.cuaderno_modulos.add(
             self.modulo_determinantes,
             text="Módulo 4 - Determinantes",
@@ -273,6 +300,7 @@ class CalculadoraAlgebraLineal:
         self.modulo_determinantes_interfaz = ModuloDeterminantesInterfaz(
             self.modulo_determinantes
         )
+
         self.modulo_determinantes_interfaz.pack(
             fill="both",
             expand=True,
@@ -281,25 +309,27 @@ class CalculadoraAlgebraLineal:
         pestana_teoremas = ttk.Frame(
             self.modulo_determinantes_interfaz.cuaderno
         )
+
         self.modulo_determinantes_interfaz.cuaderno.insert(
             0,
             pestana_teoremas,
             text="0. Teoremas clave",
         )
+
         self._crear_pestana_texto(
             pestana_teoremas,
             obtener_teoremas_determinantes(),
         )
 
     def _crear_modulo_lu(self):
-        """Construye el Módulo V de Factorización LU."""
+        """Construye el Módulo V de Factorización LU y solución Ax=b."""
         self.modulo_lu = ttk.Frame(
             self.cuaderno_modulos
         )
 
         self.cuaderno_modulos.add(
             self.modulo_lu,
-            text="Módulo 5 - Factorización LU",
+            text="Módulo 5 - Factorización LU y solución Ax = b",
         )
 
         self.modulo_lu_interfaz = ModuloLUInterfaz(
@@ -321,6 +351,7 @@ class CalculadoraAlgebraLineal:
         marco = ttk.Frame(
             contenedor
         )
+
         marco.pack(
             fill="x",
             padx=12,
@@ -330,25 +361,37 @@ class CalculadoraAlgebraLineal:
         ttk.Label(
             marco,
             text=titulo,
-            font=("Arial", 13, "bold"),
+            font=(
+                "Arial",
+                13,
+                "bold",
+            ),
         ).pack()
 
         ttk.Label(
             marco,
             text=descripcion,
-            font=("Arial", 9),
+            font=(
+                "Arial",
+                9,
+            ),
             wraplength=1000,
             justify="center",
         ).pack(
             pady=(2, 3)
         )
 
-    def _crear_pestana_texto(self, contenedor, contenido):
+    def _crear_pestana_texto(
+        self,
+        contenedor,
+        contenido,
+    ):
         """Muestra texto teórico dentro de una pestaña desplazable."""
         contenedor.rowconfigure(
             0,
             weight=1,
         )
+
         contenedor.columnconfigure(
             0,
             weight=1,
@@ -357,10 +400,14 @@ class CalculadoraAlgebraLineal:
         texto = tk.Text(
             contenedor,
             wrap="word",
-            font=("Consolas", 10),
+            font=(
+                "Consolas",
+                10,
+            ),
             padx=15,
             pady=10,
         )
+
         texto.grid(
             row=0,
             column=0,
@@ -372,6 +419,7 @@ class CalculadoraAlgebraLineal:
             orient="vertical",
             command=texto.yview,
         )
+
         scroll_vertical.grid(
             row=0,
             column=1,
@@ -381,10 +429,12 @@ class CalculadoraAlgebraLineal:
         texto.configure(
             yscrollcommand=scroll_vertical.set
         )
+
         texto.insert(
             tk.END,
             contenido,
         )
+
         texto.configure(
             state="disabled"
         )
@@ -394,11 +444,15 @@ class CalculadoraAlgebraLineal:
         indice = self.cuaderno_modulos.index(
             self.cuaderno_modulos.select()
         )
+
         self._mostrar_logo_consola(
             indice + 1
         )
 
-    def _mostrar_logo_consola(self, numero_modulo):
+    def _mostrar_logo_consola(
+        self,
+        numero_modulo,
+    ):
         """Imprime una sola vez el logotipo del módulo seleccionado."""
         if self.ultimo_modulo == numero_modulo:
             return

@@ -33,11 +33,33 @@ def formatear_propiedad_1(resultado):
         "LADO IZQUIERDO",
         "",
     ]
-    _agregar_matriz(lineas, "(A⁻¹)⁻¹ =", resultado["lado_izquierdo"])
-    lineas.extend(["LADO DERECHO", ""])
-    _agregar_matriz(lineas, "A =", resultado["lado_derecho"])
-    lineas.append(formatear_conclusion(resultado["cumple"]))
-    return "\n".join(lineas)
+
+    _agregar_matriz(
+        lineas,
+        "(A⁻¹)⁻¹ =",
+        resultado["lado_izquierdo"],
+    )
+
+    lineas.extend([
+        "LADO DERECHO",
+        "",
+    ])
+
+    _agregar_matriz(
+        lineas,
+        "A =",
+        resultado["lado_derecho"],
+    )
+
+    lineas.append(
+        formatear_conclusion(
+            resultado["cumple"]
+        )
+    )
+
+    return "\n".join(
+        lineas
+    )
 
 
 def formatear_propiedad_2(resultado):
@@ -48,13 +70,44 @@ def formatear_propiedad_2(resultado):
         "=" * 60,
         "",
     ]
-    _agregar_matriz(lineas, "AB =", resultado["producto_ab"])
-    lineas.extend(["LADO IZQUIERDO", ""])
-    _agregar_matriz(lineas, "(AB)⁻¹ =", resultado["lado_izquierdo"])
-    lineas.extend(["LADO DERECHO", ""])
-    _agregar_matriz(lineas, "B⁻¹A⁻¹ =", resultado["lado_derecho"])
-    lineas.append(formatear_conclusion(resultado["cumple"]))
-    return "\n".join(lineas)
+
+    _agregar_matriz(
+        lineas,
+        "AB =",
+        resultado["producto_ab"],
+    )
+
+    lineas.extend([
+        "LADO IZQUIERDO",
+        "",
+    ])
+
+    _agregar_matriz(
+        lineas,
+        "(AB)⁻¹ =",
+        resultado["lado_izquierdo"],
+    )
+
+    lineas.extend([
+        "LADO DERECHO",
+        "",
+    ])
+
+    _agregar_matriz(
+        lineas,
+        "B⁻¹A⁻¹ =",
+        resultado["lado_derecho"],
+    )
+
+    lineas.append(
+        formatear_conclusion(
+            resultado["cumple"]
+        )
+    )
+
+    return "\n".join(
+        lineas
+    )
 
 
 def formatear_propiedad_3(resultado):
@@ -65,13 +118,44 @@ def formatear_propiedad_3(resultado):
         "=" * 60,
         "",
     ]
-    _agregar_matriz(lineas, "Aᵀ =", resultado["transpuesta_a"])
-    lineas.extend(["LADO IZQUIERDO", ""])
-    _agregar_matriz(lineas, "(Aᵀ)⁻¹ =", resultado["lado_izquierdo"])
-    lineas.extend(["LADO DERECHO", ""])
-    _agregar_matriz(lineas, "(A⁻¹)ᵀ =", resultado["lado_derecho"])
-    lineas.append(formatear_conclusion(resultado["cumple"]))
-    return "\n".join(lineas)
+
+    _agregar_matriz(
+        lineas,
+        "Aᵀ =",
+        resultado["transpuesta_a"],
+    )
+
+    lineas.extend([
+        "LADO IZQUIERDO",
+        "",
+    ])
+
+    _agregar_matriz(
+        lineas,
+        "(Aᵀ)⁻¹ =",
+        resultado["lado_izquierdo"],
+    )
+
+    lineas.extend([
+        "LADO DERECHO",
+        "",
+    ])
+
+    _agregar_matriz(
+        lineas,
+        "(A⁻¹)ᵀ =",
+        resultado["lado_derecho"],
+    )
+
+    lineas.append(
+        formatear_conclusion(
+            resultado["cumple"]
+        )
+    )
+
+    return "\n".join(
+        lineas
+    )
 
 
 def formatear_propiedad_4(resultado):
@@ -82,7 +166,13 @@ def formatear_propiedad_4(resultado):
         "=" * 60,
         "",
     ]
-    _agregar_matriz(lineas, "A⁻¹ =", resultado["inversa_a"])
+
+    _agregar_matriz(
+        lineas,
+        "A⁻¹ =",
+        resultado["inversa_a"],
+    )
+
     lineas.extend([
         f"det(A) = {resultado['determinante_a']}",
         "",
@@ -92,12 +182,21 @@ def formatear_propiedad_4(resultado):
         "LADO DERECHO",
         f"1/det(A) = {resultado['lado_derecho']}",
         "",
-        formatear_conclusion(resultado["cumple"]),
+        formatear_conclusion(
+            resultado["cumple"]
+        ),
     ])
-    return "\n".join(lineas)
+
+    return "\n".join(
+        lineas
+    )
 
 
-def _formatear_operacion_fila(titulo, bloque, det_original):
+def _formatear_operacion_fila(
+    titulo,
+    bloque,
+    det_original,
+):
     """Formatea una verificación individual de la propiedad 5."""
     lineas = [
         titulo,
@@ -107,15 +206,30 @@ def _formatear_operacion_fila(titulo, bloque, det_original):
         bloque["operacion"],
         "",
     ]
-    _agregar_matriz(lineas, "Matriz resultante:", bloque["matriz"])
+
+    _agregar_matriz(
+        lineas,
+        "Matriz resultante:",
+        bloque["matriz"],
+    )
+
     lineas.extend([
         f"det(A) original = {det_original}",
-        f"Determinante obtenido = {bloque['determinante_obtenido']}",
-        f"Valor esperado = {bloque['valor_esperado']}",
+        (
+            "Determinante obtenido = "
+            f"{bloque['determinante_obtenido']}"
+        ),
+        (
+            "Valor esperado = "
+            f"{bloque['valor_esperado']}"
+        ),
         "",
-        formatear_conclusion(bloque["cumple"]),
+        formatear_conclusion(
+            bloque["cumple"]
+        ),
         "",
     ])
+
     return lineas
 
 
@@ -128,17 +242,22 @@ def formatear_propiedad_5(resultado):
         "",
     ]
 
-    det_original = resultado["determinante_original"]
+    det_original = resultado[
+        "determinante_original"
+    ]
+
     lineas += _formatear_operacion_fila(
         "A. Intercambio de dos filas",
         resultado["intercambio"],
         det_original,
     )
+
     lineas += _formatear_operacion_fila(
         "B. Reemplazo de una fila",
         resultado["reemplazo"],
         det_original,
     )
+
     lineas += _formatear_operacion_fila(
         "C. Multiplicación de una fila por k",
         resultado["escalamiento"],
@@ -147,9 +266,17 @@ def formatear_propiedad_5(resultado):
 
     lineas.extend([
         "=" * 60,
-        "Conclusión de la propiedad 5: " + formatear_conclusion(resultado["cumple"]),
+        (
+            "Conclusión de la propiedad 5: "
+            + formatear_conclusion(
+                resultado["cumple"]
+            )
+        ),
     ])
-    return "\n".join(lineas)
+
+    return "\n".join(
+        lineas
+    )
 
 
 def formatear_propiedad_6(resultado):
@@ -160,25 +287,131 @@ def formatear_propiedad_6(resultado):
         "=" * 60,
         "",
     ]
+
     _agregar_matriz(
         lineas,
         "Matriz triangular obtenida:",
         resultado["matriz_triangular"],
     )
+
     lineas.extend([
-        f"Producto de la diagonal = {resultado['producto_diagonal']}",
-        f"Intercambios de fila = {resultado['intercambios']}",
+        (
+            "Producto de la diagonal = "
+            f"{resultado['producto_diagonal']}"
+        ),
+        (
+            "Intercambios de fila = "
+            f"{resultado['intercambios']}"
+        ),
         "",
-        f"Determinante por cofactores = {resultado['determinante_cofactores']}",
-        f"Determinante triangular corregido = {resultado['determinante_triangular']}",
+        (
+            "Determinante por cofactores = "
+            f"{resultado['determinante_cofactores']}"
+        ),
+        (
+            "Determinante triangular corregido = "
+            f"{resultado['determinante_triangular']}"
+        ),
         "",
-        formatear_conclusion(resultado["cumple"]),
+        formatear_conclusion(
+            resultado["cumple"]
+        ),
     ])
-    return "\n".join(lineas)
+
+    return "\n".join(
+        lineas
+    )
 
 
-def formatear_propiedad(numero, resultado):
-    """Selecciona el formato correspondiente a la propiedad 1 a 6."""
+def formatear_propiedad_7(resultado):
+    """Formatea A·A⁻¹ = I = A⁻¹·A."""
+    lineas = [
+        "PROPIEDAD 7",
+        "IDENTIDAD DE LA MATRIZ INVERSA",
+        "A·A⁻¹ = I = A⁻¹·A",
+        "=" * 60,
+        "",
+    ]
+
+    _agregar_matriz(
+        lineas,
+        "A⁻¹ =",
+        resultado["inversa_a"],
+    )
+
+    lineas.extend([
+        "PRIMER MIEMBRO",
+        "",
+    ])
+
+    _agregar_matriz(
+        lineas,
+        "A·A⁻¹ =",
+        resultado[
+            "producto_a_inversa"
+        ],
+    )
+
+    lineas.extend([
+        "MATRIZ IDENTIDAD",
+        "",
+    ])
+
+    _agregar_matriz(
+        lineas,
+        "I =",
+        resultado["identidad"],
+    )
+
+    lineas.extend([
+        "TERCER MIEMBRO",
+        "",
+    ])
+
+    _agregar_matriz(
+        lineas,
+        "A⁻¹·A =",
+        resultado[
+            "producto_inversa_a"
+        ],
+    )
+
+    lineas.extend([
+        (
+            "A·A⁻¹ = I: "
+            + formatear_conclusion(
+                resultado[
+                    "verifica_a_inversa"
+                ]
+            )
+        ),
+        (
+            "A⁻¹·A = I: "
+            + formatear_conclusion(
+                resultado[
+                    "verifica_inversa_a"
+                ]
+            )
+        ),
+        "",
+        (
+            "Conclusión de la propiedad 7: "
+            + formatear_conclusion(
+                resultado["cumple"]
+            )
+        ),
+    ])
+
+    return "\n".join(
+        lineas
+    )
+
+
+def formatear_propiedad(
+    numero,
+    resultado,
+):
+    """Selecciona el formato correspondiente a la propiedad 1 a 7."""
     formateadores = {
         1: formatear_propiedad_1,
         2: formatear_propiedad_2,
@@ -186,9 +419,16 @@ def formatear_propiedad(numero, resultado):
         4: formatear_propiedad_4,
         5: formatear_propiedad_5,
         6: formatear_propiedad_6,
+        7: formatear_propiedad_7,
     }
 
     if numero not in formateadores:
-        raise ValueError("La propiedad seleccionada debe estar entre 1 y 6.")
+        raise ValueError(
+            "La propiedad seleccionada debe estar entre 1 y 7."
+        )
 
-    return formateadores[numero](resultado)
+    return formateadores[
+        numero
+    ](
+        resultado
+    )

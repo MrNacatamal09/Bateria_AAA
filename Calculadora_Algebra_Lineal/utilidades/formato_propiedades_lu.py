@@ -1,6 +1,6 @@
 """
-Da formato al verificador consolidado del módulo de Factorización LU.
-Muestra ambos miembros de cada propiedad y una conclusión individual.
+Da formato al verificador consolidado y a sus resultados filtrados.
+Conserva la numeración original y muestra ambos miembros de cada igualdad.
 Tema de clase: propiedades de matrices, inversas y determinantes.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
@@ -20,7 +20,7 @@ def _formatear_matriz(matriz):
 
 
 def _formatear_valor(valor):
-    """Da formato uniforme a matrices y escalares."""
+    """Da formato uniforme a matrices, vectores y escalares."""
     if (
         isinstance(
             valor,
@@ -34,6 +34,15 @@ def _formatear_valor(valor):
     ):
         return _formatear_matriz(
             valor
+        )
+
+    if isinstance(
+        valor,
+        list
+    ):
+        return "\n".join(
+            f"[ {elemento} ]"
+            for elemento in valor
         )
 
     return str(
@@ -57,14 +66,38 @@ def _estado(propiedad):
     )
 
 
-def _formatear_propiedad(numero, propiedad):
+def _formatear_propiedad(
+    propiedad,
+    numero_alternativo,
+):
     """Construye la salida de una propiedad individual."""
+    numero = propiedad.get(
+        "numero",
+        numero_alternativo,
+    )
+
+    categoria = propiedad.get(
+        "categoria"
+    )
+
     lineas = [
         f"{numero}. {propiedad['nombre']}",
-        propiedad["formula"],
-        "-" * 60,
-        "",
     ]
+
+    if categoria:
+        lineas.append(
+            f"Categoría: {categoria}"
+        )
+
+    lineas.extend(
+        [
+            propiedad[
+                "formula"
+            ],
+            "-" * 60,
+            "",
+        ]
+    )
 
     if not propiedad[
         "aplicable"
@@ -72,10 +105,12 @@ def _formatear_propiedad(numero, propiedad):
         lineas.extend(
             [
                 "No aplicable.",
-                "Razón: "
-                + propiedad[
-                    "razon"
-                ],
+                (
+                    "Razón: "
+                    + propiedad[
+                        "razon"
+                    ]
+                ),
                 "",
                 _estado(
                     propiedad
@@ -152,8 +187,85 @@ def _formatear_propiedad(numero, propiedad):
     )
 
 
-def formatear_propiedades_consolidadas(resultado):
-    """Muestra todas las propiedades y el resumen global."""
+def _contar_resultados(propiedades):
+    """Cuenta propiedades aplicables y cumplidas dentro de una selección."""
+    aplicables = [
+        propiedad
+        for propiedad in propiedades
+        if propiedad[
+            "aplicable"
+        ]
+    ]
+
+    cumplidas = [
+        propiedad
+        for propiedad in aplicables
+        if propiedad[
+            "cumple"
+        ]
+    ]
+
+    return (
+        len(aplicables),
+        len(cumplidas),
+    )
+
+
+def _conclusion_propiedades(
+    propiedades,
+    aplicables,
+    cumplidas,
+):
+    """Construye una conclusión para la selección mostrada."""
+    if not propiedades:
+        return (
+            "No se encontraron propiedades que coincidan "
+            "con los criterios de búsqueda."
+        )
+
+    if aplicables == 0:
+        return (
+            "CONCLUSIÓN: Ninguna de las propiedades mostradas "
+            "es aplicable con los datos ingresados."
+        )
+
+    if aplicables == cumplidas:
+        return (
+            "CONCLUSIÓN: Todas las propiedades aplicables "
+            "mostradas se cumplen."
+        )
+
+    return (
+        "CONCLUSIÓN: Existe al menos una propiedad aplicable "
+        "mostrada que no se cumple."
+    )
+
+
+def formatear_propiedades_consolidadas(
+    resultado,
+    propiedades=None,
+    criterio="",
+):
+    """Muestra todas las propiedades o una selección ya filtrada."""
+    if propiedades is None:
+        propiedades = resultado[
+            "propiedades"
+        ]
+
+    propiedades = list(
+        propiedades
+    )
+
+    aplicables_mostradas, cumplidas_mostradas = (
+        _contar_resultados(
+            propiedades
+        )
+    )
+
+    total_general = resultado[
+        "total"
+    ]
+
     lineas = [
         "PROPIEDADES CONSOLIDADAS",
         "Matrices, Transpuesta, Inversa y Determinantes",
@@ -162,38 +274,74 @@ def formatear_propiedades_consolidadas(resultado):
         f"Escalar r = {resultado['escalar']}",
         "",
         (
-            "Propiedades evaluadas: "
-            + str(
-                resultado["total"]
-            )
+            "Propiedades calculadas: "
+            f"{total_general}"
         ),
         (
-            "Propiedades aplicables: "
-            + str(
-                resultado["aplicables"]
-            )
+            "Resultados mostrados: "
+            f"{len(propiedades)} de {total_general}"
         ),
         (
-            "Propiedades cumplidas: "
-            + str(
-                resultado["cumplidas"]
-            )
+            "Aplicables mostradas: "
+            f"{aplicables_mostradas}"
         ),
-        "",
-        "=" * 60,
-        "",
+        (
+            "Cumplidas mostradas: "
+            f"{cumplidas_mostradas}"
+        ),
     ]
 
-    for numero, propiedad in enumerate(
-        resultado[
-            "propiedades"
-        ],
-        start=1
+    if criterio:
+        lineas.extend(
+            [
+                "",
+                (
+                    "Filtro activo: "
+                    f"{criterio}"
+                ),
+            ]
+        )
+
+    lineas.extend(
+        [
+            "",
+            "=" * 60,
+            "",
+        ]
+    )
+
+    if not propiedades:
+        lineas.extend(
+            [
+                "No se encontraron propiedades.",
+                "",
+                (
+                    "Puede buscar por número, nombre, "
+                    "fórmula o categoría."
+                ),
+                "",
+                "=" * 60,
+                "",
+                _conclusion_propiedades(
+                    propiedades,
+                    aplicables_mostradas,
+                    cumplidas_mostradas,
+                ),
+            ]
+        )
+
+        return "\n".join(
+            lineas
+        )
+
+    for indice, propiedad in enumerate(
+        propiedades,
+        start=1,
     ):
         lineas.append(
             _formatear_propiedad(
-                numero,
-                propiedad
+                propiedad,
+                indice,
             )
         )
 
@@ -205,16 +353,13 @@ def formatear_propiedades_consolidadas(resultado):
             ]
         )
 
-    if resultado[
-        "todas_cumplen"
-    ]:
-        lineas.append(
-            "CONCLUSIÓN: Todas las propiedades aplicables se cumplen."
+    lineas.append(
+        _conclusion_propiedades(
+            propiedades,
+            aplicables_mostradas,
+            cumplidas_mostradas,
         )
-    else:
-        lineas.append(
-            "CONCLUSIÓN: Existe al menos una propiedad aplicable que no se cumple."
-        )
+    )
 
     return "\n".join(
         lineas

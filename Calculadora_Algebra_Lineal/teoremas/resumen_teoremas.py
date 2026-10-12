@@ -342,9 +342,9 @@ Multiplicar una fila por k multiplica el determinante por k.
 
 Una matriz cuadrada A es invertible si existe A⁻¹ tal que:
 
-AA⁻¹ = I
+A·A⁻¹ = I
 
-A⁻¹A = I
+A⁻¹·A = I
 
 Si:
 
@@ -395,6 +395,14 @@ Si A es invertible:
 
 (A⁻¹)⁻¹ = A
 
+A·A⁻¹ = I
+
+A⁻¹·A = I
+
+Por tanto:
+
+A·A⁻¹ = I = A⁻¹·A
+
 Si A y B son invertibles:
 
 (AB)⁻¹ = B⁻¹A⁻¹
@@ -407,7 +415,33 @@ Además:
 
 det(A⁻¹) = 1 / det(A)
 
-12. TEOREMA DE LA MATRIZ INVERTIBLE
+12. PROPIEDADES DEL DETERMINANTE
+
+Para una matriz cuadrada A:
+
+det(Aᵀ) = det(A)
+
+Si A y B son matrices cuadradas del mismo orden:
+
+det(AB) = det(A)det(B)
+
+Si A es invertible:
+
+det(A⁻¹) = 1 / det(A)
+
+Si A es de orden n × n y k es un escalar:
+
+det(kA) = kⁿdet(A)
+
+Además:
+
+- Intercambiar dos filas cambia el signo del determinante.
+- Reemplazar una fila conserva el determinante.
+- Multiplicar una fila por k multiplica el determinante por k.
+- El determinante de una matriz triangular es el producto
+  de sus elementos diagonales.
+
+13. TEOREMA DE LA MATRIZ INVERTIBLE
 
 Para una matriz cuadrada A de orden n × n son equivalentes,
 entre otras, las siguientes afirmaciones:
@@ -425,7 +459,7 @@ entre otras, las siguientes afirmaciones:
 Por ello, cuando det(A) ≠ 0, A tiene n posiciones pivote,
 sus columnas son L.I. y generan ℝⁿ.
 
-13. MÉTODO DE CRAMER
+14. MÉTODO DE CRAMER
 
 El método de Cramer permite resolver un sistema cuadrado:
 

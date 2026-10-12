@@ -1,6 +1,6 @@
 """
 Integra las operaciones generales del Módulo III de matrices.
-Reutiliza los motores de suma, resta, escalar, producto y transposición.
+Reutiliza operaciones, identidad y comparación de matrices ya desarrolladas.
 Tema de clase: operaciones y propiedades generales de matrices.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
@@ -13,6 +13,11 @@ from programas.programa_3.matrices import (
     multiplicar_matriz_escalar,
     multiplicar_matrices,
     transponer_matriz,
+)
+
+from programas.programa_3.propiedades_matrices_generales import (
+    crear_matriz_identidad,
+    matrices_iguales,
 )
 
 
@@ -31,27 +36,56 @@ OPCIONES_MENU = {
 
 def sumar(matriz_a, matriz_b):
     """Suma A y B cuando poseen las mismas dimensiones."""
-    return sumar_matrices(matriz_a, matriz_b)
+    return sumar_matrices(
+        matriz_a,
+        matriz_b,
+    )
 
 
 def restar(matriz_a, matriz_b):
     """Calcula A - B cuando ambas matrices tienen igual dimensión."""
-    return restar_matrices(matriz_a, matriz_b)
+    return restar_matrices(
+        matriz_a,
+        matriz_b,
+    )
 
 
 def multiplicar_por_escalar(matriz_a, escalar):
     """Calcula rA multiplicando cada entrada de A por r."""
-    return multiplicar_matriz_escalar(matriz_a, escalar)
+    return multiplicar_matriz_escalar(
+        matriz_a,
+        escalar,
+    )
 
 
 def producto_matricial(matriz_a, matriz_b):
     """Calcula AB cuando columnas de A igualan filas de B."""
-    return multiplicar_matrices(matriz_a, matriz_b)
+    return multiplicar_matrices(
+        matriz_a,
+        matriz_b,
+    )
 
 
 def transponer(matriz_a):
     """Calcula Aᵀ intercambiando filas por columnas."""
-    return transponer_matriz(matriz_a)
+    return transponer_matriz(
+        matriz_a
+    )
+
+
+def crear_identidad(orden):
+    """Devuelve la matriz identidad I de orden n."""
+    return crear_matriz_identidad(
+        orden
+    )
+
+
+def matrices_son_iguales(matriz_a, matriz_b):
+    """Compara dos matrices entrada por entrada."""
+    return matrices_iguales(
+        matriz_a,
+        matriz_b,
+    )
 
 
 def obtener_logo_modulo():
@@ -66,7 +100,9 @@ def obtener_logo_modulo():
 
 def mostrar_logo_modulo():
     """Muestra en consola el logotipo textual del módulo."""
-    print(obtener_logo_modulo())
+    print(
+        obtener_logo_modulo()
+    )
 
 
 def obtener_descripcion_modulo():
@@ -89,7 +125,10 @@ def obtener_menu_modulo():
 def mostrar_menu_modulo():
     """Muestra el logotipo y el menú del Módulo III."""
     mostrar_logo_modulo()
-    print(obtener_menu_modulo())
+
+    print(
+        obtener_menu_modulo()
+    )
 
 
 def obtener_teoremas_clave():
@@ -99,7 +138,9 @@ def obtener_teoremas_clave():
 
 def mostrar_teoremas_clave():
     """Muestra en consola los teoremas del Módulo III."""
-    print(obtener_teoremas_clave())
+    print(
+        obtener_teoremas_clave()
+    )
 
 
 def obtener_funcionalidades_actuales():
@@ -116,7 +157,9 @@ def obtener_informacion_funcionalidad(numero_funcionalidad):
 
     return {
         "numero": numero_funcionalidad,
-        "nombre": OPCIONES_MENU[numero_funcionalidad],
+        "nombre": OPCIONES_MENU[
+            numero_funcionalidad
+        ],
     }
 
 

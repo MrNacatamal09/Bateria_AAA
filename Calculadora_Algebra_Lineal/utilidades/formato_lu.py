@@ -1,7 +1,7 @@
 """
 Da formato al procedimiento de factorización LU y resolución de Ax = b.
-Muestra multiplicadores, operaciones, L, U, y, x y las verificaciones.
-Tema de clase: factorización LU y sustituciones triangulares.
+Muestra L, U y las reducciones [L|b] e [U|y] usando Gauss-Jordan.
+Tema de clase: factorización LU, reducción y encadenamiento de resultados.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
@@ -23,6 +23,37 @@ def formatear_matriz(matriz):
     )
 
 
+def formatear_matriz_aumentada(
+    matriz,
+    columnas_coeficientes,
+):
+    """Muestra una matriz aumentada separando coeficientes y resultado."""
+    lineas = []
+
+    for fila in matriz:
+        izquierda = "   ".join(
+            str(valor)
+            for valor in fila[
+                :columnas_coeficientes
+            ]
+        )
+
+        derecha = "   ".join(
+            str(valor)
+            for valor in fila[
+                columnas_coeficientes:
+            ]
+        )
+
+        lineas.append(
+            f"[ {izquierda} | {derecha} ]"
+        )
+
+    return "\n".join(
+        lineas
+    )
+
+
 def formatear_vector(vector):
     """Convierte un vector en formato columna."""
     return "\n".join(
@@ -32,7 +63,7 @@ def formatear_vector(vector):
 
 
 def _nombre(letra, indice):
-    """Construye y₁, y₂, x₁, x₂ y nombres equivalentes."""
+    """Construye nombres como y₁, y₂, x₁ y x₂."""
     return (
         letra
         + convertir_numero_subindice(
@@ -41,12 +72,16 @@ def _nombre(letra, indice):
     )
 
 
-def _estado(cumple):
-    """Devuelve la conclusión textual de una verificación."""
-    return (
-        "Se cumple"
-        if cumple
-        else "No se cumple"
+def _formatear_componentes_vector(
+    vector,
+    letra,
+):
+    """Muestra cada componente del vector con subíndice."""
+    return "\n".join(
+        f"{_nombre(letra, indice)} = {valor}"
+        for indice, valor in enumerate(
+            vector
+        )
     )
 
 
@@ -90,28 +125,29 @@ def _formatear_multiplicadores(resultado):
             fila
         )
 
-        sub_columna_l = convertir_numero_subindice(
+        sub_columna = convertir_numero_subindice(
             columna_l
         )
 
         lineas.extend(
             [
                 (
-                    f"l{sub_fila}{sub_columna_l} = "
-                    f"entrada a eliminar / pivote"
+                    f"l{sub_fila}{sub_columna} = "
+                    "elemento a eliminar / pivote"
                 ),
                 (
-                    f"l{sub_fila}{sub_columna_l} = "
+                    f"l{sub_fila}{sub_columna} = "
                     f"{dato['elemento_eliminado']} / "
                     f"{dato['pivote']}"
                 ),
                 (
-                    f"l{sub_fila}{sub_columna_l} = "
+                    f"l{sub_fila}{sub_columna} = "
                     f"{dato['multiplicador']}"
                 ),
                 (
                     "Pivote usado: "
-                    f"fila {fila_pivote}, columna {columna_pivote}"
+                    f"fila {fila_pivote}, "
+                    f"columna {columna_pivote}"
                 ),
                 "",
             ]
@@ -123,7 +159,7 @@ def _formatear_multiplicadores(resultado):
 
 
 def _formatear_pasos_reduccion(resultado):
-    """Muestra cada reemplazo de fila utilizado para construir U."""
+    """Muestra los reemplazos de fila utilizados para construir U."""
     lineas = [
         "REDUCCIÓN DE A HASTA U",
         "=" * 60,
@@ -136,6 +172,14 @@ def _formatear_pasos_reduccion(resultado):
         "",
     ]
 
+    if not resultado["pasos"]:
+        lineas.extend(
+            [
+                "A ya se encuentra en una forma compatible con U.",
+                "",
+            ]
+        )
+
     for numero, paso in enumerate(
         resultado["pasos"],
         start=1
@@ -145,7 +189,7 @@ def _formatear_pasos_reduccion(resultado):
                 f"Paso {numero}",
                 paso["operacion"],
                 (
-                    "Multiplicador guardado en L: "
+                    "Multiplicador registrado en L: "
                     + str(
                         paso["multiplicador"]
                     )
@@ -156,6 +200,62 @@ def _formatear_pasos_reduccion(resultado):
                 formatear_matriz(
                     paso["matriz_despues"]
                 ),
+                "",
+            ]
+        )
+
+    return "\n".join(
+        lineas
+    )
+
+
+def _formatear_historial_gauss_jordan(
+    historial,
+    columnas_coeficientes,
+):
+    """Convierte el historial de Gauss-Jordan en un procedimiento legible."""
+    lineas = []
+
+    for numero, paso in enumerate(
+        historial,
+        start=1
+    ):
+        lineas.extend(
+            [
+                f"Paso {numero}",
+                paso["operacion"],
+                "",
+                formatear_matriz_aumentada(
+                    paso["matriz"],
+                    columnas_coeficientes,
+                ),
+            ]
+        )
+
+        verificada = paso.get(
+            "verificada"
+        )
+
+        if verificada is not None:
+            if verificada:
+                estado = "correcta"
+            else:
+                estado = "incorrecta"
+
+            lineas.extend(
+                [
+                    "",
+                    (
+                        "Verificación de la operación: "
+                        + estado
+                    ),
+                ]
+            )
+
+        lineas.extend(
+            [
+                "",
+                "-" * 60,
                 "",
             ]
         )
@@ -198,13 +298,16 @@ def formatear_factorizacion_lu(resultado):
         "",
     ]
 
-    if resultado["posiciones_pivote"]:
+    if resultado[
+        "posiciones_pivote"
+    ]:
         for fila, columna in resultado[
             "posiciones_pivote"
         ]:
             lineas.append(
                 f"({fila + 1}, {columna + 1})"
             )
+
     else:
         lineas.append(
             "No se encontraron posiciones pivote."
@@ -215,131 +318,122 @@ def formatear_factorizacion_lu(resultado):
             "",
             "=" * 60,
             "",
-            "VERIFICACIÓN",
+            "VERIFICACIÓN DE LA FACTORIZACIÓN",
             "",
             "L·U =",
             "",
             formatear_matriz(
-                resultado["producto_lu"]
+                resultado[
+                    "producto_lu"
+                ]
             ),
             "",
             "A =",
             "",
             formatear_matriz(
-                resultado["matriz_a"]
+                resultado[
+                    "matriz_a"
+                ]
             ),
             "",
-            (
-                "L·U = A: "
-                + _estado(
-                    resultado["cumple_lu"]
-                )
-            ),
         ]
     )
+
+    if resultado[
+        "cumple_lu"
+    ]:
+        lineas.append(
+            "La factorización es correcta (L · U == A)."
+        )
+
+    else:
+        lineas.append(
+            "La factorización no es correcta (L · U != A)."
+        )
 
     return "\n".join(
         lineas
     )
 
 
-def _formatear_terminos(terminos, letra):
-    """Convierte una suma de productos triangulares en una expresión."""
-    if not terminos:
-        return "0"
-
-    partes = []
-
-    for termino in terminos:
-        variable = _nombre(
-            letra,
-            termino["indice"]
-        )
-
-        partes.append(
-            f"({termino['coeficiente']})({variable})"
-        )
-
-    return " + ".join(
-        partes
-    )
-
-
 def formatear_sustitucion_adelante(resultado):
-    """Presenta el procedimiento para resolver Ly = b."""
-    pasos = resultado[
+    """Muestra la reducción de [L|b] utilizada para obtener y."""
+    datos = resultado[
         "sustitucion_adelante"
-    ][
-        "pasos"
     ]
+
+    matriz_l = resultado[
+        "factorizacion"
+    ][
+        "matriz_l"
+    ]
+
+    orden = len(
+        matriz_l
+    )
 
     lineas = [
         "SUSTITUCIÓN HACIA ADELANTE",
-        "Ly = b",
+        "Resolver Ly = b mediante reducción de [L|b]",
         "=" * 60,
         "",
         "L =",
         "",
         formatear_matriz(
-            resultado[
-                "factorizacion"
-            ][
-                "matriz_l"
-            ]
+            matriz_l
         ),
         "",
         "b =",
         "",
         formatear_vector(
-            resultado["vector_b"]
+            resultado[
+                "vector_b"
+            ]
         ),
         "",
-    ]
-
-    for paso in pasos:
-        indice = paso[
-            "indice"
-        ]
-
-        nombre_y = _nombre(
-            "y",
-            indice
-        )
-
-        expresion = _formatear_terminos(
-            paso["terminos"],
-            "y"
-        )
-
-        lineas.extend(
-            [
-                f"{nombre_y}:",
-                (
-                    f"{paso['diagonal']}({nombre_y}) + "
-                    f"{expresion} = {paso['b']}"
-                ),
-                (
-                    f"{nombre_y} = "
-                    f"({paso['b']} - {paso['suma']}) "
-                    f"/ {paso['diagonal']}"
-                ),
-                (
-                    f"{nombre_y} = "
-                    f"{paso['resultado']}"
-                ),
-                "",
+        "Matriz aumentada inicial [L|b] =",
+        "",
+        formatear_matriz_aumentada(
+            datos[
+                "matriz_aumentada"
+            ],
+            orden,
+        ),
+        "",
+        "=" * 60,
+        "",
+        "PROCEDIMIENTO DE GAUSS-JORDAN",
+        "",
+        _formatear_historial_gauss_jordan(
+            datos[
+                "historial"
+            ],
+            orden,
+        ),
+        "Matriz reducida [I|y] =",
+        "",
+        formatear_matriz_aumentada(
+            datos[
+                "matriz_reducida"
+            ],
+            orden,
+        ),
+        "",
+        "VECTOR INTERMEDIO y",
+        "",
+        formatear_vector(
+            resultado[
+                "vector_y"
             ]
-        )
-
-    lineas.extend(
-        [
-            "y =",
-            "",
-            formatear_vector(
-                resultado["vector_y"]
-            ),
-        ]
-    )
+        ),
+        "",
+        _formatear_componentes_vector(
+            resultado[
+                "vector_y"
+            ],
+            "y",
+        ),
+    ]
 
     return "\n".join(
         lineas
@@ -347,80 +441,83 @@ def formatear_sustitucion_adelante(resultado):
 
 
 def formatear_sustitucion_atras(resultado):
-    """Presenta el procedimiento para resolver Ux = y."""
-    pasos = resultado[
+    """Muestra la reducción de [U|y] utilizada para obtener x."""
+    datos = resultado[
         "sustitucion_atras"
-    ][
-        "pasos"
     ]
+
+    matriz_u = resultado[
+        "factorizacion"
+    ][
+        "matriz_u"
+    ]
+
+    orden = len(
+        matriz_u
+    )
 
     lineas = [
         "SUSTITUCIÓN HACIA ATRÁS",
-        "Ux = y",
+        "Resolver Ux = y mediante reducción de [U|y]",
         "=" * 60,
         "",
         "U =",
         "",
         formatear_matriz(
-            resultado[
-                "factorizacion"
-            ][
-                "matriz_u"
-            ]
+            matriz_u
         ),
         "",
         "y =",
         "",
         formatear_vector(
-            resultado["vector_y"]
+            resultado[
+                "vector_y"
+            ]
         ),
         "",
-    ]
-
-    for paso in pasos:
-        indice = paso[
-            "indice"
-        ]
-
-        nombre_x = _nombre(
-            "x",
-            indice
-        )
-
-        expresion = _formatear_terminos(
-            paso["terminos"],
-            "x"
-        )
-
-        lineas.extend(
-            [
-                f"{nombre_x}:",
-                (
-                    f"{paso['diagonal']}({nombre_x}) + "
-                    f"{expresion} = {paso['y']}"
-                ),
-                (
-                    f"{nombre_x} = "
-                    f"({paso['y']} - {paso['suma']}) "
-                    f"/ {paso['diagonal']}"
-                ),
-                (
-                    f"{nombre_x} = "
-                    f"{paso['resultado']}"
-                ),
-                "",
+        "Matriz aumentada inicial [U|y] =",
+        "",
+        formatear_matriz_aumentada(
+            datos[
+                "matriz_aumentada"
+            ],
+            orden,
+        ),
+        "",
+        "=" * 60,
+        "",
+        "PROCEDIMIENTO DE GAUSS-JORDAN",
+        "",
+        _formatear_historial_gauss_jordan(
+            datos[
+                "historial"
+            ],
+            orden,
+        ),
+        "Matriz reducida [I|x] =",
+        "",
+        formatear_matriz_aumentada(
+            datos[
+                "matriz_reducida"
+            ],
+            orden,
+        ),
+        "",
+        "VECTOR SOLUCIÓN x",
+        "",
+        formatear_vector(
+            resultado[
+                "vector_x"
             ]
-        )
-
-    lineas.extend(
-        [
-            "x =",
-            "",
-            formatear_vector(
-                resultado["vector_x"]
-            ),
-        ]
-    )
+        ),
+        "",
+        _formatear_componentes_vector(
+            resultado[
+                "vector_x"
+            ],
+            "x",
+        ),
+    ]
 
     return "\n".join(
         lineas
@@ -428,7 +525,7 @@ def formatear_sustitucion_atras(resultado):
 
 
 def formatear_verificaciones_lu(resultado):
-    """Muestra L·U=A y A·x=b utilizando los resultados ya obtenidos."""
+    """Muestra las comprobaciones L·U=A y A·x=b."""
     lineas = [
         "VERIFICACIÓN DE RESULTADOS",
         "=" * 60,
@@ -448,39 +545,62 @@ def formatear_verificaciones_lu(resultado):
         "A =",
         "",
         formatear_matriz(
-            resultado["matriz_a"]
+            resultado[
+                "matriz_a"
+            ]
         ),
         "",
-        (
-            "L·U = A: "
-            + _estado(
-                resultado["cumple_lu"]
-            )
-        ),
-        "",
-        "=" * 60,
-        "",
-        "2. COMPROBACIÓN DE LA SOLUCIÓN",
-        "",
-        "A·x =",
-        "",
-        formatear_vector(
-            resultado["producto_ax"]
-        ),
-        "",
-        "b =",
-        "",
-        formatear_vector(
-            resultado["vector_b"]
-        ),
-        "",
-        (
-            "A·x = b: "
-            + _estado(
-                resultado["cumple_ax_b"]
-            )
-        ),
     ]
+
+    if resultado[
+        "cumple_lu"
+    ]:
+        lineas.append(
+            "La factorización es correcta (L · U == A)."
+        )
+
+    else:
+        lineas.append(
+            "La factorización no es correcta (L · U != A)."
+        )
+
+    lineas.extend(
+        [
+            "",
+            "=" * 60,
+            "",
+            "2. COMPROBACIÓN DE LA SOLUCIÓN",
+            "",
+            "A·x =",
+            "",
+            formatear_vector(
+                resultado[
+                    "producto_ax"
+                ]
+            ),
+            "",
+            "b =",
+            "",
+            formatear_vector(
+                resultado[
+                    "vector_b"
+                ]
+            ),
+            "",
+        ]
+    )
+
+    if resultado[
+        "cumple_ax_b"
+    ]:
+        lineas.append(
+            "Comprobación exitosa: A · x == b."
+        )
+
+    else:
+        lineas.append(
+            "La comprobación no coincide: A · x != b."
+        )
 
     return "\n".join(
         lineas
@@ -488,10 +608,12 @@ def formatear_verificaciones_lu(resultado):
 
 
 def formatear_resolucion_lu(resultado):
-    """Une factorización, ambas sustituciones y verificaciones."""
+    """Une factorización, reducciones y verificaciones en una sola salida."""
     return (
         formatear_factorizacion_lu(
-            resultado["factorizacion"]
+            resultado[
+                "factorizacion"
+            ]
         )
         + "\n\n"
         + "=" * 60

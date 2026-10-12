@@ -1,19 +1,14 @@
 """
 Implementa la factorización LU y la resolución de sistemas Ax = b.
-Construye L y U sin intercambios de filas y conserva cada multiplicador.
-Tema de clase: factorización LU y sustituciones hacia adelante y atrás.
+Construye L y U sin intercambios y reutiliza Gauss-Jordan para Ly=b y Ux=y.
+Tema de clase: factorización LU, reducción y encadenamiento de resultados.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
 from fractions import Fraction
 
-from programas.programa_3.matrices import (
-    multiplicar_matrices,
-)
-
-from programas.programa_3.propiedades_matriz import (
-    multiplicar_matriz_vector,
-)
+from modulos.modulo_matrices import producto_matricial
+from modulos.modulo_sistemas import reducir_por_gauss_jordan
 
 
 def _copiar_matriz(matriz):
@@ -88,6 +83,33 @@ def _validar_sistema_cuadrado(matriz_a, vector_b):
         )
 
 
+def _validar_matriz_cuadrada_vector(
+    matriz,
+    vector,
+    nombre_matriz,
+    nombre_vector,
+):
+    """Valida una matriz cuadrada y un vector compatible para una reducción."""
+    _validar_matriz(
+        matriz
+    )
+
+    orden = len(
+        matriz
+    )
+
+    if len(matriz[0]) != orden:
+        raise ValueError(
+            f"La matriz {nombre_matriz} debe ser cuadrada."
+        )
+
+    if len(vector) != orden:
+        raise ValueError(
+            f"El vector {nombre_vector} no es compatible con "
+            f"la matriz {nombre_matriz}."
+        )
+
+
 def _texto_operacion_reemplazo(
     fila_destino,
     fila_pivote,
@@ -106,7 +128,11 @@ def _texto_operacion_reemplazo(
     )
 
 
-def _requiere_intercambio(matriz_u, fila_pivote, columna):
+def _requiere_intercambio(
+    matriz_u,
+    fila_pivote,
+    columna,
+):
     """Indica si una entrada inferior obligaría a intercambiar filas."""
     for fila in range(
         fila_pivote + 1,
@@ -116,6 +142,160 @@ def _requiere_intercambio(matriz_u, fila_pivote, columna):
             return True
 
     return False
+
+
+def _crear_matriz_aumentada(
+    matriz,
+    vector,
+):
+    """Construye [A|b] sin modificar la matriz ni el vector originales."""
+    return [
+        matriz[i].copy() + [vector[i]]
+        for i in range(
+            len(matriz)
+        )
+    ]
+
+
+def _extraer_vector_reducido(
+    resultado,
+    orden,
+    nombre_vector,
+):
+    """Extrae la última columna de [I|v] y valida una solución única."""
+    matriz_reducida = resultado[
+        "matriz_reducida"
+    ]
+
+    for i in range(orden):
+        for j in range(orden):
+            esperado = (
+                Fraction(1)
+                if i == j
+                else Fraction(0)
+            )
+
+            if matriz_reducida[i][j] != esperado:
+                raise ValueError(
+                    "No se pudo obtener una solución única "
+                    f"para {nombre_vector}."
+                )
+
+    return [
+        matriz_reducida[i][-1]
+        for i in range(orden)
+    ]
+
+
+def _crear_pasos_adelante_compatibilidad(
+    matriz_l,
+    vector_b,
+    vector_y,
+):
+    """Conserva temporalmente la estructura usada por el formateador actual."""
+    pasos = []
+
+    for i in range(
+        len(matriz_l)
+    ):
+        suma = Fraction(0)
+        terminos = []
+
+        for j in range(i):
+            producto = (
+                matriz_l[i][j]
+                * vector_y[j]
+            )
+
+            suma += producto
+
+            terminos.append(
+                {
+                    "coeficiente": matriz_l[i][j],
+                    "variable": vector_y[j],
+                    "producto": producto,
+                    "indice": j,
+                }
+            )
+
+        diagonal = matriz_l[i][i]
+
+        numerador = (
+            vector_b[i]
+            - suma
+        )
+
+        pasos.append(
+            {
+                "indice": i,
+                "terminos": terminos,
+                "suma": suma,
+                "b": vector_b[i],
+                "diagonal": diagonal,
+                "numerador": numerador,
+                "resultado": vector_y[i],
+            }
+        )
+
+    return pasos
+
+
+def _crear_pasos_atras_compatibilidad(
+    matriz_u,
+    vector_y,
+    vector_x,
+):
+    """Conserva temporalmente la estructura usada por el formateador actual."""
+    pasos = []
+
+    for i in range(
+        len(matriz_u) - 1,
+        -1,
+        -1
+    ):
+        suma = Fraction(0)
+        terminos = []
+
+        for j in range(
+            i + 1,
+            len(matriz_u)
+        ):
+            producto = (
+                matriz_u[i][j]
+                * vector_x[j]
+            )
+
+            suma += producto
+
+            terminos.append(
+                {
+                    "coeficiente": matriz_u[i][j],
+                    "variable": vector_x[j],
+                    "producto": producto,
+                    "indice": j,
+                }
+            )
+
+        diagonal = matriz_u[i][i]
+
+        numerador = (
+            vector_y[i]
+            - suma
+        )
+
+        pasos.append(
+            {
+                "indice": i,
+                "terminos": terminos,
+                "suma": suma,
+                "y": vector_y[i],
+                "diagonal": diagonal,
+                "numerador": numerador,
+                "resultado": vector_x[i],
+            }
+        )
+
+    return pasos
 
 
 def factorizar_lu(matriz_a):
@@ -146,7 +326,9 @@ def factorizar_lu(matriz_a):
 
     fila_pivote = 0
 
-    for columna in range(columnas):
+    for columna in range(
+        columnas
+    ):
         if fila_pivote >= filas:
             break
 
@@ -163,10 +345,8 @@ def factorizar_lu(matriz_a):
                 columna
             ):
                 raise ValueError(
-                    "No se puede obtener A = LU sin intercambio de filas: "
-                    f"en la columna {columna + 1} la entrada pivote de "
-                    f"F{fila_pivote + 1} es 0 y existe una entrada no nula "
-                    "debajo. Se requiere una permutación; corresponde PA = LU."
+                    "La matriz no admite Factorización LU sin permutación "
+                    "(requiere pivoteo parcial PA = LU)."
                 )
 
             continue
@@ -202,6 +382,7 @@ def factorizar_lu(matriz_a):
                 / valor_pivote
             )
 
+            # L guarda el multiplicador antes de modificar la fila de U.
             matriz_l[
                 fila
             ][
@@ -254,7 +435,7 @@ def factorizar_lu(matriz_a):
 
         fila_pivote += 1
 
-    producto_lu = multiplicar_matrices(
+    producto_lu = producto_matricial(
         matriz_l,
         matriz_u
     )
@@ -271,7 +452,9 @@ def factorizar_lu(matriz_a):
         "multiplicadores": multiplicadores,
         "pasos": pasos,
         "posiciones_pivote": posiciones_pivote,
-        "num_pivotes": len(posiciones_pivote),
+        "num_pivotes": len(
+            posiciones_pivote
+        ),
         "producto_lu": producto_lu,
         "cumple_lu": cumple_lu,
         "filas": filas,
@@ -279,170 +462,105 @@ def factorizar_lu(matriz_a):
     }
 
 
-def sustitucion_hacia_adelante(matriz_l, vector_b):
-    """Resuelve Ly = b y guarda el despeje de cada componente yᵢ."""
-    orden = len(
-        matriz_l
+def sustitucion_hacia_adelante(
+    matriz_l,
+    vector_b,
+):
+    """Resuelve Ly=b reduciendo la matriz aumentada [L|b] con Gauss-Jordan."""
+    _validar_matriz_cuadrada_vector(
+        matriz_l,
+        vector_b,
+        "L",
+        "b",
     )
 
-    if len(vector_b) != orden:
-        raise ValueError(
-            "El vector b no es compatible con la matriz L."
-        )
+    matriz_aumentada = _crear_matriz_aumentada(
+        matriz_l,
+        vector_b
+    )
 
-    vector_y = [
-        Fraction(0)
-        for _ in range(orden)
-    ]
+    reduccion = reducir_por_gauss_jordan(
+        matriz_aumentada
+    )
 
-    pasos = []
-
-    for i in range(orden):
-        suma = Fraction(0)
-        terminos = []
-
-        for j in range(i):
-            producto = (
-                matriz_l[i][j]
-                * vector_y[j]
-            )
-
-            suma += producto
-
-            terminos.append(
-                {
-                    "coeficiente": matriz_l[i][j],
-                    "variable": vector_y[j],
-                    "producto": producto,
-                    "indice": j,
-                }
-            )
-
-        diagonal = matriz_l[i][i]
-
-        if diagonal == 0:
-            raise ValueError(
-                "No se puede realizar sustitución hacia adelante: "
-                f"l{i + 1}{i + 1} = 0."
-            )
-
-        numerador = (
-            vector_b[i]
-            - suma
-        )
-
-        vector_y[i] = (
-            numerador
-            / diagonal
-        )
-
-        pasos.append(
-            {
-                "indice": i,
-                "terminos": terminos,
-                "suma": suma,
-                "b": vector_b[i],
-                "diagonal": diagonal,
-                "numerador": numerador,
-                "resultado": vector_y[i],
-            }
-        )
+    vector_y = _extraer_vector_reducido(
+        reduccion,
+        len(matriz_l),
+        "y",
+    )
 
     return {
         "vector_y": vector_y,
-        "pasos": pasos,
+        "matriz_aumentada": matriz_aumentada,
+        "matriz_reducida": reduccion[
+            "matriz_reducida"
+        ],
+        "historial": reduccion[
+            "historial"
+        ],
+        "posiciones_pivote": reduccion[
+            "posiciones_pivote"
+        ],
+        "pasos": _crear_pasos_adelante_compatibilidad(
+            matriz_l,
+            vector_b,
+            vector_y,
+        ),
     }
 
 
-def sustitucion_hacia_atras(matriz_u, vector_y):
-    """Resuelve Ux = y y guarda el despeje de cada componente xᵢ."""
-    orden = len(
-        matriz_u
+def sustitucion_hacia_atras(
+    matriz_u,
+    vector_y,
+):
+    """Resuelve Ux=y reduciendo la matriz aumentada [U|y] con Gauss-Jordan."""
+    _validar_matriz_cuadrada_vector(
+        matriz_u,
+        vector_y,
+        "U",
+        "y",
     )
 
-    if len(vector_y) != orden:
-        raise ValueError(
-            "El vector y no es compatible con la matriz U."
-        )
+    matriz_aumentada = _crear_matriz_aumentada(
+        matriz_u,
+        vector_y
+    )
 
-    if len(matriz_u[0]) != orden:
-        raise ValueError(
-            "Para resolver Ux = y, la matriz U debe ser cuadrada."
-        )
+    reduccion = reducir_por_gauss_jordan(
+        matriz_aumentada
+    )
 
-    vector_x = [
-        Fraction(0)
-        for _ in range(orden)
-    ]
-
-    pasos = []
-
-    for i in range(
-        orden - 1,
-        -1,
-        -1
-    ):
-        diagonal = matriz_u[i][i]
-
-        if diagonal == 0:
-            raise ValueError(
-                "El sistema no tiene solución única: "
-                f"u{i + 1}{i + 1} = 0."
-            )
-
-        suma = Fraction(0)
-        terminos = []
-
-        for j in range(
-            i + 1,
-            orden
-        ):
-            producto = (
-                matriz_u[i][j]
-                * vector_x[j]
-            )
-
-            suma += producto
-
-            terminos.append(
-                {
-                    "coeficiente": matriz_u[i][j],
-                    "variable": vector_x[j],
-                    "producto": producto,
-                    "indice": j,
-                }
-            )
-
-        numerador = (
-            vector_y[i]
-            - suma
-        )
-
-        vector_x[i] = (
-            numerador
-            / diagonal
-        )
-
-        pasos.append(
-            {
-                "indice": i,
-                "terminos": terminos,
-                "suma": suma,
-                "y": vector_y[i],
-                "diagonal": diagonal,
-                "numerador": numerador,
-                "resultado": vector_x[i],
-            }
-        )
+    vector_x = _extraer_vector_reducido(
+        reduccion,
+        len(matriz_u),
+        "x",
+    )
 
     return {
         "vector_x": vector_x,
-        "pasos": pasos,
+        "matriz_aumentada": matriz_aumentada,
+        "matriz_reducida": reduccion[
+            "matriz_reducida"
+        ],
+        "historial": reduccion[
+            "historial"
+        ],
+        "posiciones_pivote": reduccion[
+            "posiciones_pivote"
+        ],
+        "pasos": _crear_pasos_atras_compatibilidad(
+            matriz_u,
+            vector_y,
+            vector_x,
+        ),
     }
 
 
-def resolver_sistema_lu(matriz_a, vector_b):
-    """Factoriza A, resuelve Ly=b y Ux=y, y comprueba LU=A y Ax=b."""
+def resolver_sistema_lu(
+    matriz_a,
+    vector_b,
+):
+    """Factoriza A, resuelve [L|b] y [U|y], y verifica LU=A y Ax=b."""
     _validar_sistema_cuadrado(
         matriz_a,
         vector_b
@@ -456,30 +574,48 @@ def resolver_sistema_lu(matriz_a, vector_b):
         matriz_a
     )
 
-    if factorizacion["num_pivotes"] != orden:
+    if factorizacion[
+        "num_pivotes"
+    ] != orden:
         raise ValueError(
             "El sistema no tiene solución única mediante esta factorización: "
             "A no posee una posición pivote en cada fila y columna."
         )
 
     adelante = sustitucion_hacia_adelante(
-        factorizacion["matriz_l"],
+        factorizacion[
+            "matriz_l"
+        ],
         vector_b
     )
 
     atras = sustitucion_hacia_atras(
-        factorizacion["matriz_u"],
-        adelante["vector_y"]
+        factorizacion[
+            "matriz_u"
+        ],
+        adelante[
+            "vector_y"
+        ]
     )
 
     vector_x = atras[
         "vector_x"
     ]
 
-    producto_ax = multiplicar_matriz_vector(
+    vector_x_columna = [
+        [valor]
+        for valor in vector_x
+    ]
+
+    producto_ax_matriz = producto_matricial(
         matriz_a,
-        vector_x
+        vector_x_columna
     )
+
+    producto_ax = [
+        fila[0]
+        for fila in producto_ax_matriz
+    ]
 
     cumple_ax_b = (
         producto_ax
@@ -492,9 +628,13 @@ def resolver_sistema_lu(matriz_a, vector_b):
         "factorizacion": factorizacion,
         "sustitucion_adelante": adelante,
         "sustitucion_atras": atras,
-        "vector_y": adelante["vector_y"],
+        "vector_y": adelante[
+            "vector_y"
+        ],
         "vector_x": vector_x,
         "producto_ax": producto_ax,
         "cumple_ax_b": cumple_ax_b,
-        "cumple_lu": factorizacion["cumple_lu"],
+        "cumple_lu": factorizacion[
+            "cumple_lu"
+        ],
     }

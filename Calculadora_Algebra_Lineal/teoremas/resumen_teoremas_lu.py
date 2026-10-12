@@ -1,7 +1,7 @@
 """
 Resume la teoría utilizada por el módulo de Factorización LU.
-Incluye construcción de L y U, sustituciones, validaciones y propiedades.
-Tema de clase: factorización LU y resolución eficiente de sistemas.
+Incluye construcción de L y U, resolución de Ax=b y propiedades consolidadas.
+Tema de clase: factorización LU, reducción y encadenamiento de resultados.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
@@ -13,7 +13,7 @@ def obtener_teoremas_lu():
 MÓDULO V - FACTORIZACIÓN LU
 ========================================================
 
-1. DEFINICIÓN
+1. DEFINICIÓN DE FACTORIZACIÓN LU
 
 La factorización LU expresa una matriz A como:
 
@@ -22,60 +22,96 @@ A = L·U
 donde:
 
 L = matriz triangular inferior unitaria.
+
 U = forma escalonada obtenida a partir de A.
 
-La diagonal principal de L contiene unos.
+La matriz L contiene unos en su diagonal principal y guarda
+los multiplicadores utilizados durante la eliminación.
 
 2. CONSTRUCCIÓN DE U
 
-U se obtiene reduciendo A mediante operaciones de
+La matriz U se obtiene reduciendo A mediante operaciones de
 reemplazo de filas:
 
-Fᵢ -> Fᵢ - mᵢⱼFⱼ
+Fᵢ -> Fᵢ - lᵢⱼFⱼ
 
-No se realizan intercambios de filas en la factorización
-A = LU usada en este módulo.
+No se realizan intercambios de filas cuando se busca una
+factorización directa:
+
+A = LU
 
 3. MULTIPLICADORES Y MATRIZ L
 
-Cada multiplicador utilizado para eliminar una entrada se
-guarda en L.
+Cada entrada debajo de un pivote se elimina utilizando:
 
-Si el pivote es p y la entrada que se desea eliminar es a:
+lᵢⱼ =
+elemento a eliminar / pivote
 
-m = a / p
+El multiplicador lᵢⱼ debe almacenarse en L antes de modificar
+la fila correspondiente de U.
 
-Ese valor se coloca en la posición correspondiente debajo
-de la diagonal principal de L.
+Por ejemplo:
+
+l₂₁ = a₂₁ / a₁₁
+
+y la operación utilizada será:
+
+F₂ -> F₂ - l₂₁F₁
 
 4. ESTRUCTURA PARA MATRICES m × n
 
 Si A tiene m filas y n columnas:
 
-L tiene tamaño m × m.
+A es m × n
 
-U tiene tamaño m × n.
+L es m × m
+
+U es m × n
 
 Por tanto:
 
 A(m×n) = L(m×m) · U(m×n)
 
-5. PIVOTE CERO
+5. MATRIZ L
 
-Si durante la reducción la entrada pivote es cero y existe
-una entrada no nula debajo, se necesita intercambiar filas.
+L es triangular inferior.
 
-En ese caso ya no se trabaja directamente con:
+Su diagonal principal contiene unos:
 
-A = LU
+lᵢᵢ = 1
 
-sino con una factorización con permutación:
+Los elementos situados encima de la diagonal son cero.
+
+Los elementos debajo de la diagonal son los multiplicadores
+utilizados para construir U.
+
+6. MATRIZ U
+
+U es la forma escalonada obtenida mediante las operaciones
+de reemplazo aplicadas a A.
+
+La factorización debe satisfacer:
+
+L·U = A
+
+7. PIVOTE CERO Y PERMUTACIONES
+
+Si el pivote necesario es cero y existe una entrada no nula
+debajo, sería necesario realizar un intercambio de filas.
+
+En ese caso no se continúa con una factorización directa
+A = LU.
+
+El programa debe informar:
+
+"La matriz no admite Factorización LU sin permutación
+(requiere pivoteo parcial PA = LU)."
+
+Cuando interviene una matriz de permutación P:
 
 PA = LU
 
-donde P es una matriz de permutación.
-
-6. RESOLUCIÓN DE Ax = b
+8. RESOLUCIÓN DE Ax = b
 
 Si:
 
@@ -85,95 +121,261 @@ entonces:
 
 Ax = b
 
-se convierte en:
+puede escribirse como:
 
-L(Ux) = b
+LUx = b
 
 Se define:
 
 Ux = y
 
-y el problema se resuelve en dos etapas:
+por lo que el problema se divide en dos sistemas:
 
 Ly = b
+
 Ux = y
 
-7. SUSTITUCIÓN HACIA ADELANTE
+9. OBTENCIÓN DEL VECTOR y
 
-Como L es triangular inferior, Ly = b se resuelve desde la
-primera ecuación hacia la última.
+Para resolver:
 
-El resultado es el vector intermedio:
+Ly = b
+
+se construye la matriz aumentada:
+
+[L | b]
+
+El programa reutiliza el método de Gauss-Jordan desarrollado
+anteriormente hasta obtener:
+
+[I | y]
+
+La última columna contiene el vector intermedio:
 
 y
 
-8. SUSTITUCIÓN HACIA ATRÁS
+No se solicita al usuario que vuelva a ingresar L ni b.
 
-Como U es triangular superior, Ux = y se resuelve desde la
-última ecuación hacia la primera.
+10. OBTENCIÓN DEL VECTOR x
 
-El resultado final es:
+Una vez obtenido y se construye:
+
+[U | y]
+
+La matriz aumentada se reduce mediante Gauss-Jordan hasta:
+
+[I | x]
+
+La última columna contiene la solución final:
 
 x
 
-9. VERIFICACIONES
+El vector y se transfiere directamente desde el resultado
+anterior sin solicitar nuevamente sus componentes.
 
-La factorización debe comprobar:
+11. VERIFICACIÓN DE LA FACTORIZACIÓN
+
+Una vez obtenidas L y U se calcula:
+
+L·U
+
+utilizando la función de producto matricial desarrollada en
+la Calculadora.
+
+La factorización es correcta cuando:
 
 L·U = A
 
-La solución del sistema debe comprobar:
+12. VERIFICACIÓN DE LA SOLUCIÓN
+
+Después de calcular x se verifica:
 
 A·x = b
 
-10. VENTAJA DE LU
+Si ambos vectores son iguales, la solución obtenida es
+correcta.
 
-Si A permanece fija y cambian distintos vectores b, la
-factorización A = LU se calcula una sola vez.
+13. ENCADENAMIENTO DE RESULTADOS
 
-Para cada nuevo b solamente se resuelven:
+Los resultados intermedios se almacenan en listas anidadas y
+se envían directamente a otras funciones.
+
+El flujo es:
+
+A
+↓
+Factorización LU
+↓
+L y U
+↓
+[L|b]
+↓
+y
+↓
+[U|y]
+↓
+x
+↓
+A·x
+↓
+comparación con b
+
+No se vuelven a pedir al usuario:
+
+L
+U
+y
+x
+
+14. VENTAJA DE LA FACTORIZACIÓN LU
+
+Si la matriz A permanece fija y se desean resolver varios
+sistemas con distintos vectores b:
+
+Ax₁ = b₁
+Ax₂ = b₂
+Ax₃ = b₃
+
+la factorización:
+
+A = LU
+
+se realiza una sola vez.
+
+Para cada nuevo vector b únicamente deben resolverse:
 
 Ly = b
+
 Ux = y
 
-11. ENCADENAMIENTO DE RESULTADOS
+15. PROPIEDADES DE OPERACIONES MATRICIALES
 
-Las matrices obtenidas por una función se conservan como
-listas anidadas y se pasan directamente a las siguientes
-funciones.
+El verificador consolidado reutiliza las funciones internas
+del proyecto para comprobar:
 
-Ejemplo:
+A(BC) = (AB)C
 
-A -> factorizar -> L y U
-L y b -> y
-U y y -> x
-A y x -> comprobación
+A(B + C) = AB + AC
 
-No es necesario volver a ingresar L, U, y ni x.
+(B + C)A = BA + CA
 
-12. PROPIEDADES CONSOLIDADAS
+r(AB) = (rA)B = A(rB)
 
-El módulo reutiliza las operaciones desarrolladas
-anteriormente para verificar propiedades de:
+IA = A = AI
 
-- Operaciones matriciales.
-- Producto matricial.
-- Transpuesta.
-- Matriz inversa.
-- Determinantes.
-- Operaciones elementales por filas.
+16. PROPIEDADES DE LA TRANSPUESTA
 
-Entre ellas:
+(Aᵀ)ᵀ = A
+
+(A + B)ᵀ = Aᵀ + Bᵀ
+
+(rA)ᵀ = rAᵀ
 
 (AB)ᵀ = BᵀAᵀ
 
+Además:
+
+(r(A + B))ᵀ = rAᵀ + rBᵀ
+
+17. PROPIEDADES DE LA MATRIZ INVERSA
+
+Si A es invertible:
+
+(A⁻¹)⁻¹ = A
+
+(Aᵀ)⁻¹ = (A⁻¹)ᵀ
+
+A·A⁻¹ = I
+
+A⁻¹·A = I
+
+Por tanto:
+
+A·A⁻¹ = I = A⁻¹·A
+
+Si A y B son invertibles:
+
 (AB)⁻¹ = B⁻¹A⁻¹
+
+18. PROPIEDADES DEL DETERMINANTE
 
 det(Aᵀ) = det(A)
 
 det(AB) = det(A)det(B)
 
+Si A es invertible:
+
 det(A⁻¹) = 1/det(A)
+
+Para A de orden n × n:
+
+det(rA) = rⁿdet(A)
+
+19. DETERMINANTE Y OPERACIONES DE FILA
+
+Intercambiar dos filas cambia el signo:
+
+det(B) = -det(A)
+
+Reemplazar una fila mediante:
+
+Fᵢ -> Fᵢ + kFⱼ
+
+conserva el determinante.
+
+Multiplicar una fila por k multiplica el determinante por k.
+
+20. DETERMINANTE DE UNA MATRIZ TRIANGULAR
+
+Si A es triangular:
+
+det(A)
+
+es el producto de los elementos de su diagonal principal.
+
+El programa compara este resultado con el determinante
+obtenido mediante los métodos anteriores.
+
+21. PROPIEDADES CONSOLIDADAS
+
+El módulo calcula las propiedades una sola vez y conserva sus
+resultados en memoria.
+
+Posteriormente pueden filtrarse por:
+
+- Número.
+- Nombre.
+- Palabra parcial.
+- Fórmula.
+- Categoría.
+
+Filtrar los resultados no vuelve a ejecutar determinantes,
+inversas ni productos matriciales.
+
+22. CATEGORÍAS DEL VERIFICADOR
+
+Las propiedades se organizan en:
+
+- Operaciones matriciales.
+- Transposición.
+- Matriz inversa.
+- Determinantes.
+- Operaciones de fila.
+- Matriz triangular.
+
+Cada propiedad muestra sus dos miembros, o tres miembros
+cuando corresponde, y concluye:
+
+"Se cumple"
+
+o:
+
+"No se cumple"
+
+Si una propiedad de inversa no puede aplicarse porque la
+matriz es singular, el programa informa:
+
+"No aplicable"
 
 ========================================================
 """

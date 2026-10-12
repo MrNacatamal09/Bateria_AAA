@@ -1,30 +1,70 @@
 """
 Consolida propiedades de matrices, transpuesta, inversa y determinantes.
-Recibe A, B, C y r una sola vez y reutiliza resultados intermedios.
-Tema de clase: propiedades matriciales y encadenamiento de funciones.
+Recibe A, B, C y r una sola vez y permite filtrar resultados ya calculados.
+Tema de clase: propiedades matriciales y encadenamiento de resultados.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
 from fractions import Fraction
+import unicodedata
 
-from programas.programa_3.matrices import (
-    sumar_matrices,
-    multiplicar_matriz_escalar,
-    multiplicar_matrices,
-    transponer_matriz,
+from modulos.modulo_matrices import (
+    sumar,
+    multiplicar_por_escalar,
+    producto_matricial,
+    transponer,
+    crear_identidad,
+    matrices_son_iguales,
 )
 
-from programas.determinantes.determinante import (
-    calcular_determinante,
+from modulos.modulo_determinantes import (
+    determinante,
+    inversa_gauss_jordan,
+    verificar_propiedad_5,
+    verificar_propiedad_6,
 )
 
-from programas.matrices.inversa import (
-    calcular_inversa,
+
+CATEGORIAS_PROPIEDADES = (
+    "Todas",
+    "Operaciones matriciales",
+    "Transposición",
+    "Matriz inversa",
+    "Determinantes",
+    "Operaciones de fila",
+    "Matriz triangular",
 )
 
-from programas.programa_6.factorizacion_lu import (
-    factorizar_lu,
-)
+
+CATEGORIA_POR_NOMBRE = {
+    "Asociativa del producto": "Operaciones matriciales",
+    "Distributiva izquierda": "Operaciones matriciales",
+    "Distributiva derecha": "Operaciones matriciales",
+    "Compatibilidad con escalar": "Operaciones matriciales",
+    "Identidad multiplicativa": "Operaciones matriciales",
+
+    "Transpuesta doble": "Transposición",
+    "Transpuesta de una suma": "Transposición",
+    "Transpuesta de un múltiplo": "Transposición",
+    "Transpuesta de un producto": "Transposición",
+    "Distributiva de escalar y transpuesta": "Transposición",
+
+    "Inversa de la inversa": "Matriz inversa",
+    "Inversa de la transpuesta": "Matriz inversa",
+    "Identidad de la inversa": "Matriz inversa",
+    "Inversa de un producto": "Matriz inversa",
+
+    "Determinante de la transpuesta": "Determinantes",
+    "Determinante de un producto": "Determinantes",
+    "Determinante de la inversa": "Determinantes",
+    "Determinante de un múltiplo": "Determinantes",
+
+    "Intercambio de filas": "Operaciones de fila",
+    "Reemplazo de fila": "Operaciones de fila",
+    "Escalamiento de una fila": "Operaciones de fila",
+
+    "Determinante de una matriz triangular": "Matriz triangular",
+}
 
 
 def _validar_matrices_cuadradas_mismo_orden(
@@ -39,14 +79,14 @@ def _validar_matrices_cuadradas_mismo_orden(
         "C": matriz_c,
     }
 
-    orden = len(
-        matriz_a
-    )
-
-    if orden == 0:
+    if not matriz_a or not matriz_a[0]:
         raise ValueError(
             "Las matrices no pueden estar vacías."
         )
+
+    orden = len(
+        matriz_a
+    )
 
     for nombre, matriz in matrices.items():
         if not matriz or not matriz[0]:
@@ -65,27 +105,6 @@ def _validar_matrices_cuadradas_mismo_orden(
             )
 
 
-def _identidad(orden):
-    """Construye la identidad de orden n."""
-    matriz = []
-
-    for i in range(orden):
-        fila = []
-
-        for j in range(orden):
-            fila.append(
-                Fraction(1)
-                if i == j
-                else Fraction(0)
-            )
-
-        matriz.append(
-            fila
-        )
-
-    return matriz
-
-
 def _resultado_doble(
     nombre,
     formula,
@@ -93,6 +112,21 @@ def _resultado_doble(
     lado_derecho,
 ):
     """Construye el resultado de una igualdad con dos miembros."""
+    if (
+        isinstance(lado_izquierdo, list)
+        and isinstance(lado_derecho, list)
+    ):
+        cumple = matrices_son_iguales(
+            lado_izquierdo,
+            lado_derecho,
+        )
+
+    else:
+        cumple = (
+            lado_izquierdo
+            == lado_derecho
+        )
+
     return {
         "nombre": nombre,
         "formula": formula,
@@ -100,7 +134,7 @@ def _resultado_doble(
         "aplicable": True,
         "lado_izquierdo": lado_izquierdo,
         "lado_derecho": lado_derecho,
-        "cumple": lado_izquierdo == lado_derecho,
+        "cumple": cumple,
     }
 
 
@@ -112,6 +146,31 @@ def _resultado_triple(
     miembro_3,
 ):
     """Construye el resultado de una igualdad con tres miembros."""
+    if all(
+        isinstance(miembro, list)
+        for miembro in (
+            miembro_1,
+            miembro_2,
+            miembro_3,
+        )
+    ):
+        cumple = (
+            matrices_son_iguales(
+                miembro_1,
+                miembro_2,
+            )
+            and matrices_son_iguales(
+                miembro_2,
+                miembro_3,
+            )
+        )
+
+    else:
+        cumple = (
+            miembro_1 == miembro_2
+            and miembro_2 == miembro_3
+        )
+
     return {
         "nombre": nombre,
         "formula": formula,
@@ -120,14 +179,15 @@ def _resultado_triple(
         "miembro_1": miembro_1,
         "miembro_2": miembro_2,
         "miembro_3": miembro_3,
-        "cumple": (
-            miembro_1 == miembro_2
-            and miembro_2 == miembro_3
-        ),
+        "cumple": cumple,
     }
 
 
-def _resultado_no_aplicable(nombre, formula, razon):
+def _resultado_no_aplicable(
+    nombre,
+    formula,
+    razon,
+):
     """Representa una propiedad cuya hipótesis matemática no se cumple."""
     return {
         "nombre": nombre,
@@ -140,8 +200,8 @@ def _resultado_no_aplicable(nombre, formula, razon):
 
 
 def _obtener_inversa(matriz):
-    """Devuelve A⁻¹ o None cuando la matriz es singular."""
-    resultado = calcular_inversa(
+    """Devuelve la inversa de una matriz o None cuando es singular."""
+    resultado = inversa_gauss_jordan(
         matriz
     )
 
@@ -155,67 +215,374 @@ def _obtener_inversa(matriz):
     ]
 
 
-def _intercambiar_dos_filas(matriz):
-    """Devuelve una copia de A con F₁ y F₂ intercambiadas."""
-    resultado = [
-        fila.copy()
-        for fila in matriz
-    ]
-
-    resultado[0], resultado[1] = (
-        resultado[1],
-        resultado[0],
+def _agregar_propiedades_inversa(
+    propiedades,
+    matriz_a,
+    matriz_b,
+    producto_ab,
+    transpuesta_a,
+    identidad,
+):
+    """Agrega las propiedades obligatorias relacionadas con la inversa."""
+    inversa_a = _obtener_inversa(
+        matriz_a
     )
 
-    return resultado
+    inversa_b = _obtener_inversa(
+        matriz_b
+    )
 
-
-def _reemplazar_fila(matriz, escalar):
-    """Devuelve A después de F₂ -> F₂ + rF₁."""
-    resultado = [
-        fila.copy()
-        for fila in matriz
-    ]
-
-    for j in range(
-        len(resultado[0])
-    ):
-        resultado[1][j] += (
-            escalar
-            * resultado[0][j]
+    if inversa_a is None:
+        propiedades.extend(
+            [
+                _resultado_no_aplicable(
+                    "Inversa de la inversa",
+                    "(A⁻¹)⁻¹ = A",
+                    "A es singular.",
+                ),
+                _resultado_no_aplicable(
+                    "Inversa de la transpuesta",
+                    "(Aᵀ)⁻¹ = (A⁻¹)ᵀ",
+                    "A es singular.",
+                ),
+                _resultado_no_aplicable(
+                    "Identidad de la inversa",
+                    "A·A⁻¹ = I = A⁻¹·A",
+                    "A es singular.",
+                ),
+            ]
         )
 
-    return resultado
+    else:
+        inversa_inversa = _obtener_inversa(
+            inversa_a
+        )
+
+        inversa_transpuesta = _obtener_inversa(
+            transpuesta_a
+        )
+
+        propiedades.append(
+            _resultado_doble(
+                "Inversa de la inversa",
+                "(A⁻¹)⁻¹ = A",
+                inversa_inversa,
+                matriz_a,
+            )
+        )
+
+        propiedades.append(
+            _resultado_doble(
+                "Inversa de la transpuesta",
+                "(Aᵀ)⁻¹ = (A⁻¹)ᵀ",
+                inversa_transpuesta,
+                transponer(
+                    inversa_a
+                ),
+            )
+        )
+
+        producto_a_inversa = producto_matricial(
+            matriz_a,
+            inversa_a,
+        )
+
+        producto_inversa_a = producto_matricial(
+            inversa_a,
+            matriz_a,
+        )
+
+        propiedades.append(
+            _resultado_triple(
+                "Identidad de la inversa",
+                "A·A⁻¹ = I = A⁻¹·A",
+                producto_a_inversa,
+                identidad,
+                producto_inversa_a,
+            )
+        )
+
+    if inversa_a is None or inversa_b is None:
+        propiedades.append(
+            _resultado_no_aplicable(
+                "Inversa de un producto",
+                "(AB)⁻¹ = B⁻¹A⁻¹",
+                "A y B deben ser invertibles.",
+            )
+        )
+
+    else:
+        propiedades.append(
+            _resultado_doble(
+                "Inversa de un producto",
+                "(AB)⁻¹ = B⁻¹A⁻¹",
+                _obtener_inversa(
+                    producto_ab
+                ),
+                producto_matricial(
+                    inversa_b,
+                    inversa_a,
+                ),
+            )
+        )
+
+    return inversa_a
 
 
-def _escalar_primera_fila(matriz, escalar):
-    """Devuelve A después de F₁ -> rF₁."""
-    resultado = [
-        fila.copy()
-        for fila in matriz
-    ]
-
-    for j in range(
-        len(resultado[0])
-    ):
-        resultado[0][j] *= escalar
-
-    return resultado
-
-
-def _producto_diagonal(matriz):
-    """Calcula el producto de la diagonal principal."""
-    producto = Fraction(1)
-
-    limite = min(
-        len(matriz),
-        len(matriz[0]),
+def _agregar_propiedades_filas(
+    propiedades,
+    matriz_a,
+    escalar,
+):
+    """Reutiliza el verificador de operaciones de fila del Módulo IV."""
+    orden = len(
+        matriz_a
     )
 
-    for i in range(limite):
-        producto *= matriz[i][i]
+    if orden < 2:
+        razon = (
+            "Se necesita una matriz de orden mínimo 2."
+        )
 
-    return producto
+        propiedades.extend(
+            [
+                _resultado_no_aplicable(
+                    "Intercambio de filas",
+                    "det(F₁ ↔ F₂) = -det(A)",
+                    razon,
+                ),
+                _resultado_no_aplicable(
+                    "Reemplazo de fila",
+                    "det(F₂ → F₂ + rF₁) = det(A)",
+                    razon,
+                ),
+                _resultado_no_aplicable(
+                    "Escalamiento de una fila",
+                    "det(F₁ → rF₁) = r·det(A)",
+                    razon,
+                ),
+            ]
+        )
+
+        return
+
+    if escalar == 0:
+        escalar_fila = Fraction(1)
+
+    else:
+        escalar_fila = escalar
+
+    resultado = verificar_propiedad_5(
+        matriz_a,
+        0,
+        1,
+        escalar,
+        0,
+        escalar_fila,
+    )
+
+    propiedades.append(
+        _resultado_doble(
+            "Intercambio de filas",
+            "det(F₁ ↔ F₂) = -det(A)",
+            resultado[
+                "intercambio"
+            ][
+                "determinante_obtenido"
+            ],
+            resultado[
+                "intercambio"
+            ][
+                "valor_esperado"
+            ],
+        )
+    )
+
+    propiedades.append(
+        _resultado_doble(
+            "Reemplazo de fila",
+            "det(F₂ → F₂ + rF₁) = det(A)",
+            resultado[
+                "reemplazo"
+            ][
+                "determinante_obtenido"
+            ],
+            resultado[
+                "reemplazo"
+            ][
+                "valor_esperado"
+            ],
+        )
+    )
+
+    formula_escalamiento = (
+        "det(F₁ → rF₁) = r·det(A)"
+        if escalar != 0
+        else "det(F₁ → 1F₁) = 1·det(A)"
+    )
+
+    propiedades.append(
+        _resultado_doble(
+            "Escalamiento de una fila",
+            formula_escalamiento,
+            resultado[
+                "escalamiento"
+            ][
+                "determinante_obtenido"
+            ],
+            resultado[
+                "escalamiento"
+            ][
+                "valor_esperado"
+            ],
+        )
+    )
+
+
+def _asignar_metadatos(propiedades):
+    """Añade número y categoría a cada propiedad ya calculada."""
+    for numero, propiedad in enumerate(
+        propiedades,
+        start=1,
+    ):
+        propiedad[
+            "numero"
+        ] = numero
+
+        propiedad[
+            "categoria"
+        ] = CATEGORIA_POR_NOMBRE.get(
+            propiedad[
+                "nombre"
+            ],
+            "Otras",
+        )
+
+
+def _normalizar_busqueda(texto):
+    """Normaliza texto y notación para permitir búsquedas flexibles."""
+    texto = str(
+        texto
+    ).strip().lower()
+
+    texto = texto.replace(
+        "⁻¹",
+        "^-1",
+    )
+
+    texto = texto.replace(
+        "ᵀ",
+        "^t",
+    )
+
+    texto = texto.replace(
+        "ⁿ",
+        "^n",
+    )
+
+    texto = texto.replace(
+        "·",
+        "*",
+    )
+
+    texto = texto.replace(
+        "×",
+        "*",
+    )
+
+    texto = texto.replace(
+        "−",
+        "-",
+    )
+
+    texto = "".join(
+        caracter
+        for caracter in unicodedata.normalize(
+            "NFD",
+            texto,
+        )
+        if unicodedata.category(
+            caracter
+        ) != "Mn"
+    )
+
+    return " ".join(
+        texto.split()
+    )
+
+
+def obtener_categorias_propiedades():
+    """Devuelve las categorías disponibles para filtrar propiedades."""
+    return list(
+        CATEGORIAS_PROPIEDADES
+    )
+
+
+def filtrar_propiedades(
+    resultado,
+    texto_busqueda="",
+    categoria="Todas",
+):
+    """Filtra resultados ya calculados por número, nombre, fórmula o categoría."""
+    if categoria not in CATEGORIAS_PROPIEDADES:
+        raise ValueError(
+            "La categoría seleccionada no es válida."
+        )
+
+    texto_normalizado = _normalizar_busqueda(
+        texto_busqueda
+    )
+
+    propiedades_filtradas = []
+
+    for propiedad in resultado[
+        "propiedades"
+    ]:
+        if (
+            categoria != "Todas"
+            and propiedad[
+                "categoria"
+            ] != categoria
+        ):
+            continue
+
+        if not texto_normalizado:
+            propiedades_filtradas.append(
+                propiedad
+            )
+            continue
+
+        campos = (
+            str(
+                propiedad[
+                    "numero"
+                ]
+            ),
+            propiedad[
+                "nombre"
+            ],
+            propiedad[
+                "formula"
+            ],
+            propiedad[
+                "categoria"
+            ],
+        )
+
+        coincide = any(
+            texto_normalizado
+            in _normalizar_busqueda(
+                campo
+            )
+            for campo in campos
+        )
+
+        if coincide:
+            propiedades_filtradas.append(
+                propiedad
+            )
+
+    return propiedades_filtradas
 
 
 def verificar_propiedades_consolidadas(
@@ -224,7 +591,7 @@ def verificar_propiedades_consolidadas(
     matriz_c,
     escalar,
 ):
-    """Evalúa el conjunto consolidado usando A, B, C y r una sola vez."""
+    """Evalúa las propiedades usando A, B, C y r sin reingresar resultados."""
     _validar_matrices_cuadradas_mismo_orden(
         matriz_a,
         matriz_b,
@@ -239,61 +606,61 @@ def verificar_propiedades_consolidadas(
         matriz_a
     )
 
-    identidad = _identidad(
+    identidad = crear_identidad(
         orden
     )
 
     propiedades = []
 
-    suma_ab = sumar_matrices(
+    suma_ab = sumar(
         matriz_a,
-        matriz_b
-    )
-
-    suma_bc = sumar_matrices(
         matriz_b,
-        matriz_c
     )
 
-    producto_ab = multiplicar_matrices(
+    suma_bc = sumar(
+        matriz_b,
+        matriz_c,
+    )
+
+    producto_ab = producto_matricial(
         matriz_a,
-        matriz_b
-    )
-
-    producto_bc = multiplicar_matrices(
         matriz_b,
-        matriz_c
     )
 
-    transpuesta_a = transponer_matriz(
+    producto_bc = producto_matricial(
+        matriz_b,
+        matriz_c,
+    )
+
+    transpuesta_a = transponer(
         matriz_a
     )
 
-    transpuesta_b = transponer_matriz(
+    transpuesta_b = transponer(
         matriz_b
     )
 
-    r_a = multiplicar_matriz_escalar(
+    r_a = multiplicar_por_escalar(
         matriz_a,
-        escalar
+        escalar,
     )
 
-    r_b = multiplicar_matriz_escalar(
+    r_b = multiplicar_por_escalar(
         matriz_b,
-        escalar
+        escalar,
     )
 
     propiedades.append(
         _resultado_doble(
             "Asociativa del producto",
             "A(BC) = (AB)C",
-            multiplicar_matrices(
+            producto_matricial(
                 matriz_a,
-                producto_bc
+                producto_bc,
             ),
-            multiplicar_matrices(
+            producto_matricial(
                 producto_ab,
-                matriz_c
+                matriz_c,
             ),
         )
     )
@@ -302,15 +669,15 @@ def verificar_propiedades_consolidadas(
         _resultado_doble(
             "Distributiva izquierda",
             "A(B + C) = AB + AC",
-            multiplicar_matrices(
+            producto_matricial(
                 matriz_a,
-                suma_bc
+                suma_bc,
             ),
-            sumar_matrices(
+            sumar(
                 producto_ab,
-                multiplicar_matrices(
+                producto_matricial(
                     matriz_a,
-                    matriz_c
+                    matriz_c,
                 ),
             ),
         )
@@ -320,18 +687,18 @@ def verificar_propiedades_consolidadas(
         _resultado_doble(
             "Distributiva derecha",
             "(B + C)A = BA + CA",
-            multiplicar_matrices(
+            producto_matricial(
                 suma_bc,
-                matriz_a
+                matriz_a,
             ),
-            sumar_matrices(
-                multiplicar_matrices(
+            sumar(
+                producto_matricial(
                     matriz_b,
-                    matriz_a
+                    matriz_a,
                 ),
-                multiplicar_matrices(
+                producto_matricial(
                     matriz_c,
-                    matriz_a
+                    matriz_a,
                 ),
             ),
         )
@@ -341,17 +708,17 @@ def verificar_propiedades_consolidadas(
         _resultado_triple(
             "Compatibilidad con escalar",
             "r(AB) = (rA)B = A(rB)",
-            multiplicar_matriz_escalar(
+            multiplicar_por_escalar(
                 producto_ab,
-                escalar
+                escalar,
             ),
-            multiplicar_matrices(
+            producto_matricial(
                 r_a,
-                matriz_b
+                matriz_b,
             ),
-            multiplicar_matrices(
+            producto_matricial(
                 matriz_a,
-                r_b
+                r_b,
             ),
         )
     )
@@ -360,14 +727,14 @@ def verificar_propiedades_consolidadas(
         _resultado_triple(
             "Identidad multiplicativa",
             "IA = A = AI",
-            multiplicar_matrices(
+            producto_matricial(
                 identidad,
-                matriz_a
+                matriz_a,
             ),
             matriz_a,
-            multiplicar_matrices(
+            producto_matricial(
                 matriz_a,
-                identidad
+                identidad,
             ),
         )
     )
@@ -376,7 +743,7 @@ def verificar_propiedades_consolidadas(
         _resultado_doble(
             "Transpuesta doble",
             "(Aᵀ)ᵀ = A",
-            transponer_matriz(
+            transponer(
                 transpuesta_a
             ),
             matriz_a,
@@ -387,12 +754,12 @@ def verificar_propiedades_consolidadas(
         _resultado_doble(
             "Transpuesta de una suma",
             "(A + B)ᵀ = Aᵀ + Bᵀ",
-            transponer_matriz(
+            transponer(
                 suma_ab
             ),
-            sumar_matrices(
+            sumar(
                 transpuesta_a,
-                transpuesta_b
+                transpuesta_b,
             ),
         )
     )
@@ -401,12 +768,12 @@ def verificar_propiedades_consolidadas(
         _resultado_doble(
             "Transpuesta de un múltiplo",
             "(rA)ᵀ = rAᵀ",
-            transponer_matriz(
+            transponer(
                 r_a
             ),
-            multiplicar_matriz_escalar(
+            multiplicar_por_escalar(
                 transpuesta_a,
-                escalar
+                escalar,
             ),
         )
     )
@@ -415,12 +782,12 @@ def verificar_propiedades_consolidadas(
         _resultado_doble(
             "Transpuesta de un producto",
             "(AB)ᵀ = BᵀAᵀ",
-            transponer_matriz(
+            transponer(
                 producto_ab
             ),
-            multiplicar_matrices(
+            producto_matricial(
                 transpuesta_b,
-                transpuesta_a
+                transpuesta_a,
             ),
         )
     )
@@ -429,116 +796,47 @@ def verificar_propiedades_consolidadas(
         _resultado_doble(
             "Distributiva de escalar y transpuesta",
             "(r(A + B))ᵀ = rAᵀ + rBᵀ",
-            transponer_matriz(
-                multiplicar_matriz_escalar(
+            transponer(
+                multiplicar_por_escalar(
                     suma_ab,
-                    escalar
+                    escalar,
                 )
             ),
-            sumar_matrices(
-                multiplicar_matriz_escalar(
+            sumar(
+                multiplicar_por_escalar(
                     transpuesta_a,
-                    escalar
+                    escalar,
                 ),
-                multiplicar_matriz_escalar(
+                multiplicar_por_escalar(
                     transpuesta_b,
-                    escalar
+                    escalar,
                 ),
             ),
         )
     )
 
-    inversa_a = _obtener_inversa(
+    inversa_a = _agregar_propiedades_inversa(
+        propiedades,
+        matriz_a,
+        matriz_b,
+        producto_ab,
+        transpuesta_a,
+        identidad,
+    )
+
+    determinante_a = determinante(
         matriz_a
     )
 
-    inversa_b = _obtener_inversa(
+    determinante_b = determinante(
         matriz_b
-    )
-
-    if inversa_a is None:
-        propiedades.append(
-            _resultado_no_aplicable(
-                "Inversa de la inversa",
-                "(A⁻¹)⁻¹ = A",
-                "A es singular."
-            )
-        )
-
-        propiedades.append(
-            _resultado_no_aplicable(
-                "Inversa de la transpuesta",
-                "(Aᵀ)⁻¹ = (A⁻¹)ᵀ",
-                "A es singular."
-            )
-        )
-
-    else:
-        propiedades.append(
-            _resultado_doble(
-                "Inversa de la inversa",
-                "(A⁻¹)⁻¹ = A",
-                _obtener_inversa(
-                    inversa_a
-                ),
-                matriz_a,
-            )
-        )
-
-        propiedades.append(
-            _resultado_doble(
-                "Inversa de la transpuesta",
-                "(Aᵀ)⁻¹ = (A⁻¹)ᵀ",
-                _obtener_inversa(
-                    transpuesta_a
-                ),
-                transponer_matriz(
-                    inversa_a
-                ),
-            )
-        )
-
-    if inversa_a is None or inversa_b is None:
-        propiedades.append(
-            _resultado_no_aplicable(
-                "Inversa de un producto",
-                "(AB)⁻¹ = B⁻¹A⁻¹",
-                "A y B deben ser invertibles."
-            )
-        )
-
-    else:
-        propiedades.append(
-            _resultado_doble(
-                "Inversa de un producto",
-                "(AB)⁻¹ = B⁻¹A⁻¹",
-                _obtener_inversa(
-                    producto_ab
-                ),
-                multiplicar_matrices(
-                    inversa_b,
-                    inversa_a
-                ),
-            )
-        )
-
-    determinante_a = calcular_determinante(
-        matriz_a
-    )
-
-    determinante_b = calcular_determinante(
-        matriz_b
-    )
-
-    determinante_ab = calcular_determinante(
-        producto_ab
     )
 
     propiedades.append(
         _resultado_doble(
             "Determinante de la transpuesta",
             "det(Aᵀ) = det(A)",
-            calcular_determinante(
+            determinante(
                 transpuesta_a
             ),
             determinante_a,
@@ -549,8 +847,11 @@ def verificar_propiedades_consolidadas(
         _resultado_doble(
             "Determinante de un producto",
             "det(AB) = det(A)det(B)",
-            determinante_ab,
-            determinante_a * determinante_b,
+            determinante(
+                producto_ab
+            ),
+            determinante_a
+            * determinante_b,
         )
     )
 
@@ -559,15 +860,16 @@ def verificar_propiedades_consolidadas(
             _resultado_no_aplicable(
                 "Determinante de la inversa",
                 "det(A⁻¹) = 1/det(A)",
-                "A es singular."
+                "A es singular.",
             )
         )
+
     else:
         propiedades.append(
             _resultado_doble(
                 "Determinante de la inversa",
                 "det(A⁻¹) = 1/det(A)",
-                calcular_determinante(
+                determinante(
                     inversa_a
                 ),
                 Fraction(1, 1)
@@ -579,7 +881,7 @@ def verificar_propiedades_consolidadas(
         _resultado_doble(
             "Determinante de un múltiplo",
             "det(rA) = rⁿdet(A)",
-            calcular_determinante(
+            determinante(
                 r_a
             ),
             (escalar ** orden)
@@ -587,109 +889,47 @@ def verificar_propiedades_consolidadas(
         )
     )
 
-    if orden >= 2:
-        matriz_intercambio = _intercambiar_dos_filas(
-            matriz_a
-        )
-
-        propiedades.append(
-            _resultado_doble(
-                "Intercambio de filas",
-                "det(F₁ ↔ F₂) = -det(A)",
-                calcular_determinante(
-                    matriz_intercambio
-                ),
-                -determinante_a,
-            )
-        )
-
-        matriz_reemplazo = _reemplazar_fila(
-            matriz_a,
-            escalar
-        )
-
-        propiedades.append(
-            _resultado_doble(
-                "Reemplazo de fila",
-                "det(F₂ → F₂ + rF₁) = det(A)",
-                calcular_determinante(
-                    matriz_reemplazo
-                ),
-                determinante_a,
-            )
-        )
-    else:
-        propiedades.append(
-            _resultado_no_aplicable(
-                "Intercambio de filas",
-                "det(F₁ ↔ F₂) = -det(A)",
-                "Se necesita una matriz de orden mínimo 2."
-            )
-        )
-
-        propiedades.append(
-            _resultado_no_aplicable(
-                "Reemplazo de fila",
-                "det(F₂ → F₂ + rF₁) = det(A)",
-                "Se necesita una matriz de orden mínimo 2."
-            )
-        )
-
-    matriz_escalada = _escalar_primera_fila(
+    _agregar_propiedades_filas(
+        propiedades,
         matriz_a,
-        escalar
+        escalar,
+    )
+
+    triangular = verificar_propiedad_6(
+        matriz_a
     )
 
     propiedades.append(
         _resultado_doble(
-            "Escalamiento de una fila",
-            "det(F₁ → rF₁) = r·det(A)",
-            calcular_determinante(
-                matriz_escalada
-            ),
-            escalar * determinante_a,
+            "Determinante de una matriz triangular",
+            "det(A) = determinante obtenido desde su forma triangular",
+            triangular[
+                "determinante_cofactores"
+            ],
+            triangular[
+                "determinante_triangular"
+            ],
         )
     )
 
-    try:
-        factorizacion = factorizar_lu(
-            matriz_a
-        )
-
-        producto_diagonal = _producto_diagonal(
-            factorizacion[
-                "matriz_u"
-            ]
-        )
-
-        propiedades.append(
-            _resultado_doble(
-                "Determinante triangular mediante LU",
-                "det(A) = producto de la diagonal de U",
-                determinante_a,
-                producto_diagonal,
-            )
-        )
-
-    except ValueError as error:
-        propiedades.append(
-            _resultado_no_aplicable(
-                "Determinante triangular mediante LU",
-                "det(A) = producto de la diagonal de U",
-                str(error)
-            )
-        )
+    _asignar_metadatos(
+        propiedades
+    )
 
     aplicables = [
         propiedad
         for propiedad in propiedades
-        if propiedad["aplicable"]
+        if propiedad[
+            "aplicable"
+        ]
     ]
 
     cumplidas = [
         propiedad
         for propiedad in aplicables
-        if propiedad["cumple"]
+        if propiedad[
+            "cumple"
+        ]
     ]
 
     return {
@@ -698,9 +938,15 @@ def verificar_propiedades_consolidadas(
         "matriz_c": matriz_c,
         "escalar": escalar,
         "propiedades": propiedades,
-        "total": len(propiedades),
-        "aplicables": len(aplicables),
-        "cumplidas": len(cumplidas),
+        "total": len(
+            propiedades
+        ),
+        "aplicables": len(
+            aplicables
+        ),
+        "cumplidas": len(
+            cumplidas
+        ),
         "todas_cumplen": (
             len(aplicables)
             == len(cumplidas)

@@ -41,7 +41,6 @@ from utilidades.formato_propiedades_programa_5 import (
     formatear_propiedad,
 )
 
-
 from utilidades.formato_analisis_matricial_integrado import (
     formatear_determinante_integrado,
     formatear_adjunta_inversa_integrada,
@@ -49,6 +48,7 @@ from utilidades.formato_analisis_matricial_integrado import (
     formatear_propiedades_integradas,
     formatear_resumen_integrado,
 )
+
 
 class EntradaMatrizCuadrada(ttk.LabelFrame):
     """Gestiona una matriz cuadrada editable con orden configurable."""
@@ -1158,6 +1158,8 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
                 5,
             "6. Determinante de una matriz triangular":
                 6,
+            "7. Identidad de la inversa — A·A⁻¹ = I = A⁻¹·A":
+                7,
         }
 
         propiedades = ttk.Combobox(
@@ -1352,7 +1354,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
         )
 
     def _resolver_propiedad(self):
-        """Ejecuta y presenta una de las seis propiedades."""
+        """Ejecuta y presenta una de las siete propiedades."""
         try:
             nombre_propiedad = (
                 self.propiedad_seleccionada.get()
@@ -1590,5 +1592,3 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
                 "Error",
                 str(error),
             )
-
-

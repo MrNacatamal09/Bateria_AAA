@@ -1,6 +1,6 @@
 """
 Expone las funciones oficiales del módulo de Factorización LU.
-Reutiliza motores matemáticos y propiedades sin mezclar interfaz y cálculo.
+Reutiliza motores matemáticos, propiedades y filtros sin mezclar interfaz y cálculo.
 Tema de clase: descomposición A = LU y resolución de sistemas Ax = b.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
@@ -12,6 +12,8 @@ from programas.programa_6.factorizacion_lu import (
 
 from programas.programa_6.propiedades_consolidadas import (
     verificar_propiedades_consolidadas,
+    obtener_categorias_propiedades as obtener_categorias_propiedades_motor,
+    filtrar_propiedades as filtrar_propiedades_motor,
 )
 
 from teoremas.resumen_teoremas_lu import (
@@ -57,6 +59,24 @@ def verificar_propiedades(
         matriz_b,
         matriz_c,
         escalar,
+    )
+
+
+def obtener_categorias_propiedades():
+    """Devuelve las categorías disponibles para filtrar propiedades."""
+    return obtener_categorias_propiedades_motor()
+
+
+def filtrar_resultados_propiedades(
+    resultado,
+    texto_busqueda="",
+    categoria="Todas",
+):
+    """Filtra propiedades ya calculadas sin volver a ejecutar operaciones."""
+    return filtrar_propiedades_motor(
+        resultado,
+        texto_busqueda,
+        categoria,
     )
 
 
