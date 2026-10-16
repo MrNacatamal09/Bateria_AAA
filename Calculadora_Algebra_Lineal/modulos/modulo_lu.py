@@ -1,6 +1,6 @@
 """
 Expone las funciones oficiales del módulo de Factorización LU.
-Reutiliza motores matemáticos, propiedades y filtros sin mezclar interfaz y cálculo.
+Reutiliza los motores matemáticos sin mezclar interfaz y cálculo.
 Tema de clase: descomposición A = LU y resolución de sistemas Ax = b.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
@@ -8,12 +8,6 @@ Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 from programas.programa_6.factorizacion_lu import (
     factorizar_lu,
     resolver_sistema_lu,
-)
-
-from programas.programa_6.propiedades_consolidadas import (
-    verificar_propiedades_consolidadas,
-    obtener_categorias_propiedades as obtener_categorias_propiedades_motor,
-    filtrar_propiedades as filtrar_propiedades_motor,
 )
 
 from teoremas.resumen_teoremas_lu import (
@@ -28,7 +22,6 @@ OPCIONES_MENU = {
     0: "Ver Teoremas Clave del Módulo",
     1: "Factorización A = LU",
     2: "Resolver Ax = b mediante LU",
-    3: "Propiedades Consolidadas",
 }
 
 
@@ -39,44 +32,14 @@ def obtener_factorizacion(matriz_a):
     )
 
 
-def resolver_por_lu(matriz_a, vector_b):
+def resolver_por_lu(
+    matriz_a,
+    vector_b,
+):
     """Resuelve Ax=b mediante A=LU, Ly=b y Ux=y."""
     return resolver_sistema_lu(
         matriz_a,
-        vector_b
-    )
-
-
-def verificar_propiedades(
-    matriz_a,
-    matriz_b,
-    matriz_c,
-    escalar,
-):
-    """Evalúa el conjunto consolidado de propiedades matriciales."""
-    return verificar_propiedades_consolidadas(
-        matriz_a,
-        matriz_b,
-        matriz_c,
-        escalar,
-    )
-
-
-def obtener_categorias_propiedades():
-    """Devuelve las categorías disponibles para filtrar propiedades."""
-    return obtener_categorias_propiedades_motor()
-
-
-def filtrar_resultados_propiedades(
-    resultado,
-    texto_busqueda="",
-    categoria="Todas",
-):
-    """Filtra propiedades ya calculadas sin volver a ejecutar operaciones."""
-    return filtrar_propiedades_motor(
-        resultado,
-        texto_busqueda,
-        categoria,
+        vector_b,
     )
 
 
@@ -106,7 +69,7 @@ def obtener_descripcion_modulo():
     """Devuelve una descripción breve del módulo."""
     return (
         "Este módulo descompone A en L·U, conserva los multiplicadores "
-        "de eliminación, resuelve Ax=b y consolida propiedades matriciales."
+        "de eliminación y resuelve sistemas Ax=b mediante LU."
     )
 
 

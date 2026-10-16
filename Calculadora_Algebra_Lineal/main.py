@@ -1,6 +1,6 @@
 """
 Construye la ventana principal de la Calculadora de Álgebra Lineal.
-Organiza los cinco módulos y coloca los teoremas dentro de cada uno.
+Organiza cinco módulos numerados y una sección general de Propiedades.
 Tema de clase: integración de los Programas 1 al 6 por módulos.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
@@ -16,6 +16,7 @@ from interfaz.programa_4_interfaz import Programa4Interfaz
 from interfaz.modulo_matrices_interfaz import ModuloMatricesInterfaz
 from interfaz.modulo_determinantes_interfaz import ModuloDeterminantesInterfaz
 from interfaz.modulo_lu_interfaz import ModuloLUInterfaz
+from interfaz.modulo_propiedades_interfaz import ModuloPropiedadesInterfaz
 
 from modulos.modulo_sistemas import (
     obtener_logo_modulo as obtener_logo_sistemas,
@@ -45,12 +46,16 @@ from modulos.modulo_lu import (
     obtener_logo_modulo as obtener_logo_lu,
 )
 
+from modulos.modulo_propiedades import (
+    obtener_logo_modulo as obtener_logo_propiedades,
+)
+
 
 class CalculadoraAlgebraLineal:
-    """Organiza la interfaz principal de la calculadora por módulos."""
+    """Organiza la interfaz principal de la calculadora por secciones."""
 
     def __init__(self, ventana):
-        """Inicializa la ventana principal y construye sus módulos."""
+        """Inicializa la ventana principal y construye sus secciones."""
         self.ventana = ventana
         self.ultimo_modulo = None
 
@@ -73,7 +78,7 @@ class CalculadoraAlgebraLineal:
         )
 
     def _crear_interfaz(self):
-        """Construye el encabezado y los cinco módulos principales."""
+        """Construye el encabezado, los cinco módulos y Propiedades."""
         encabezado = ttk.Frame(
             self.ventana
         )
@@ -121,6 +126,7 @@ class CalculadoraAlgebraLineal:
         self._crear_modulo_matrices()
         self._crear_modulo_determinantes()
         self._crear_modulo_lu()
+        self._crear_propiedades()
 
         self.cuaderno_modulos.bind(
             "<<NotebookTabChanged>>",
@@ -341,6 +347,26 @@ class CalculadoraAlgebraLineal:
             expand=True,
         )
 
+    def _crear_propiedades(self):
+        """Construye la sección general de Propiedades."""
+        self.propiedades = ttk.Frame(
+            self.cuaderno_modulos
+        )
+
+        self.cuaderno_modulos.add(
+            self.propiedades,
+            text="Propiedades",
+        )
+
+        self.propiedades_interfaz = ModuloPropiedadesInterfaz(
+            self.propiedades
+        )
+
+        self.propiedades_interfaz.pack(
+            fill="both",
+            expand=True,
+        )
+
     def _crear_encabezado_modulo(
         self,
         contenedor,
@@ -439,8 +465,11 @@ class CalculadoraAlgebraLineal:
             state="disabled"
         )
 
-    def _cambiar_modulo(self, evento=None):
-        """Muestra el logotipo del módulo cuando cambia la pestaña principal."""
+    def _cambiar_modulo(
+        self,
+        evento=None,
+    ):
+        """Muestra el logotipo correspondiente al cambiar de sección."""
         indice = self.cuaderno_modulos.index(
             self.cuaderno_modulos.select()
         )
@@ -453,7 +482,7 @@ class CalculadoraAlgebraLineal:
         self,
         numero_modulo,
     ):
-        """Imprime una sola vez el logotipo del módulo seleccionado."""
+        """Imprime una sola vez el logotipo de la sección seleccionada."""
         if self.ultimo_modulo == numero_modulo:
             return
 
@@ -465,6 +494,7 @@ class CalculadoraAlgebraLineal:
             3: obtener_logo_matrices,
             4: obtener_logo_determinantes,
             5: obtener_logo_lu,
+            6: obtener_logo_propiedades,
         }
 
         obtener_logo = logos.get(
