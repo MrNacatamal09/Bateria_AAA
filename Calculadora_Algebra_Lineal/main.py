@@ -1,7 +1,7 @@
 """
 Construye la ventana principal de la Calculadora de Álgebra Lineal.
-Organiza cinco módulos numerados y una sección general de Propiedades.
-Tema de clase: integración de los Programas 1 al 6 por módulos.
+Organiza seis módulos numerados y una sección general de Propiedades.
+Tema de clase: integración de los Programas 1 al 7 por módulos.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
@@ -17,6 +17,7 @@ from interfaz.modulo_matrices_interfaz import ModuloMatricesInterfaz
 from interfaz.modulo_determinantes_interfaz import ModuloDeterminantesInterfaz
 from interfaz.modulo_lu_interfaz import ModuloLUInterfaz
 from interfaz.modulo_propiedades_interfaz import ModuloPropiedadesInterfaz
+from interfaz.modulo_numerico_interfaz import ModuloNumericoInterfaz
 
 from modulos.modulo_sistemas import (
     obtener_logo_modulo as obtener_logo_sistemas,
@@ -49,6 +50,9 @@ from modulos.modulo_lu import (
 from modulos.modulo_propiedades import (
     obtener_logo_modulo as obtener_logo_propiedades,
 )
+from modulos.modulo_numerico import (
+    obtener_logo_modulo as obtener_logo_numerico,
+)
 
 
 class CalculadoraAlgebraLineal:
@@ -78,7 +82,7 @@ class CalculadoraAlgebraLineal:
         )
 
     def _crear_interfaz(self):
-        """Construye el encabezado, los cinco módulos y Propiedades."""
+        """Construye el encabezado, los seis módulos y Propiedades."""
         encabezado = ttk.Frame(
             self.ventana
         )
@@ -126,6 +130,7 @@ class CalculadoraAlgebraLineal:
         self._crear_modulo_matrices()
         self._crear_modulo_determinantes()
         self._crear_modulo_lu()
+        self._crear_modulo_numerico()
         self._crear_propiedades()
 
         self.cuaderno_modulos.bind(
@@ -367,6 +372,16 @@ class CalculadoraAlgebraLineal:
             expand=True,
         )
 
+    def _crear_modulo_numerico(self):
+        """Integra las cuatro opciones del Programa 7 en el Módulo 6."""
+        self.modulo_numerico = ttk.Frame(self.cuaderno_modulos)
+        self.cuaderno_modulos.add(
+            self.modulo_numerico,
+            text="Módulo 6 - Métodos Numéricos",
+        )
+        self.modulo_numerico_interfaz = ModuloNumericoInterfaz(self.modulo_numerico)
+        self.modulo_numerico_interfaz.pack(fill="both", expand=True)
+
     def _crear_encabezado_modulo(
         self,
         contenedor,
@@ -494,7 +509,8 @@ class CalculadoraAlgebraLineal:
             3: obtener_logo_matrices,
             4: obtener_logo_determinantes,
             5: obtener_logo_lu,
-            6: obtener_logo_propiedades,
+            6: obtener_logo_numerico,
+            7: obtener_logo_propiedades,
         }
 
         obtener_logo = logos.get(

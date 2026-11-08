@@ -52,6 +52,18 @@ MODULOS_PROHIBIDOS = {
 }
 
 
+# El Programa 7 permite math, NumPy y SciPy para contraste; esta auditoría
+# conserva la restricción histórica solamente para los Programas 1 al 6.
+ARCHIVOS_PROGRAMA_7 = {
+    "programas/programa_7/metodos_numericos.py",
+    "programas/programa_7/__init__.py",
+    "modulos/modulo_numerico.py",
+    "controladores/modulo_numerico_controller.py",
+    "interfaz/modulo_numerico_interfaz.py",
+    "utilidades/formato_numerico.py",
+}
+
+
 def cargar_arbol(ruta):
     """Lee un archivo Python y devuelve su árbol sintáctico."""
     contenido = ruta.read_text(
@@ -87,10 +99,12 @@ def auditar_sintaxis():
 
 
 def auditar_imports_prohibidos():
-    """Busca imports de math, NumPy o SciPy en todos los archivos Python."""
+    """Busca imports prohibidos en archivos previos al Programa 7."""
     errores = []
 
     for ruta in RAIZ.rglob("*.py"):
+        if ruta.relative_to(RAIZ).as_posix() in ARCHIVOS_PROGRAMA_7:
+            continue
         try:
             arbol = cargar_arbol(
                 ruta
