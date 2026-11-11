@@ -53,6 +53,8 @@ from modulos.modulo_propiedades import (
 from modulos.modulo_numerico import (
     obtener_logo_modulo as obtener_logo_numerico,
 )
+from utilidades.tema_interfaz import COLORES, aplicar_tema, crear_marca, crear_acento
+from utilidades.buscador_temas import BuscadorTemas
 
 
 class CalculadoraAlgebraLineal:
@@ -63,66 +65,139 @@ class CalculadoraAlgebraLineal:
         self.ventana = ventana
         self.ultimo_modulo = None
 
+        aplicar_tema(self.ventana)
         self._configurar_ventana()
         self._crear_interfaz()
 
     def _configurar_ventana(self):
         """Configura título, tamaño inicial y tamaño mínimo."""
         self.ventana.title(
-            "Calculadora de Álgebra Lineal"
-        )
-
-        self.ventana.geometry(
-            "1200x800"
+            "Batería AAA"
         )
 
         self.ventana.minsize(
             1000,
             700,
         )
+        self.ventana.geometry("1200x800")
+        try:
+            self.ventana.state("zoomed")
+        except tk.TclError:
+            try:
+                self.ventana.attributes("-zoomed", True)
+            except tk.TclError:
+                pass
 
     def _crear_interfaz(self):
-        """Construye el encabezado, los seis módulos y Propiedades."""
-        encabezado = ttk.Frame(
-            self.ventana
+        """Construye la barra lateral y el área de cálculo."""
+        crear_acento(self.ventana).pack(fill="x")
+
+        disposicion = ttk.Frame(
+            self.ventana,
+            style="Cabecera.TFrame",
+        )
+        disposicion.pack(
+            fill="both",
+            expand=True,
         )
 
-        encabezado.pack(
-            fill="x",
-            padx=15,
-            pady=(8, 2),
+        self.barra_lateral = ttk.Frame(
+            disposicion,
+            style="Lateral.TFrame",
+            width=248,
         )
+        self.barra_lateral.pack(side="left", fill="y")
+        self.barra_lateral.pack_propagate(False)
+        self.barra_visible = True
+
+        marca_lateral = ttk.Frame(
+            self.barra_lateral,
+            style="Lateral.TFrame",
+        )
+        marca_lateral.pack(fill="x", padx=14, pady=(18, 15))
+        crear_marca(
+            marca_lateral,
+            fondo=COLORES["lateral"],
+        ).pack(side="left", padx=(0, 10))
+
+        textos_marca = ttk.Frame(marca_lateral, style="Lateral.TFrame")
+        textos_marca.pack(side="left", fill="x", expand=True)
+        ttk.Label(
+            textos_marca,
+            text="BATERÍA AAA",
+            style="MarcaLateral.TLabel",
+        ).pack(anchor="w")
+        ttk.Label(
+            textos_marca,
+            text="Calculadora",
+            style="Lateral.TLabel",
+        ).pack(anchor="w", pady=(2, 0))
+
+        marco_busqueda = ttk.Frame(
+            self.barra_lateral,
+            style="Lateral.TFrame",
+        )
+        marco_busqueda.pack(fill="x", padx=14, pady=(0, 15))
 
         ttk.Label(
-            encabezado,
-            text="Calculadora de Álgebra Lineal",
-            font=(
-                "Arial",
-                18,
-                "bold",
-            ),
-        ).pack()
-
-        ttk.Label(
-            encabezado,
-            text="Proyecto Integrador - Herramientas de Álgebra Lineal",
-            font=(
-                "Arial",
-                10,
-            ),
-        ).pack(
-            pady=(2, 4)
+            self.barra_lateral,
+            text="MÓDULOS",
+            style="SeccionLateral.TLabel",
+        ).pack(anchor="w", padx=22, pady=(2, 8))
+        self.marco_navegacion = ttk.Frame(
+            self.barra_lateral,
+            style="Lateral.TFrame",
         )
+        self.marco_navegacion.pack(fill="x", padx=9)
+        tk.Frame(
+            self.barra_lateral,
+            height=1,
+            background=COLORES["borde"],
+        ).pack(fill="x", padx=18, pady=(15, 0))
+
+        self.area_principal = ttk.Frame(
+            disposicion,
+            style="Cabecera.TFrame",
+        )
+        self.area_principal.pack(
+            side="left",
+            fill="both",
+            expand=True,
+        )
+
+        cabecera = ttk.Frame(
+            self.area_principal,
+            style="Cabecera.TFrame",
+        )
+        cabecera.pack(fill="x", padx=16, pady=(11, 9))
+        self.boton_panel = ttk.Button(
+            cabecera,
+            text="☰  Ocultar panel",
+            style="Panel.TButton",
+            command=self._alternar_barra,
+        )
+        self.boton_panel.pack(side="left")
+        self.ruta_modulo = tk.StringVar(value="Calculadora / Módulo 1 · Sistemas")
+        ttk.Label(
+            cabecera,
+            textvariable=self.ruta_modulo,
+            style="Ruta.TLabel",
+        ).pack(side="left", padx=14)
+        tk.Frame(
+            self.area_principal,
+            height=1,
+            background=COLORES["borde"],
+        ).pack(fill="x")
 
         self.cuaderno_modulos = ttk.Notebook(
-            self.ventana
+            self.area_principal,
+            style="Explorador.TNotebook",
         )
-
         self.cuaderno_modulos.pack(
             fill="both",
             expand=True,
-            padx=10,
-            pady=(2, 8),
+            padx=(8, 10),
+            pady=(7, 8),
         )
 
         self._crear_modulo_sistemas()
@@ -132,15 +207,95 @@ class CalculadoraAlgebraLineal:
         self._crear_modulo_lu()
         self._crear_modulo_numerico()
         self._crear_propiedades()
+        self._crear_navegacion_lateral()
+        self.buscador_temas = BuscadorTemas(self, marco_busqueda)
 
         self.cuaderno_modulos.bind(
             "<<NotebookTabChanged>>",
             self._cambiar_modulo,
         )
+        self.ventana.bind("<Control-f>", self._enfocar_busqueda)
+        self._actualizar_navegacion(0)
+        self._mostrar_logo_consola(1)
 
-        self._mostrar_logo_consola(
-            1
+    def _crear_navegacion_lateral(self):
+        """Presenta los seis módulos y la sección general."""
+        nombres = (
+            "01   ∑  Sistemas",
+            "02   ↗  Vectores",
+            "03   ▦  Matrices",
+            "04   Δ  Determinantes",
+            "05   ▧  Factorización LU",
+            "06   ƒ  Métodos numéricos",
+            "✓  Propiedades",
         )
+        self.botones_modulos = []
+        self.indicadores_modulos = []
+        for indice, nombre in enumerate(nombres):
+            fila = tk.Frame(
+                self.marco_navegacion,
+                background=COLORES["lateral"],
+            )
+            fila.pack(fill="x", pady=2)
+            indicador = tk.Frame(
+                fila,
+                width=3,
+                background=COLORES["lateral"],
+            )
+            indicador.pack(side="left", fill="y")
+            boton = ttk.Button(
+                fila,
+                text=nombre,
+                style="Navegacion.TButton",
+                command=lambda numero=indice: self.cuaderno_modulos.select(numero),
+            )
+            boton.pack(side="left", fill="x", expand=True)
+            self.indicadores_modulos.append(indicador)
+            self.botones_modulos.append(boton)
+
+    def _actualizar_navegacion(self, indice):
+        """Sincroniza la barra lateral con el módulo seleccionado."""
+        nombres = (
+            "Sistemas", "Vectores", "Matrices", "Determinantes",
+            "Factorización LU", "Métodos numéricos", "Propiedades",
+        )
+        ruta = (f"Calculadora / Módulo {indice + 1} · {nombres[indice]}"
+                if indice < 6 else "Calculadora / Propiedades")
+        self.ruta_modulo.set(ruta)
+        for numero, (boton, indicador) in enumerate(
+            zip(self.botones_modulos, self.indicadores_modulos)
+        ):
+            activo = numero == indice
+            boton.configure(
+                style="NavegacionActiva.TButton" if activo
+                else "Navegacion.TButton"
+            )
+            indicador.configure(
+                background=COLORES["magenta"] if activo
+                else COLORES["lateral"]
+            )
+
+    def _alternar_barra(self):
+        """Oculta o muestra el panel sin recrear las páginas de cálculo."""
+        if self.barra_visible:
+            self.buscador_temas.limpiar()
+            self.barra_lateral.pack_forget()
+            self.boton_panel.configure(text="☰  Mostrar panel")
+        else:
+            self.barra_lateral.pack(
+                side="left",
+                fill="y",
+                before=self.area_principal,
+            )
+            self.boton_panel.configure(text="☰  Ocultar panel")
+        self.barra_visible = not self.barra_visible
+
+    def _enfocar_busqueda(self, _evento=None):
+        """Abre el panel y enfoca el buscador con Ctrl+F."""
+        if not self.barra_visible:
+            self._alternar_barra()
+        self.buscador_temas.entrada.focus_set()
+        return "break"
 
     def _crear_modulo_sistemas(self):
         """Construye el Módulo I con teoremas y Programas 1 y 2."""
@@ -150,7 +305,7 @@ class CalculadoraAlgebraLineal:
 
         self.cuaderno_modulos.add(
             self.modulo_sistemas,
-            text="Módulo 1 - Sistemas",
+            text="∑  Sistemas",
         )
 
         self._crear_encabezado_modulo(
@@ -210,7 +365,7 @@ class CalculadoraAlgebraLineal:
 
         self.cuaderno_modulos.add(
             self.modulo_vectores,
-            text="Módulo 2 - Vectores",
+            text="↗  Vectores",
         )
 
         self._crear_encabezado_modulo(
@@ -270,7 +425,7 @@ class CalculadoraAlgebraLineal:
 
         self.cuaderno_modulos.add(
             self.modulo_matrices,
-            text="Módulo 3 - Matrices",
+            text="▦  Matrices",
         )
 
         self.modulo_matrices_interfaz = ModuloMatricesInterfaz(
@@ -305,7 +460,7 @@ class CalculadoraAlgebraLineal:
 
         self.cuaderno_modulos.add(
             self.modulo_determinantes,
-            text="Módulo 4 - Determinantes",
+            text="Δ  Determinantes",
         )
 
         self.modulo_determinantes_interfaz = ModuloDeterminantesInterfaz(
@@ -340,7 +495,7 @@ class CalculadoraAlgebraLineal:
 
         self.cuaderno_modulos.add(
             self.modulo_lu,
-            text="Módulo 5 - Factorización LU y solución Ax = b",
+            text="▧  LU",
         )
 
         self.modulo_lu_interfaz = ModuloLUInterfaz(
@@ -360,7 +515,7 @@ class CalculadoraAlgebraLineal:
 
         self.cuaderno_modulos.add(
             self.propiedades,
-            text="Propiedades",
+            text="✓  Propiedades",
         )
 
         self.propiedades_interfaz = ModuloPropiedadesInterfaz(
@@ -377,7 +532,7 @@ class CalculadoraAlgebraLineal:
         self.modulo_numerico = ttk.Frame(self.cuaderno_modulos)
         self.cuaderno_modulos.add(
             self.modulo_numerico,
-            text="Módulo 6 - Métodos Numéricos",
+            text="ƒ  Métodos Numéricos",
         )
         self.modulo_numerico_interfaz = ModuloNumericoInterfaz(self.modulo_numerico)
         self.modulo_numerico_interfaz.pack(fill="both", expand=True)
@@ -489,6 +644,7 @@ class CalculadoraAlgebraLineal:
             self.cuaderno_modulos.select()
         )
 
+        self._actualizar_navegacion(indice)
         self._mostrar_logo_consola(
             indice + 1
         )

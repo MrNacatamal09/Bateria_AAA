@@ -1,5 +1,7 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+from utilidades import dialogos_interfaz as messagebox
+from utilidades.tema_interfaz import COLORES
 
 from controladores.programa_3_controller import (
     procesar_vectores,
@@ -429,7 +431,7 @@ class Programa3Interfaz(ttk.Frame):
 
         texto.tag_configure(
             "pivote",
-            foreground="red"
+            foreground=COLORES["coral"]
         )
 
         return texto

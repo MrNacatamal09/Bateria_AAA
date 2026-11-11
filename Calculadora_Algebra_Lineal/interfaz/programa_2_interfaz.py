@@ -1,5 +1,7 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+from utilidades import dialogos_interfaz as messagebox
+from utilidades.tema_interfaz import COLORES
 
 from controladores.programa_2_controller import (
     procesar_programa_2
@@ -352,7 +354,7 @@ class Programa2Interfaz(ttk.Frame):
         # Pivotes en rojo
         self.txt_resultado.tag_configure(
             "pivote",
-            foreground="red"
+            foreground=COLORES["coral"]
         )
 
         # Procedimiento
@@ -511,7 +513,7 @@ class Programa2Interfaz(ttk.Frame):
             ttk.Label(
                 self.marco_matriz,
                 text=nombre_variable(
-                    columna + 1
+                    columna
                 )
             ).grid(
                 row=0,
@@ -938,14 +940,14 @@ class Programa2Interfaz(ttk.Frame):
 
         basicas_texto = [
             nombre_variable(
-                variable + 1
+                variable
             )
             for variable in variables_basicas
         ]
 
         libres_texto = [
             nombre_variable(
-                variable + 1
+                variable
             )
             for variable in variables_libres
         ]

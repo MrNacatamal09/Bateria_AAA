@@ -6,7 +6,8 @@ Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+from utilidades import dialogos_interfaz as messagebox
 
 from controladores.modulo_determinantes_controller import (
     procesar_determinante_programa_5,
@@ -579,7 +580,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
         )
         self.cuaderno.add(
             pestana,
-            text="Método de Cramer",
+            text="Cramer",
         )
 
         controles = ttk.Frame(
@@ -929,7 +930,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
         )
         self.cuaderno.add(
             pestana,
-            text="7. Inversa por Gauss-Jordan",
+            text="7. Inversa G-J",
         )
 
         self.gauss_a = EntradaMatrizCuadrada(
@@ -1004,7 +1005,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
         )
         self.cuaderno.add(
             pestana,
-            text="8. Inversa por Matriz Adjunta",
+            text="8. Inversa adjunta",
         )
 
         self.adjunta_a = EntradaMatrizCuadrada(
@@ -1121,7 +1122,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
         )
         self.cuaderno.add(
             pestana,
-            text="9. Verificador de propiedades",
+            text="9. Propiedades",
         )
 
         controles = ttk.Frame(
@@ -1401,7 +1402,7 @@ class ModuloDeterminantesInterfaz(ttk.Frame):
 
         self.cuaderno.add(
             pestana,
-            text="Análisis Matricial Integrado",
+            text="Análisis integrado",
         )
 
         ttk.Label(

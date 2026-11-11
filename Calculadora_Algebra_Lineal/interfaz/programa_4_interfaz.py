@@ -1,5 +1,7 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+from utilidades import dialogos_interfaz as messagebox
+from utilidades.tema_interfaz import COLORES
 
 from controladores.programa_4_controller import (
     procesar_independencia_lineal
@@ -420,7 +422,7 @@ class Programa4Interfaz(ttk.Frame):
         # Los pivotes se muestran en rojo.
         texto.tag_configure(
             "pivote",
-            foreground="red"
+            foreground=COLORES["coral"]
         )
 
         texto.tag_configure(

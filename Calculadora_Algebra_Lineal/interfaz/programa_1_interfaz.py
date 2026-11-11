@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+from utilidades import dialogos_interfaz as messagebox
 
 from controladores.programa_1_controller import procesar_sistema
 
@@ -40,7 +41,7 @@ class Programa1Interfaz(ttk.Frame):
         )
 
         titulo.pack(
-            pady=(20, 5)
+            pady=(8, 2)
         )
 
         subtitulo = ttk.Label(
@@ -50,19 +51,19 @@ class Programa1Interfaz(ttk.Frame):
         )
 
         subtitulo.pack(
-            pady=(0, 20)
+            pady=(0, 7)
         )
 
         # Contenedor para las dimensiones del sistema
         marco_dimensiones = ttk.LabelFrame(
             self,
             text="Dimensiones del sistema",
-            padding=15
+            padding=8
         )
 
         marco_dimensiones.pack(
             padx=20,
-            pady=10
+            pady=5
         )
 
         # Número de ecuaciones
@@ -138,21 +139,37 @@ class Programa1Interfaz(ttk.Frame):
         )
 
         self.lbl_estado.pack(
-            pady=10
+            pady=3
+        )
+
+        # La entrada y la resolución comparten el área disponible.
+        self.zona_trabajo = ttk.Frame(self)
+        self.zona_trabajo.pack(
+            fill="both",
+            expand=True,
+            padx=12,
+            pady=5,
+        )
+
+        self.panel_entrada = ttk.Frame(self.zona_trabajo)
+        self.panel_entrada.pack(
+            side="left",
+            fill="y",
+            anchor="n",
         )
 
         # Contenedor de la matriz aumentada
         self.marco_matriz = ttk.LabelFrame(
-            self,
+            self.panel_entrada,
             text="Matriz aumentada",
-            padding=15
+            padding=8
         )
 
         # Contenedor de métodos y acciones
         self.marco_acciones = ttk.LabelFrame(
-            self,
+            self.panel_entrada,
             text="Método de resolución",
-            padding=10
+            padding=7
         )
 
         # Método Gauss
@@ -189,7 +206,8 @@ class Programa1Interfaz(ttk.Frame):
         btn_resolver = ttk.Button(
             self.marco_acciones,
             text="Resolver sistema",
-            command=self.resolver_desde_interfaz
+            command=self.resolver_desde_interfaz,
+            style="Accion.TButton",
         )
 
         btn_resolver.grid(
@@ -201,9 +219,9 @@ class Programa1Interfaz(ttk.Frame):
 
         # Contenedor general de resultados
         self.marco_resultado = ttk.LabelFrame(
-            self,
+            self.zona_trabajo,
             text="Resolución del sistema",
-            padding=10
+            padding=7
         )
 
         # Pestañas
@@ -250,7 +268,7 @@ class Programa1Interfaz(ttk.Frame):
         self.txt_resultado = tk.Text(
             self.pestana_resultado,
             width=80,
-            height=16,
+            height=8,
             wrap="none",
             state="disabled"
         )
@@ -306,7 +324,7 @@ class Programa1Interfaz(ttk.Frame):
         self.txt_historial = tk.Text(
             self.pestana_procedimiento,
             width=80,
-            height=16,
+            height=8,
             wrap="none",
             state="disabled"
         )
@@ -407,7 +425,7 @@ class Programa1Interfaz(ttk.Frame):
         # Mostramos el contenedor
         self.marco_matriz.pack(
             padx=20,
-            pady=15
+            pady=5
         )
 
         # Encabezados x₁, x₂, x₃...
@@ -416,7 +434,7 @@ class Programa1Interfaz(ttk.Frame):
             encabezado = ttk.Label(
                 self.marco_matriz,
                 text=nombre_variable(
-                    columna + 1
+                    columna
                 )
             )
 
@@ -526,7 +544,7 @@ class Programa1Interfaz(ttk.Frame):
         # Mostramos las opciones de resolución
         self.marco_acciones.pack(
             padx=20,
-            pady=10
+            pady=5
         )
 
     # Leemos todos los valores ingresados
@@ -679,8 +697,9 @@ class Programa1Interfaz(ttk.Frame):
     def mostrar_resultado(self, resultado):
 
         self.marco_resultado.pack(
-            padx=20,
-            pady=15,
+            side="left",
+            padx=(8, 0),
+            pady=5,
             fill="both",
             expand=True
         )
@@ -760,7 +779,7 @@ class Programa1Interfaz(ttk.Frame):
 
             basicas_texto.append(
                 nombre_variable(
-                    variable + 1
+                    variable
                 )
             )
 
@@ -771,7 +790,7 @@ class Programa1Interfaz(ttk.Frame):
 
             libres_texto.append(
                 nombre_variable(
-                    variable + 1
+                    variable
                 )
             )
 

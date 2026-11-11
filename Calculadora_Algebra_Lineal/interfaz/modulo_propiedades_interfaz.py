@@ -6,7 +6,8 @@ Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+from utilidades import dialogos_interfaz as messagebox
 
 from controladores.modulo_propiedades_controller import (
     procesar_propiedades_consolidadas,
