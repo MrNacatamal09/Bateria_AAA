@@ -88,10 +88,18 @@ def _formatear_componentes_vector(
 def _formatear_multiplicadores(resultado):
     """Muestra cómo se obtiene cada entrada inferior de L."""
     lineas = [
-        "MULTIPLICADORES REGISTRADOS EN L",
+        "MULTIPLICADORES DURANTE LA ELIMINACIÓN",
         "=" * 60,
         "",
     ]
+
+    if resultado.get("permutaciones"):
+        lineas.extend([
+            "Los índices corresponden al paso en que se calcularon. "
+            "Un intercambio posterior mueve en L los multiplicadores "
+            "de columnas anteriores; consulte la matriz L final.",
+            "",
+        ])
 
     if not resultado["multiplicadores"]:
         lineas.append(
@@ -159,9 +167,10 @@ def _formatear_multiplicadores(resultado):
 
 
 def _formatear_pasos_reduccion(resultado):
-    """Muestra los reemplazos de fila utilizados para construir U."""
+    """Muestra intercambios y eliminaciones en su orden real."""
+    operaciones = resultado.get("historial_operaciones", resultado["pasos"])
     lineas = [
-        "REDUCCIÓN DE A HASTA U",
+        "PIVOTEO Y ELIMINACIÓN HASTA U",
         "=" * 60,
         "",
         "A inicial =",
@@ -172,28 +181,39 @@ def _formatear_pasos_reduccion(resultado):
         "",
     ]
 
-    if not resultado["pasos"]:
+    if not operaciones:
         lineas.extend(
             [
-                "A ya se encuentra en una forma compatible con U.",
+                "No fueron necesarios intercambios ni reemplazos de filas.",
                 "",
             ]
         )
 
     for numero, paso in enumerate(
-        resultado["pasos"],
+        operaciones,
         start=1
     ):
+        es_permutacion = paso.get("tipo") == "permutacion"
         lineas.extend(
             [
                 f"Paso {numero}",
                 paso["operacion"],
-                (
-                    "Multiplicador registrado en L: "
-                    + str(
-                        paso["multiplicador"]
-                    )
-                ),
+            ]
+        )
+        if es_permutacion:
+            lineas.append("Se intercambian las mismas filas en U y P.")
+            if paso.get("fila_pivote", 0) > 0:
+                lineas.append(
+                    "Se intercambian también los multiplicadores previos "
+                    "de esas filas en L."
+                )
+        else:
+            lineas.append(
+                "Multiplicador registrado en L: "
+                + str(paso["multiplicador"])
+            )
+        lineas.extend(
+            [
                 "",
                 "Matriz resultante =",
                 "",
@@ -266,16 +286,44 @@ def _formatear_historial_gauss_jordan(
 
 
 def formatear_factorizacion_lu(resultado):
-    """Presenta el procedimiento completo de A = LU."""
+    """Presenta A = LU o PA = LU según los intercambios realizados."""
+    hubo_permutaciones = resultado.get("hubo_permutaciones", False)
     lineas = [
         "FACTORIZACIÓN LU",
-        "A = L·U",
+        "P·A = L·U" if hubo_permutaciones else "A = L·U",
         "=" * 60,
         "",
         _formatear_pasos_reduccion(
             resultado
         ),
         "",
+    ]
+
+    if hubo_permutaciones:
+        lineas.extend([
+            "PERMUTACIONES REALIZADAS",
+            "",
+            *(
+                f"F{fila_a + 1} ↔ F{fila_b + 1}"
+                for fila_a, fila_b in resultado["permutaciones"]
+            ),
+            "",
+            "MATRIZ P",
+            "",
+            formatear_matriz(resultado["matriz_p"]),
+            "",
+            "P·A =",
+            "",
+            formatear_matriz(resultado["producto_pa"]),
+            "",
+        ])
+    else:
+        lineas.extend([
+            "No fue necesario realizar permutaciones.",
+            "",
+        ])
+
+    lineas.extend([
         _formatear_multiplicadores(
             resultado
         ),
@@ -296,7 +344,7 @@ def formatear_factorizacion_lu(resultado):
         "",
         "POSICIONES PIVOTE",
         "",
-    ]
+    ])
 
     if resultado[
         "posiciones_pivote"
@@ -313,42 +361,39 @@ def formatear_factorizacion_lu(resultado):
             "No se encontraron posiciones pivote."
         )
 
-    lineas.extend(
-        [
-            "",
-            "=" * 60,
-            "",
-            "VERIFICACIÓN DE LA FACTORIZACIÓN",
-            "",
-            "L·U =",
-            "",
-            formatear_matriz(
-                resultado[
-                    "producto_lu"
-                ]
-            ),
-            "",
-            "A =",
-            "",
-            formatear_matriz(
-                resultado[
-                    "matriz_a"
-                ]
-            ),
-            "",
-        ]
-    )
+    lineas.extend([
+        "",
+        "=" * 60,
+        "",
+        "VERIFICACIÓN DE LA FACTORIZACIÓN",
+        "",
+        "L·U =",
+        "",
+        formatear_matriz(resultado["producto_lu"]),
+        "",
+        "P·A =" if hubo_permutaciones else "A =",
+        "",
+        formatear_matriz(
+            resultado["producto_pa"] if hubo_permutaciones
+            else resultado["matriz_a"]
+        ),
+        "",
+    ])
 
     if resultado[
         "cumple_lu"
     ]:
         lineas.append(
-            "La factorización es correcta (L · U == A)."
+            "La factorización es correcta: P·A = L·U."
+            if hubo_permutaciones else
+            "La factorización es correcta: L·U = A."
         )
 
     else:
         lineas.append(
-            "La factorización no es correcta (L · U != A)."
+            "La factorización no es correcta: P·A ≠ L·U."
+            if hubo_permutaciones else
+            "La factorización no es correcta: L·U ≠ A."
         )
 
     return "\n".join(
@@ -357,7 +402,7 @@ def formatear_factorizacion_lu(resultado):
 
 
 def formatear_sustitucion_adelante(resultado):
-    """Muestra la reducción de [L|b] utilizada para obtener y."""
+    """Muestra la reducción de [L|Pb] utilizada para obtener y."""
     datos = resultado[
         "sustitucion_adelante"
     ]
@@ -372,9 +417,18 @@ def formatear_sustitucion_adelante(resultado):
         matriz_l
     )
 
+    hubo_permutaciones = resultado["factorizacion"].get(
+        "hubo_permutaciones", False
+    )
+    vector_pb = resultado.get("vector_pb", resultado["vector_b"])
+
     lineas = [
         "SUSTITUCIÓN HACIA ADELANTE",
-        "Resolver Ly = b mediante reducción de [L|b]",
+        (
+            "Resolver Ly = Pb mediante reducción de [L|Pb]"
+            if hubo_permutaciones else
+            "Resolver Ly = b mediante reducción de [L|b]"
+        ),
         "=" * 60,
         "",
         "L =",
@@ -391,7 +445,23 @@ def formatear_sustitucion_adelante(resultado):
             ]
         ),
         "",
-        "Matriz aumentada inicial [L|b] =",
+    ]
+
+    if hubo_permutaciones:
+        lineas.extend([
+            "P =",
+            "",
+            formatear_matriz(resultado["factorizacion"]["matriz_p"]),
+            "",
+            "Pb =",
+            "",
+            formatear_vector(vector_pb),
+            "",
+        ])
+
+    lineas.extend([
+        "Matriz aumentada inicial [L|Pb] =" if hubo_permutaciones
+        else "Matriz aumentada inicial [L|b] =",
         "",
         formatear_matriz_aumentada(
             datos[
@@ -433,7 +503,7 @@ def formatear_sustitucion_adelante(resultado):
             ],
             "y",
         ),
-    ]
+    ])
 
     return "\n".join(
         lineas
@@ -525,7 +595,10 @@ def formatear_sustitucion_atras(resultado):
 
 
 def formatear_verificaciones_lu(resultado):
-    """Muestra las comprobaciones L·U=A y A·x=b."""
+    """Muestra P·A=L·U o A=L·U y siempre A·x=b."""
+    hubo_permutaciones = resultado["factorizacion"].get(
+        "hubo_permutaciones", False
+    )
     lineas = [
         "VERIFICACIÓN DE RESULTADOS",
         "=" * 60,
@@ -542,12 +615,14 @@ def formatear_verificaciones_lu(resultado):
             ]
         ),
         "",
-        "A =",
+        "P·A =" if hubo_permutaciones else "A =",
         "",
         formatear_matriz(
             resultado[
                 "matriz_a"
-            ]
+            ] if not hubo_permutaciones else resultado[
+                "factorizacion"
+            ]["producto_pa"]
         ),
         "",
     ]
@@ -556,12 +631,16 @@ def formatear_verificaciones_lu(resultado):
         "cumple_lu"
     ]:
         lineas.append(
-            "La factorización es correcta (L · U == A)."
+            "La factorización es correcta: P·A = L·U."
+            if hubo_permutaciones else
+            "La factorización es correcta: L·U = A."
         )
 
     else:
         lineas.append(
-            "La factorización no es correcta (L · U != A)."
+            "La factorización no es correcta: P·A ≠ L·U."
+            if hubo_permutaciones else
+            "La factorización no es correcta: L·U ≠ A."
         )
 
     lineas.extend(
@@ -605,6 +684,75 @@ def formatear_verificaciones_lu(resultado):
     return "\n".join(
         lineas
     )
+
+
+def formatear_reconstruccion_lu(resultado):
+    """Presenta la reconstrucción de A a partir de L, U y P opcional."""
+    matriz_p = resultado["matriz_p"]
+    lineas = [
+        "RECONSTRUCCIÓN DE A",
+        "A = Pᵀ·L·U" if matriz_p is not None else "A = L·U",
+        "=" * 60,
+        "",
+    ]
+
+    if matriz_p is not None:
+        lineas.extend([
+            "P =",
+            "",
+            formatear_matriz(matriz_p),
+            "",
+        ])
+
+    lineas.extend([
+        "L =",
+        "",
+        formatear_matriz(resultado["matriz_l"]),
+        "",
+        "U =",
+        "",
+        formatear_matriz(resultado["matriz_u"]),
+        "",
+    ])
+
+    if matriz_p is not None:
+        lineas.extend([
+            "Pᵀ =",
+            "",
+            formatear_matriz(resultado["matriz_p_transpuesta"]),
+            "",
+        ])
+
+    lineas.extend([
+        "L·U =",
+        "",
+        formatear_matriz(resultado["producto_lu"]),
+        "",
+        "A reconstruida = Pᵀ·L·U =" if matriz_p is not None
+        else "A reconstruida = L·U =",
+        "",
+        formatear_matriz(resultado["matriz_a"]),
+    ])
+
+    if matriz_p is not None:
+        lineas.extend([
+            "",
+            "VERIFICACIÓN",
+            "",
+            "P·A =",
+            "",
+            formatear_matriz(resultado["producto_pa"]),
+            "",
+            "L·U =",
+            "",
+            formatear_matriz(resultado["producto_lu"]),
+            "",
+            "La reconstrucción es correcta: P·A = L·U."
+            if resultado["cumple_lu"] else
+            "La reconstrucción no cumple P·A = L·U.",
+        ])
+
+    return "\n".join(lineas)
 
 
 def formatear_resolucion_lu(resultado):

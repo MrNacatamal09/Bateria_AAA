@@ -28,15 +28,19 @@ U = forma escalonada obtenida a partir de A.
 La matriz L contiene unos en su diagonal principal y guarda
 los multiplicadores utilizados durante la eliminación.
 
-2. CONSTRUCCIÓN DE U
+2. CONSTRUCCIÓN DE U Y PIVOTEO PARCIAL
 
 La matriz U se obtiene reduciendo A mediante operaciones de
 reemplazo de filas:
 
 Fᵢ -> Fᵢ - lᵢⱼFⱼ
 
-No se realizan intercambios de filas cuando se busca una
-factorización directa:
+En cada columna se elige como pivote la entrada de mayor valor
+absoluto entre las filas disponibles. Si corresponde, se
+intercambian esas filas antes de eliminar las entradas inferiores.
+Si toda la columna disponible es cero, se pasa a la siguiente.
+
+Sin intercambios, P es la identidad y la factorización se escribe:
 
 A = LU
 
@@ -62,15 +66,11 @@ F₂ -> F₂ - l₂₁F₁
 
 Si A tiene m filas y n columnas:
 
-A es m × n
-
-L es m × m
-
-U es m × n
+A es m × n; P y L son m × m; U es m × n.
 
 Por tanto:
 
-A(m×n) = L(m×m) · U(m×n)
+P(m×m) · A(m×n) = L(m×m) · U(m×n)
 
 5. MATRIZ L
 
@@ -87,43 +87,34 @@ utilizados para construir U.
 
 6. MATRIZ U
 
-U es la forma escalonada obtenida mediante las operaciones
-de reemplazo aplicadas a A.
+U es la forma escalonada obtenida mediante intercambios y
+reemplazos de filas aplicados a A.
 
-La factorización debe satisfacer:
+Sin permutaciones, la factorización debe satisfacer:
 
 L·U = A
 
-7. PIVOTE CERO Y PERMUTACIONES
+7. MATRIZ DE PERMUTACIÓN Y RECONSTRUCCIÓN
 
-Si el pivote necesario es cero y existe una entrada no nula
-debajo, sería necesario realizar un intercambio de filas.
+P comienza como la identidad. Cada intercambio de filas en U
+se hace también en P. Si el intercambio ocurre tras un pivote,
+se intercambian en L solo los multiplicadores de columnas ya
+calculadas. Entonces:
 
-En ese caso no se continúa con una factorización directa
-A = LU.
+P·A = L·U
 
-El programa debe informar:
+Una matriz de permutación cumple P⁻¹ = Pᵀ. Dados P, L y U:
 
-"La matriz no admite Factorización LU sin permutación
-(requiere pivoteo parcial PA = LU)."
+A = Pᵀ·L·U
 
-Cuando interviene una matriz de permutación P:
-
-PA = LU
+Si solo se conocen L y U, se reconstruye A = L·U. Para recuperar
+la A original de una factorización P·A = L·U también se necesita P.
 
 8. RESOLUCIÓN DE Ax = b
 
-Si:
+Si P·A = L·U, entonces Ax=b implica:
 
-A = LU
-
-entonces:
-
-Ax = b
-
-puede escribirse como:
-
-LUx = b
+L·U·x = P·b
 
 Se define:
 
@@ -131,19 +122,21 @@ Ux = y
 
 por lo que el problema se divide en dos sistemas:
 
-Ly = b
+Ly = Pb
 
 Ux = y
+
+Si P es la identidad, Pb=b y se conserva el caso habitual.
 
 9. OBTENCIÓN DEL VECTOR y
 
 Para resolver:
 
-Ly = b
+Ly = Pb
 
 se construye la matriz aumentada:
 
-[L | b]
+[L | Pb]
 
 El programa reutiliza el método de Gauss-Jordan desarrollado
 anteriormente hasta obtener:
@@ -182,7 +175,8 @@ L·U
 utilizando la función de producto matricial desarrollada en
 la Calculadora.
 
-La factorización es correcta cuando:
+La factorización es correcta cuando L·U coincide con P·A.
+Sin intercambios, esto se reduce a:
 
 L·U = A
 
@@ -208,7 +202,9 @@ Factorización LU
 ↓
 L y U
 ↓
-[L|b]
+Pb
+↓
+[L|Pb]
 ↓
 y
 ↓
@@ -238,13 +234,13 @@ Ax₃ = b₃
 
 la factorización:
 
-A = LU
+A = LU o P·A = LU
 
 se realiza una sola vez.
 
 Para cada nuevo vector b únicamente deben resolverse:
 
-Ly = b
+Ly = Pb
 
 Ux = y
 

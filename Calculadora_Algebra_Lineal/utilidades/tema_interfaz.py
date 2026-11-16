@@ -218,6 +218,20 @@ def aplicar_tema(ventana):
                      bordercolor=COLORES["fondo"],
                      arrowcolor=COLORES["violeta"])
     estilo.map("TScrollbar", background=[("active", COLORES["hover"])])
+    estilo.configure("Treeview", background=COLORES["superficie"],
+                     fieldbackground=COLORES["superficie"],
+                     foreground=COLORES["texto"],
+                     bordercolor=COLORES["borde"], rowheight=27,
+                     font=("Consolas", 10))
+    estilo.map("Treeview",
+               background=[("selected", COLORES["hover"])],
+               foreground=[("selected", COLORES["texto"])])
+    estilo.configure("Treeview.Heading", background=COLORES["suave"],
+                     foreground=COLORES["violeta"],
+                     bordercolor=COLORES["borde"],
+                     font=("Segoe UI", 10, "bold"), padding=(8, 6))
+    estilo.map("Treeview.Heading",
+               background=[("active", COLORES["hover"])])
     ventana.after(0, lambda: aplicar_barra_oscura(ventana))
     return estilo
 

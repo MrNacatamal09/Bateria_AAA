@@ -1,7 +1,7 @@
 """
 Construye la ventana principal de la Calculadora de Álgebra Lineal.
-Organiza seis módulos numerados y una sección general de Propiedades.
-Tema de clase: integración de los Programas 1 al 7 por módulos.
+Organiza siete módulos numerados y una sección general de Propiedades.
+Tema de clase: integración de los Programas 1 al 8 por módulos.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
@@ -18,6 +18,7 @@ from interfaz.modulo_determinantes_interfaz import ModuloDeterminantesInterfaz
 from interfaz.modulo_lu_interfaz import ModuloLUInterfaz
 from interfaz.modulo_propiedades_interfaz import ModuloPropiedadesInterfaz
 from interfaz.modulo_numerico_interfaz import ModuloNumericoInterfaz
+from interfaz.modulo_iterativos_interfaz import ModuloIterativosInterfaz
 
 from modulos.modulo_sistemas import (
     obtener_logo_modulo as obtener_logo_sistemas,
@@ -52,6 +53,9 @@ from modulos.modulo_propiedades import (
 )
 from modulos.modulo_numerico import (
     obtener_logo_modulo as obtener_logo_numerico,
+)
+from modulos.modulo_iterativos import (
+    obtener_logo_modulo as obtener_logo_iterativos,
 )
 from utilidades.tema_interfaz import COLORES, aplicar_tema, crear_marca, crear_acento
 from utilidades.buscador_temas import BuscadorTemas
@@ -144,11 +148,39 @@ class CalculadoraAlgebraLineal:
             text="MÓDULOS",
             style="SeccionLateral.TLabel",
         ).pack(anchor="w", padx=22, pady=(2, 8))
-        self.marco_navegacion = ttk.Frame(
+        marco_desplazable = ttk.Frame(
             self.barra_lateral,
             style="Lateral.TFrame",
         )
-        self.marco_navegacion.pack(fill="x", padx=9)
+        marco_desplazable.pack(fill="both", expand=True, padx=(9, 4))
+        self.canvas_navegacion = tk.Canvas(
+            marco_desplazable,
+            background=COLORES["lateral"],
+            highlightthickness=0,
+            borderwidth=0,
+        )
+        self.canvas_navegacion.pack(side="left", fill="both", expand=True)
+        self.scroll_navegacion = ttk.Scrollbar(
+            marco_desplazable,
+            orient="vertical",
+            command=self.canvas_navegacion.yview,
+        )
+        self.canvas_navegacion.configure(
+            yscrollcommand=self.scroll_navegacion.set,
+        )
+        self.marco_navegacion = ttk.Frame(
+            self.canvas_navegacion,
+            style="Lateral.TFrame",
+        )
+        self.ventana_navegacion = self.canvas_navegacion.create_window(
+            (0, 0), window=self.marco_navegacion, anchor="nw",
+        )
+        self.marco_navegacion.bind(
+            "<Configure>", self._ajustar_scroll_navegacion,
+        )
+        self.canvas_navegacion.bind(
+            "<Configure>", self._ajustar_scroll_navegacion,
+        )
         tk.Frame(
             self.barra_lateral,
             height=1,
@@ -206,6 +238,7 @@ class CalculadoraAlgebraLineal:
         self._crear_modulo_determinantes()
         self._crear_modulo_lu()
         self._crear_modulo_numerico()
+        self._crear_modulo_iterativos()
         self._crear_propiedades()
         self._crear_navegacion_lateral()
         self.buscador_temas = BuscadorTemas(self, marco_busqueda)
@@ -219,7 +252,7 @@ class CalculadoraAlgebraLineal:
         self._mostrar_logo_consola(1)
 
     def _crear_navegacion_lateral(self):
-        """Presenta los seis módulos y la sección general."""
+        """Presenta los siete módulos y la sección general."""
         nombres = (
             "01   ∑  Sistemas",
             "02   ↗  Vectores",
@@ -227,6 +260,7 @@ class CalculadoraAlgebraLineal:
             "04   Δ  Determinantes",
             "05   ▧  Factorización LU",
             "06   ƒ  Métodos numéricos",
+            "07   ∞  Métodos iterativos",
             "✓  Propiedades",
         )
         self.botones_modulos = []
@@ -250,17 +284,41 @@ class CalculadoraAlgebraLineal:
                 command=lambda numero=indice: self.cuaderno_modulos.select(numero),
             )
             boton.pack(side="left", fill="x", expand=True)
+            fila.bind("<MouseWheel>", self._desplazar_navegacion)
+            boton.bind("<MouseWheel>", self._desplazar_navegacion)
             self.indicadores_modulos.append(indicador)
             self.botones_modulos.append(boton)
+
+    def _ajustar_scroll_navegacion(self, _evento=None):
+        """Mantiene accesibles todas las secciones con ventanas bajas."""
+        canvas = self.canvas_navegacion
+        canvas.itemconfigure(
+            self.ventana_navegacion, width=canvas.winfo_width(),
+        )
+        canvas.configure(scrollregion=canvas.bbox("all"))
+        requiere_scroll = (
+            self.marco_navegacion.winfo_reqheight() > canvas.winfo_height() + 1
+        )
+        if requiere_scroll and not self.scroll_navegacion.winfo_manager():
+            self.scroll_navegacion.pack(side="right", fill="y")
+        elif not requiere_scroll and self.scroll_navegacion.winfo_manager():
+            self.scroll_navegacion.pack_forget()
+            canvas.yview_moveto(0)
+
+    def _desplazar_navegacion(self, evento):
+        """Permite recorrer la barra lateral con la rueda del ratón."""
+        if self.scroll_navegacion.winfo_manager():
+            self.canvas_navegacion.yview_scroll(-int(evento.delta / 120), "units")
 
     def _actualizar_navegacion(self, indice):
         """Sincroniza la barra lateral con el módulo seleccionado."""
         nombres = (
             "Sistemas", "Vectores", "Matrices", "Determinantes",
-            "Factorización LU", "Métodos numéricos", "Propiedades",
+            "Factorización LU", "Métodos numéricos", "Métodos iterativos",
+            "Propiedades",
         )
         ruta = (f"Calculadora / Módulo {indice + 1} · {nombres[indice]}"
-                if indice < 6 else "Calculadora / Propiedades")
+                if indice < 7 else "Calculadora / Propiedades")
         self.ruta_modulo.set(ruta)
         for numero, (boton, indicador) in enumerate(
             zip(self.botones_modulos, self.indicadores_modulos)
@@ -537,6 +595,18 @@ class CalculadoraAlgebraLineal:
         self.modulo_numerico_interfaz = ModuloNumericoInterfaz(self.modulo_numerico)
         self.modulo_numerico_interfaz.pack(fill="both", expand=True)
 
+    def _crear_modulo_iterativos(self):
+        """Integra Jacobi y Gauss-Seidel en el Módulo 7."""
+        self.modulo_iterativos = ttk.Frame(self.cuaderno_modulos)
+        self.cuaderno_modulos.add(
+            self.modulo_iterativos,
+            text="∞  Métodos Iterativos",
+        )
+        self.modulo_iterativos_interfaz = ModuloIterativosInterfaz(
+            self.modulo_iterativos
+        )
+        self.modulo_iterativos_interfaz.pack(fill="both", expand=True)
+
     def _crear_encabezado_modulo(
         self,
         contenedor,
@@ -666,7 +736,8 @@ class CalculadoraAlgebraLineal:
             4: obtener_logo_determinantes,
             5: obtener_logo_lu,
             6: obtener_logo_numerico,
-            7: obtener_logo_propiedades,
+            7: obtener_logo_iterativos,
+            8: obtener_logo_propiedades,
         }
 
         obtener_logo = logos.get(

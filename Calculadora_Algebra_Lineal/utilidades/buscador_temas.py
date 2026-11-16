@@ -27,6 +27,7 @@ class BuscadorTemas:
         ("Determinantes", "modulo_determinantes_interfaz"),
         ("LU", "modulo_lu_interfaz"),
         ("Métodos numéricos", "modulo_numerico_interfaz"),
+        ("Métodos iterativos", "modulo_iterativos_interfaz"),
         ("Propiedades", "propiedades_interfaz"),
     )
 
@@ -37,6 +38,7 @@ class BuscadorTemas:
         "módulo 4 regla de cramer inversa",
         "módulo 5 factorización",
         "módulo 6 programa 7",
+        "módulo 7 programa 8 jacobi gauss seidel",
         "propiedades consolidadas",
     )
 
@@ -56,11 +58,13 @@ class BuscadorTemas:
         (3, 6): "análisis integrado determinante inversa",
         (4, 1): "factorización descomposición LU matriz",
         (4, 2): "sistema ecuaciones resolver Ax b LU",
+        (4, 3): "reconstrucción reconstruir matriz original permutación P transpuesta LU",
         (5, 0): "raíz raíces ceros función intervalo bisección",
         (5, 1): "gráfica graficar funciones curva plano cartesiano",
         (5, 2): "notación base 10 base 2 decimal binario posicional",
         (5, 3): "error absoluto relativo porcentual redondeo truncamiento precisión",
-        (6, 1): "verificar propiedades consolidadas matrices",
+        (6, 1): "jacobi gauss seidel iteraciones tabla comparación gráfica error residuo",
+        (7, 1): "verificar propiedades consolidadas matrices",
     }
 
     def __init__(self, aplicacion, contenedor):
@@ -119,7 +123,10 @@ class BuscadorTemas:
             return tema.titulo
         if len(partes) == 3 and partes[1].startswith("Programa "):
             return f"P{partes[1].split()[-1]} · {partes[2]}"
-        abreviaturas = {"Métodos numéricos": "Numéricos"}
+        abreviaturas = {
+            "Métodos numéricos": "Numéricos",
+            "Métodos iterativos": "Iterativos",
+        }
         return f"{abreviaturas.get(partes[0], partes[0])} · {partes[-1]}"
 
     @staticmethod

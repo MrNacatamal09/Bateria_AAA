@@ -11,11 +11,13 @@ from utilidades import dialogos_interfaz as messagebox
 
 from controladores.modulo_lu_controller import (
     procesar_factorizacion_lu,
+    procesar_reconstruccion_lu,
     procesar_sistema_lu,
 )
 
 from utilidades.formato_lu import (
     formatear_factorizacion_lu,
+    formatear_reconstruccion_lu,
     formatear_sustitucion_adelante,
     formatear_sustitucion_atras,
     formatear_verificaciones_lu,
@@ -487,7 +489,7 @@ class EntradaVectorLU(ttk.LabelFrame):
 
 
 class ModuloLUInterfaz(ttk.Frame):
-    """Presenta factorización LU y resolución de sistemas Ax=b."""
+    """Presenta factorización, resolución y reconstrucción LU."""
 
     def __init__(
         self,
@@ -517,8 +519,8 @@ class ModuloLUInterfaz(ttk.Frame):
         ttk.Label(
             self,
             text=(
-                "Descomposición A = L·U y resolución de sistemas "
-                "mediante Ly = b y Ux = y"
+                "Factorización A = L·U o P·A = L·U, "
+                "resolución de Ax = b y reconstrucción de A"
             ),
         ).pack(
             pady=(0, 5)
@@ -538,6 +540,7 @@ class ModuloLUInterfaz(ttk.Frame):
         self._crear_pestana_teoremas()
         self._crear_pestana_factorizacion()
         self._crear_pestana_sistema()
+        self._crear_pestana_reconstruccion()
 
     def _crear_area_texto(
         self,
@@ -668,14 +671,14 @@ class ModuloLUInterfaz(ttk.Frame):
 
         self.cuaderno.add(
             pestana,
-            text="1. Factorización A = LU",
+            text="1. Factorización LU",
         )
 
         ttk.Label(
             pestana,
             text=(
-                "La factorización admite matrices m×n y usa únicamente "
-                "operaciones de reemplazo de filas, sin intercambios."
+                "La factorización admite matrices m×n. En cada etapa, "
+                "el pivoteo parcial elige la fila de mayor valor absoluto."
             ),
         ).pack(
             pady=(5, 2)
@@ -697,7 +700,7 @@ class ModuloLUInterfaz(ttk.Frame):
 
         ttk.Button(
             pestana,
-            text="Factorizar A = L·U",
+            text="Factorizar matriz A",
             command=self._resolver_factorizacion,
         ).pack(
             pady=5
@@ -742,7 +745,7 @@ class ModuloLUInterfaz(ttk.Frame):
             pestana,
             text=(
                 "Para resolver Ax=b, A debe ser cuadrada. "
-                "Se factoriza una vez y luego se resuelven Ly=b y Ux=y."
+                "Se resuelven Ly=Pb y Ux=y; si P=I, Pb=b."
             ),
         ).pack(
             pady=(5, 2)
@@ -827,6 +830,8 @@ class ModuloLUInterfaz(ttk.Frame):
             pestana
         )
 
+        self.resultados_sistema = resultados
+
         resultados.pack(
             fill="both",
             expand=True,
@@ -870,6 +875,9 @@ class ModuloLUInterfaz(ttk.Frame):
             text="Verificación",
         )
 
+        self.tab_sistema_factorizacion = tab_factorizacion
+        self.tab_sistema_adelante = tab_adelante
+
         self.txt_sistema_factorizacion = self._crear_area_texto(
             tab_factorizacion
         )
@@ -909,6 +917,18 @@ class ModuloLUInterfaz(ttk.Frame):
                 self.entrada_sistema_b.leer(),
             )
 
+            hubo_permutaciones = resultado["factorizacion"].get(
+                "hubo_permutaciones", False
+            )
+            self.resultados_sistema.tab(
+                self.tab_sistema_factorizacion,
+                text="PA = LU" if hubo_permutaciones else "A = LU",
+            )
+            self.resultados_sistema.tab(
+                self.tab_sistema_adelante,
+                text="Ly = Pb" if hubo_permutaciones else "Ly = b",
+            )
+
             self._colocar_texto(
                 self.txt_sistema_factorizacion,
                 formatear_factorizacion_lu(
@@ -944,3 +964,105 @@ class ModuloLUInterfaz(ttk.Frame):
                 "Error",
                 str(error),
             )
+
+    def _crear_pestana_reconstruccion(self):
+        """Permite reconstruir A con L y U, y P cuando se conoce."""
+        pestana = ttk.Frame(self.cuaderno)
+        self.cuaderno.add(pestana, text="3. Reconstruir A desde L y U")
+
+        ttk.Label(
+            pestana,
+            text=(
+                "Con L y U se obtiene A=L·U. Si la factorización fue "
+                "P·A=L·U, introduzca también P para recuperar A=Pᵀ·L·U."
+            ),
+            wraplength=900,
+        ).pack(pady=(5, 2))
+
+        controles = ttk.Frame(pestana)
+        controles.pack(fill="x", padx=10, pady=4)
+
+        self.variable_usar_p = tk.BooleanVar(value=False)
+        ttk.Checkbutton(
+            controles,
+            text="Conozco la matriz de permutación P",
+            variable=self.variable_usar_p,
+            command=self._alternar_entrada_p,
+        ).pack(side="left", padx=4)
+
+        ttk.Button(
+            controles,
+            text="Sincronizar U y P con L",
+            command=self._sincronizar_reconstruccion,
+        ).pack(side="left", padx=12)
+
+        entradas = ttk.Frame(pestana)
+        entradas.pack(fill="x", padx=8, pady=5)
+        for columna in range(3):
+            entradas.columnconfigure(columna, weight=1)
+
+        self.entrada_reconstruccion_l = EntradaMatrizLU(
+            entradas, "Matriz L (m×m)", cuadrada=True,
+        )
+        self.entrada_reconstruccion_l.grid(
+            row=0, column=0, padx=4, sticky="nsew"
+        )
+
+        self.entrada_reconstruccion_u = EntradaMatrizLU(
+            entradas, "Matriz U (m×n)", cuadrada=False,
+        )
+        self.entrada_reconstruccion_u.grid(
+            row=0, column=1, padx=4, sticky="nsew"
+        )
+
+        self.entrada_reconstruccion_p = EntradaMatrizLU(
+            entradas, "Matriz P (m×m)", cuadrada=True,
+        )
+        self.entrada_reconstruccion_p.grid(
+            row=0, column=2, padx=4, sticky="nsew"
+        )
+        self.entrada_reconstruccion_p.grid_remove()
+
+        ttk.Button(
+            pestana,
+            text="Reconstruir A",
+            command=self._resolver_reconstruccion,
+        ).pack(pady=5)
+
+        self.txt_reconstruccion = self._crear_area_texto(pestana)
+
+    def _alternar_entrada_p(self):
+        """Muestra P únicamente cuando el usuario desea introducirla."""
+        if self.variable_usar_p.get():
+            self.entrada_reconstruccion_p.grid()
+        else:
+            self.entrada_reconstruccion_p.grid_remove()
+
+    def _sincronizar_reconstruccion(self):
+        """Ajusta el número de filas de U y el orden de P al de L."""
+        orden = self.entrada_reconstruccion_l.obtener_filas()
+        if orden <= 0:
+            messagebox.showerror("Error", "Debe crear primero la matriz L.")
+            return
+        self.entrada_reconstruccion_u.variable_filas.set(str(orden))
+        self.entrada_reconstruccion_u.crear_matriz()
+        self.entrada_reconstruccion_p.establecer_orden(orden)
+
+    def _resolver_reconstruccion(self):
+        """Reconstruye A con el controlador y muestra el resultado."""
+        try:
+            matriz_p = (
+                self.entrada_reconstruccion_p.leer()
+                if self.variable_usar_p.get() else None
+            )
+            resultado = procesar_reconstruccion_lu(
+                self.entrada_reconstruccion_l.leer(),
+                self.entrada_reconstruccion_u.leer(),
+                matriz_p,
+            )
+            self._colocar_texto(
+                self.txt_reconstruccion,
+                formatear_reconstruccion_lu(resultado),
+            )
+        except ValueError as error:
+            messagebox.showerror("Error de reconstrucción", str(error))

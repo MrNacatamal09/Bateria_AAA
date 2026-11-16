@@ -12,6 +12,7 @@ from utilidades.estructuras_entrada import (
 
 from modulos.modulo_lu import (
     obtener_factorizacion,
+    reconstruir_a_desde_lu,
     resolver_por_lu,
 )
 
@@ -44,3 +45,12 @@ def procesar_sistema_lu(
         matriz_a,
         vector_b,
     )
+
+
+def procesar_reconstruccion_lu(matriz_l, matriz_u, matriz_p=None):
+    """Convierte L, U y P opcional antes de reconstruir A."""
+    matriz_l = convertir_matriz(matriz_l)
+    matriz_u = convertir_matriz(matriz_u)
+    if matriz_p is not None:
+        matriz_p = convertir_matriz(matriz_p)
+    return reconstruir_a_desde_lu(matriz_l, matriz_u, matriz_p)

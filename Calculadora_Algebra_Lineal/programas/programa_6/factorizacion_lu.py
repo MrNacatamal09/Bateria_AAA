@@ -1,14 +1,20 @@
 """
 Implementa la factorización LU y la resolución de sistemas Ax = b.
-Construye L y U sin intercambios y reutiliza Gauss-Jordan para Ly=b y Ux=y.
+Construye PA = LU con pivoteo parcial y reutiliza Gauss-Jordan.
 Tema de clase: factorización LU, reducción y encadenamiento de resultados.
 Elaborado por: Alexa Loaisiga, Adolfo Ramírez y Andy Díaz.
 """
 
 from fractions import Fraction
 
-from modulos.modulo_matrices import producto_matricial
+from modulos.modulo_matrices import (
+    crear_identidad,
+    matrices_son_iguales,
+    producto_matricial,
+    transponer,
+)
 from modulos.modulo_sistemas import reducir_por_gauss_jordan
+from programas.programa_3.matrices import validar_matriz
 
 
 def _copiar_matriz(matriz):
@@ -17,27 +23,6 @@ def _copiar_matriz(matriz):
         fila.copy()
         for fila in matriz
     ]
-
-
-def _crear_identidad(orden):
-    """Construye una matriz identidad de orden n."""
-    identidad = []
-
-    for i in range(orden):
-        fila = []
-
-        for j in range(orden):
-            fila.append(
-                Fraction(1)
-                if i == j
-                else Fraction(0)
-            )
-
-        identidad.append(
-            fila
-        )
-
-    return identidad
 
 
 def _validar_matriz(matriz):
@@ -56,6 +41,31 @@ def _validar_matriz(matriz):
             raise ValueError(
                 "Todas las filas de A deben tener la misma cantidad de columnas."
             )
+
+
+def _validar_permutacion(matriz_p, orden):
+    """Exige una matriz P cuadrada con un único 1 por fila y columna."""
+    try:
+        validar_matriz(matriz_p)
+    except ValueError as error:
+        raise ValueError(f"La matriz P no es válida: {error}") from None
+
+    if len(matriz_p) != orden or len(matriz_p[0]) != orden:
+        raise ValueError(
+            f"La matriz P debe ser cuadrada de orden {orden}."
+        )
+
+    if any(
+        any(valor not in (0, 1) for valor in fila) or sum(fila) != 1
+        for fila in matriz_p
+    ) or any(
+        sum(matriz_p[fila][columna] for fila in range(orden)) != 1
+        for columna in range(orden)
+    ):
+        raise ValueError(
+            "La matriz P debe contener solo 0 y 1, con un único 1 "
+            "en cada fila y cada columna."
+        )
 
 
 def _validar_sistema_cuadrado(matriz_a, vector_b):
@@ -126,22 +136,6 @@ def _texto_operacion_reemplazo(
         f"F{fila_destino + 1} -> F{fila_destino + 1} "
         f"- ({multiplicador})F{fila_pivote + 1}"
     )
-
-
-def _requiere_intercambio(
-    matriz_u,
-    fila_pivote,
-    columna,
-):
-    """Indica si una entrada inferior obligaría a intercambiar filas."""
-    for fila in range(
-        fila_pivote + 1,
-        len(matriz_u)
-    ):
-        if matriz_u[fila][columna] != 0:
-            return True
-
-    return False
 
 
 def _crear_matriz_aumentada(
@@ -299,7 +293,7 @@ def _crear_pasos_atras_compatibilidad(
 
 
 def factorizar_lu(matriz_a):
-    """Construye A = LU sin intercambios y registra cada paso de reducción."""
+    """Construye PA = LU con pivoteo parcial y registra la reducción."""
     _validar_matriz(
         matriz_a
     )
@@ -312,17 +306,28 @@ def factorizar_lu(matriz_a):
         matriz_a[0]
     )
 
+    matriz_a_exacta = [
+        [Fraction(valor) for valor in fila]
+        for fila in matriz_a
+    ]
+
     matriz_u = _copiar_matriz(
-        matriz_a
+        matriz_a_exacta
     )
 
-    matriz_l = _crear_identidad(
+    matriz_l = crear_identidad(
+        filas
+    )
+
+    matriz_p = crear_identidad(
         filas
     )
 
     pasos = []
+    historial_operaciones = []
     multiplicadores = []
     posiciones_pivote = []
+    permutaciones = []
 
     fila_pivote = 0
 
@@ -332,24 +337,45 @@ def factorizar_lu(matriz_a):
         if fila_pivote >= filas:
             break
 
-        valor_pivote = matriz_u[
-            fila_pivote
-        ][
-            columna
-        ]
+        fila_elegida = max(
+            range(fila_pivote, filas),
+            key=lambda fila: abs(matriz_u[fila][columna]),
+        )
 
-        if valor_pivote == 0:
-            if _requiere_intercambio(
-                matriz_u,
-                fila_pivote,
-                columna
-            ):
-                raise ValueError(
-                    "La matriz no admite Factorización LU sin permutación "
-                    "(requiere pivoteo parcial PA = LU)."
+        if matriz_u[fila_elegida][columna] == 0:
+            continue
+
+        if fila_elegida != fila_pivote:
+            matriz_antes = _copiar_matriz(matriz_u)
+            matriz_u[fila_pivote], matriz_u[fila_elegida] = (
+                matriz_u[fila_elegida], matriz_u[fila_pivote]
+            )
+            matriz_p[fila_pivote], matriz_p[fila_elegida] = (
+                matriz_p[fila_elegida], matriz_p[fila_pivote]
+            )
+
+            # Las columnas anteriores de L ya guardan multiplicadores.
+            # Sus filas deben seguir la misma permutación que U y P.
+            for columna_anterior in range(fila_pivote):
+                matriz_l[fila_pivote][columna_anterior], matriz_l[fila_elegida][columna_anterior] = (
+                    matriz_l[fila_elegida][columna_anterior],
+                    matriz_l[fila_pivote][columna_anterior],
                 )
 
-            continue
+            permutaciones.append((fila_pivote, fila_elegida))
+            historial_operaciones.append(
+                {
+                    "tipo": "permutacion",
+                    "fila_pivote": fila_pivote,
+                    "fila_intercambiada": fila_elegida,
+                    "columna_pivote": columna,
+                    "operacion": f"F{fila_pivote + 1} ↔ F{fila_elegida + 1}",
+                    "matriz_antes": matriz_antes,
+                    "matriz_despues": _copiar_matriz(matriz_u),
+                }
+            )
+
+        valor_pivote = matriz_u[fila_pivote][columna]
 
         posiciones_pivote.append(
             (
@@ -417,8 +443,8 @@ def factorizar_lu(matriz_a):
                 }
             )
 
-            pasos.append(
-                {
+            paso = {
+                    "tipo": "eliminacion",
                     "fila_pivote": fila_pivote,
                     "columna_pivote": columna,
                     "fila": fila,
@@ -431,7 +457,8 @@ def factorizar_lu(matriz_a):
                     "matriz_antes": matriz_antes,
                     "matriz_despues": matriz_despues,
                 }
-            )
+            pasos.append(paso)
+            historial_operaciones.append(paso)
 
         fila_pivote += 1
 
@@ -440,25 +467,94 @@ def factorizar_lu(matriz_a):
         matriz_u
     )
 
-    cumple_lu = (
-        producto_lu
-        == matriz_a
+    producto_pa = producto_matricial(
+        matriz_p,
+        matriz_a_exacta,
+    )
+
+    cumple_lu = matrices_son_iguales(
+        producto_lu,
+        producto_pa,
     )
 
     return {
-        "matriz_a": matriz_a,
+        "matriz_a": matriz_a_exacta,
+        "matriz_p": matriz_p,
         "matriz_l": matriz_l,
         "matriz_u": matriz_u,
+        "permutaciones": permutaciones,
+        "hubo_permutaciones": bool(permutaciones),
         "multiplicadores": multiplicadores,
         "pasos": pasos,
+        "historial_operaciones": historial_operaciones,
         "posiciones_pivote": posiciones_pivote,
         "num_pivotes": len(
             posiciones_pivote
         ),
         "producto_lu": producto_lu,
+        "producto_pa": producto_pa,
         "cumple_lu": cumple_lu,
         "filas": filas,
         "columnas": columnas,
+    }
+
+
+def reconstruir_a_desde_lu(matriz_l, matriz_u, matriz_p=None):
+    """Reconstruye A=LU o A=PᵀLU si se proporciona una P válida."""
+    for nombre, matriz in (("L", matriz_l), ("U", matriz_u)):
+        try:
+            validar_matriz(matriz)
+        except ValueError as error:
+            raise ValueError(
+                f"La matriz {nombre} no es válida: {error}"
+            ) from None
+
+    if len(matriz_l[0]) != len(matriz_u):
+        raise ValueError(
+            "No se puede calcular L·U: el número de columnas de L "
+            "debe ser igual al número de filas de U."
+        )
+
+    matriz_l_exacta = [
+        [Fraction(valor) for valor in fila]
+        for fila in matriz_l
+    ]
+    matriz_u_exacta = [
+        [Fraction(valor) for valor in fila]
+        for fila in matriz_u
+    ]
+    producto_lu = producto_matricial(matriz_l_exacta, matriz_u_exacta)
+
+    if matriz_p is None:
+        matriz_p_exacta = None
+        matriz_p_transpuesta = None
+        matriz_a = _copiar_matriz(producto_lu)
+        producto_pa = _copiar_matriz(matriz_a)
+        hubo_permutaciones = False
+    else:
+        _validar_permutacion(matriz_p, len(matriz_l_exacta))
+        matriz_p_exacta = [
+            [Fraction(valor) for valor in fila]
+            for fila in matriz_p
+        ]
+        matriz_p_transpuesta = transponer(matriz_p_exacta)
+        matriz_a = producto_matricial(matriz_p_transpuesta, producto_lu)
+        producto_pa = producto_matricial(matriz_p_exacta, matriz_a)
+        hubo_permutaciones = not matrices_son_iguales(
+            matriz_p_exacta,
+            crear_identidad(len(matriz_l_exacta)),
+        )
+
+    return {
+        "matriz_l": matriz_l_exacta,
+        "matriz_u": matriz_u_exacta,
+        "matriz_p": matriz_p_exacta,
+        "matriz_p_transpuesta": matriz_p_transpuesta,
+        "producto_lu": producto_lu,
+        "matriz_a": matriz_a,
+        "producto_pa": producto_pa,
+        "cumple_lu": matrices_son_iguales(producto_pa, producto_lu),
+        "hubo_permutaciones": hubo_permutaciones,
     }
 
 
@@ -560,7 +656,7 @@ def resolver_sistema_lu(
     matriz_a,
     vector_b,
 ):
-    """Factoriza A, resuelve [L|b] y [U|y], y verifica LU=A y Ax=b."""
+    """Factoriza PA, resuelve Ly=Pb y Ux=y, y verifica Ax=b."""
     _validar_sistema_cuadrado(
         matriz_a,
         vector_b
@@ -569,6 +665,9 @@ def resolver_sistema_lu(
     factorizacion = factorizar_lu(
         matriz_a
     )
+
+    matriz_a_exacta = factorizacion["matriz_a"]
+    vector_b_exacto = [Fraction(valor) for valor in vector_b]
 
     orden = len(
         matriz_a
@@ -582,11 +681,17 @@ def resolver_sistema_lu(
             "A no posee una posición pivote en cada fila y columna."
         )
 
+    producto_pb_matriz = producto_matricial(
+        factorizacion["matriz_p"],
+        [[valor] for valor in vector_b_exacto],
+    )
+    vector_pb = [fila[0] for fila in producto_pb_matriz]
+
     adelante = sustitucion_hacia_adelante(
         factorizacion[
             "matriz_l"
         ],
-        vector_b
+        vector_pb
     )
 
     atras = sustitucion_hacia_atras(
@@ -608,7 +713,7 @@ def resolver_sistema_lu(
     ]
 
     producto_ax_matriz = producto_matricial(
-        matriz_a,
+        matriz_a_exacta,
         vector_x_columna
     )
 
@@ -617,14 +722,15 @@ def resolver_sistema_lu(
         for fila in producto_ax_matriz
     ]
 
-    cumple_ax_b = (
-        producto_ax
-        == vector_b
+    cumple_ax_b = matrices_son_iguales(
+        producto_ax_matriz,
+        [[valor] for valor in vector_b_exacto],
     )
 
     return {
-        "matriz_a": matriz_a,
-        "vector_b": vector_b,
+        "matriz_a": matriz_a_exacta,
+        "vector_b": vector_b_exacto,
+        "vector_pb": vector_pb,
         "factorizacion": factorizacion,
         "sustitucion_adelante": adelante,
         "sustitucion_atras": atras,

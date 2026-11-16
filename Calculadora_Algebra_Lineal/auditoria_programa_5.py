@@ -52,8 +52,8 @@ MODULOS_PROHIBIDOS = {
 }
 
 
-# El Programa 7 permite math, NumPy y SciPy para contraste; esta auditoría
-# conserva la restricción histórica solamente para los Programas 1 al 6.
+# Los Programas 7 y 8 tienen reglas propias; esta auditoría conserva
+# la restricción histórica solamente para los Programas 1 al 6.
 ARCHIVOS_PROGRAMA_7 = {
     "programas/programa_7/metodos_numericos.py",
     "programas/programa_7/__init__.py",
@@ -61,6 +61,15 @@ ARCHIVOS_PROGRAMA_7 = {
     "controladores/modulo_numerico_controller.py",
     "interfaz/modulo_numerico_interfaz.py",
     "utilidades/formato_numerico.py",
+}
+
+ARCHIVOS_PROGRAMA_8 = {
+    "programas/programa_8/__init__.py",
+    "programas/programa_8/metodos_iterativos.py",
+    "modulos/modulo_iterativos.py",
+    "controladores/modulo_iterativos_controller.py",
+    "interfaz/modulo_iterativos_interfaz.py",
+    "teoremas/resumen_teoremas_iterativos.py",
 }
 
 
@@ -103,7 +112,7 @@ def auditar_imports_prohibidos():
     errores = []
 
     for ruta in RAIZ.rglob("*.py"):
-        if ruta.relative_to(RAIZ).as_posix() in ARCHIVOS_PROGRAMA_7:
+        if ruta.relative_to(RAIZ).as_posix() in (ARCHIVOS_PROGRAMA_7 | ARCHIVOS_PROGRAMA_8):
             continue
         try:
             arbol = cargar_arbol(
